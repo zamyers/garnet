@@ -37,8 +37,10 @@ set tile_stripes(M9,spacing) 2
 #stripe set to set distance
 if $::env(PWR_AWARE) {
   set tile_stripes(M7,s2s) 10
-  set tile_stripes(M8,s2s) 15
-  set tile_stripes(M9,s2s) 20
+  # Before: 15
+  set tile_stripes(M8,s2s) 12
+  # Before 20
+  set tile_stripes(M9,s2s) 16 
 } else {
 set tile_stripes(M7,s2s) 10
 set tile_stripes(M8,s2s) 12
