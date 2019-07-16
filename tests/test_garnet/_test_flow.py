@@ -12,7 +12,7 @@ import sys
 import tempfile
 import time
 from commands import *
-from applications import OneShotValid, OneShotStall, Tiled, OuterProduct
+from applications import OneShotValid, OneShotStall, Tiled, OuterProduct, Conv3x3ReLU
 from PIL import Image
 
 
@@ -227,41 +227,54 @@ def test_flow(args):
     #     args = args,
     # )
 
-    app = OuterProduct(
-        bitstream = 'applications/outerprod/handcrafted_ub_outerprod_gb.bs',
+    #app = OuterProduct(
+    #    bitstream = 'applications/outerprod/handcrafted_ub_outerprod_gb.bs',
+    #    weightfiles = [
+    #        'applications/outerprod/weights.gray',  # TODO: hack
+    #    ],
+    #    infiles = [
+    #        'applications/outerprod/input.gray',  # TODO: hack
+    #    ],
+    #    goldfile = 'applications/outerprod/handcrafted_ub_outerprod_gb_gold.raw',
+    #    outfile = 'logs/outerprod.gray',  # TODO: hack
+    #    args = args,
+    #)
+
+    app = Conv3x3ReLU(
+        bitstream = 'applications/simple_layer/handcrafted_ub_layer_gb.bs',
         weightfiles = [
-            'applications/outerprod/weights.gray',  # TODO: hack
+            'applications/simple_layer/weights.gray',
         ],
         infiles = [
-            'applications/outerprod/input.gray',  # TODO: hack
+            'applications/simple_layer/input.gray',
         ],
-        goldfile = 'applications/outerprod/handcrafted_ub_outerprod_gb_gold.raw',
-        outfile = 'logs/outerprod.gray',  # TODO: hack
+        goldfile = 'applications/simple_layer/gold.gray',
+        outfile = 'logs/conv3x3relu.raw',
         args = args,
     )
 
-    # app = Tiled(
-    #     bitstream = 'applications/conv_3_3/conv_3_3.bs',
-    #     infiles = [
-    #         'applications/conv_3_3/conv_3_3_input.raw',
-    #         'applications/conv_3_3/conv_3_3_input.raw',
-    #         'applications/conv_3_3/conv_3_3_input.raw',
-    #         'applications/conv_3_3/conv_3_3_input.raw',
-    #     ],
-    #     goldfiles = [
-    #         'applications/conv_3_3/conv_3_3_gold.raw',
-    #         'applications/conv_3_3/conv_3_3_gold.raw',
-    #         'applications/conv_3_3/conv_3_3_gold.raw',
-    #         'applications/conv_3_3/conv_3_3_gold.raw',
-    #     ],
-    #     outfiles = [
-    #         'logs/conv_3_3.0.raw',
-    #         'logs/conv_3_3.1.raw',
-    #         'logs/conv_3_3.2.raw',
-    #         'logs/conv_3_3.3.raw',
-    #     ],
-    #     args = args,
-    # )
+    #app = Tiled(
+    #    bitstream = 'applications/conv_3_3/conv_3_3.bs',
+    #    infiles = [
+    #        'applications/conv_3_3/conv_3_3_input.raw',
+    #        'applications/conv_3_3/conv_3_3_input.raw',
+    #        'applications/conv_3_3/conv_3_3_input.raw',
+    #        'applications/conv_3_3/conv_3_3_input.raw',
+    #    ],
+    #    goldfiles = [
+    #        'applications/conv_3_3/conv_3_3_gold.raw',
+    #        'applications/conv_3_3/conv_3_3_gold.raw',
+    #        'applications/conv_3_3/conv_3_3_gold.raw',
+    #        'applications/conv_3_3/conv_3_3_gold.raw',
+    #    ],
+    #    outfiles = [
+    #        'logs/conv_3_3.0.raw',
+    #        'logs/conv_3_3.1.raw',
+    #        'logs/conv_3_3.2.raw',
+    #        'logs/conv_3_3.3.raw',
+    #    ],
+    #    args = args,
+    #)
 
     print("\n".join(map(str, app.commands())))
 
