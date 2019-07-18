@@ -504,6 +504,7 @@ class Conv3x3ReLU():
 
         # Load weights to consecutive memory in global buffer
         wt_addr = BANK_ADDR(4)
+        wt_addr_base = wt_addr
         wt_len = 0
         k = 0;
         for wt in wts:
@@ -517,6 +518,7 @@ class Conv3x3ReLU():
 
         # Load images to consecutive memory in global buffer
         im_addr = BANK_ADDR(0)
+        im_addr_base = im_addr
         im_len = 0
         k = 0
         for im in ims:
@@ -528,27 +530,28 @@ class Conv3x3ReLU():
             im_len += len(im)
             k += 1
 
-        in_chan = 64
-        out_chan = 64
-        in_x = 16
-        in_y = 16
-        out_x = 14
-        out_y = 14
+        in_chan = 16
+        out_chan = 16
+        in_x = 8
+        in_y = 8
+        out_x = 6
+        out_y = 6
 
-        for k in range(0, out_x * out_y):
+        for k in range(1, out_x * out_y + 1):
             for j in range(0, 9):
-                img_y = k + j // 3 - 1
-                img_x = k + j % 3 - 1
-                command_list += [
-                    *configure_io(IO_INPUT_STREAM, BANK_ADDR(0) + (img_y * in_x + img_x) * in_chan, in_chan, width=self.args.width),
-                ]
+                img_y = k // 3 + (j // 3 - 1)
+                img_x = k % 3 + (j % 3 - 1)
+                #command_list += [
+                #    *configure_io(IO_INPUT_STREAM, im_addr_base + (img_y * in_x + img_x) * in_chan, in_chan, width=self.args.width),
+                #]
                 for i in range(0, out_chan):
                     command_list += [
-                        *configure_io(IO_INPUT_STREAM, BANK_ADDR(4) + j * out_chan * in_chan + i * in_chan, in_chan, width=self.args.width),
+                        *configure_io(IO_INPUT_STREAM, im_addr_base + (img_y * in_x + img_x) * in_chan, in_chan, width=self.args.width),
+                        *configure_io(IO_INPUT_STREAM, wt_addr_base + (j * out_chan + i) * in_chan, in_chan, width=self.args.width),
                     ]
-                    if i == 0 and j == 0 and k == 0:
+                    if i == 0 and j == 0 and k == 1:
                         command_list += [
-                            *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16), len(gold), width=self.args.width),
+                            *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(12), len(gold), width=self.args.width),
                 
                             # Run the application
                             PRINT("Starting application..."),
@@ -561,14 +564,14 @@ class Conv3x3ReLU():
                         ]
                     else:
                         command_list += [
-                            WRITE_REG(CGRA_AUTO_RESTART_REG, 1), WAIT(0b01, "start"),
+                            WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
                             WAIT(0b01, "start") ]
 
         command_list += [
             WAIT(0b01, "start"),
             PRINT("Reading output data..."),
             READ_DATA(
-                BANK_ADDR(16),
+                BANK_ADDR(12),
                 gold.nbytes,
                 gold,
                 _file=self.outfile,
