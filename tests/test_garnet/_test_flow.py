@@ -276,7 +276,7 @@ def test_flow(args):
     #    args = args,
     #)
 
-    print("\n".join(map(str, app.commands())))
+    # print("\n".join(map(str, app.commands())))
 
     # app = OneShotValid(
     #     bitstream = 'applications/conv_1_2_valid/conv_1_2.bs',

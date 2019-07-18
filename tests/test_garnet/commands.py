@@ -405,11 +405,11 @@ class WRITE_DATA(Command):
                 aha_memcpy((uint64_t*)(CGRA_DATA_BASE + 0x{self.dst:08x}), &({array_id}[0]), {len(data)});
                 """
             else:
-                print(array_id, self.size//8, len(data))
+                # print(array_id, self.size//8, len(data))
                 num_beats = len(data)
                 num_burst_16 = num_beats // 16
                 num_burst_end = num_beats % 16
-                print(num_beats, num_burst_16, num_burst_end)
+                # print(num_beats, num_burst_16, num_burst_end)
                 src = []
                 if num_burst_16 // 256 > 0 :
                     src.append(f"""
@@ -512,7 +512,7 @@ class READ_DATA(Command):
                 num_beats = size
                 num_burst_16 = num_beats // 16
                 num_burst_end = num_beats % 16
-                print(num_beats, num_burst_16, num_burst_end)
+                # print(num_beats, num_burst_16, num_burst_end)
                 if num_burst_16 // 256 > 0 :
                     src.append(f"""
                     for (size_t k = 0; k < {num_burst_16 // 256}; k++) {{
@@ -725,9 +725,9 @@ def configure_io(mode, addr, size, io_ctrl=None, mask=None, width=32):
 
     if mask is None:
         if (io_ctrl + 1) * banks_per_io_controller - 1 < lo_bank_num:
-            print(f"IO controller {io_ctrl} is smaller than specified address, special case.")
-            print((io_ctrl + 1) * banks_per_io_controller - 1)
-            print(lo_bank_num)
+            # print(f"IO controller {io_ctrl} is smaller than specified address, special case.")
+            # print((io_ctrl + 1) * banks_per_io_controller - 1)
+            # print(lo_bank_num)
             mask = 0b1000
         else:
             # We use the size to compute how many banks we need
@@ -744,9 +744,9 @@ def configure_io(mode, addr, size, io_ctrl=None, mask=None, width=32):
             for k in range(mask_start, mask_end+1):
                 mask |= 1 << k
 
-    print(f"Configuring io controller {io_ctrl} with mask 0b{mask:04b}:")
-    print(f"    ADDR: 0x{addr:x}")
-    print(f"    SIZE: 0x{size:x}")
+    # print(f"Configuring io controller {io_ctrl} with mask 0b{mask:04b}:")
+    # print(f"    ADDR: 0x{addr:x}")
+    # print(f"    SIZE: 0x{size:x}")
 
     return [
         WRITE_REG(IO_MODE_REG(io_ctrl), mode),
@@ -791,9 +791,9 @@ def configure_fr(addr, size, fr_ctrl=None, mask=None, width=32):
         for k in range(mask_start, mask_end+1):
             mask |= 1 << k
 
-    print(f"Configuring fast reconfig controller {fr_ctrl} with mask 0b{mask:04b}:")
-    print(f"    ADDR: 0x{addr:x}")
-    print(f"    SIZE: 0x{size:x}")
+    # print(f"Configuring fast reconfig controller {fr_ctrl} with mask 0b{mask:04b}:")
+    # print(f"    ADDR: 0x{addr:x}")
+    # print(f"    SIZE: 0x{size:x}")
 
     return [
         WRITE_REG(FR_ADDR_REG(fr_ctrl), addr),
