@@ -15,6 +15,9 @@ from commands import *
 from applications import OneShotValid, OneShotStall, Tiled, OuterProduct, Conv3x3ReLU
 from PIL import Image
 
+import logging
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
 class AppTester(fault.Tester):
     def zero_inputs(self):
