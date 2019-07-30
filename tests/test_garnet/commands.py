@@ -134,6 +134,22 @@ def IO_SWITCH_REG(n):
     return int(f'01{n:04b}{3:04b}00', 2)
 
 
+def IO_DONE_DELAY_REG(n):
+    return int(f'01{n:04b}{4:04b}00', 2)
+
+
+def IO_DONE_GATE_REG(n):
+    return int(f'01{n:04b}{5:04b}00', 2)
+
+
+def IO_NUM_ACTIVE_REG(n):
+    return int(f'01{n:04b}{6:04b}00', 2)
+
+
+def IO_NUM_INACTIVE_REG(n):
+    return int(f'01{n:04b}{7:04b}00', 2)
+
+
 def FR_ADDR_REG(n):
     return int(f'10{n:04b}{0:04b}00', 2)
 
@@ -707,7 +723,7 @@ ops = [
 ]
 
 
-def configure_io(mode, addr, size, io_ctrl=None, mask=None, width=32):
+def configure_io(mode, addr, size, io_ctrl=None, mask=None, num_active=None, num_inactive=None, width=32):
     bank_size = 2**17
 
     # 1 IO Controller per 4 Tile Width
@@ -748,12 +764,23 @@ def configure_io(mode, addr, size, io_ctrl=None, mask=None, width=32):
     # print(f"    ADDR: 0x{addr:x}")
     # print(f"    SIZE: 0x{size:x}")
 
-    return [
+    cmds = [
         WRITE_REG(IO_MODE_REG(io_ctrl), mode),
         WRITE_REG(IO_ADDR_REG(io_ctrl), addr),
         WRITE_REG(IO_SIZE_REG(io_ctrl), size),
         WRITE_REG(IO_SWITCH_REG(io_ctrl), mask),
     ]
+
+    if num_active is not None:
+        if num_inactive is None:
+            raise NotImplementedError("num_inactive must be specified if num_active is not None.")
+        cmds += [
+            WRITE_REG(IO_NUM_ACTIVE_REG(io_ctrl, num_active)),
+            WRITE_REG(IO_NUM_INACTIVE_REG(io_ctrl, num_inactive)),
+        ]
+
+    return cmds
+
 
 
 # TODO: make this distribute the bitstream across the global buffer
