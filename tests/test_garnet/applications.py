@@ -28,20 +28,11 @@ class OneShotValid():
             # Enable interrupts
             WRITE_REG(INTERRUPT_ENABLE_REG, 0b11),
 
-            # WRITE_REG(CGRA_SOFT_RESET_EN_REG, 1),  # TODO: removeme
-            # WRITE_REG(SOFT_RESET_DELAY_REG, 0),  # TODO: removeme
-
             # Configure the CGRA
             PRINT("Configuring CGRA..."),
             # *gc_config_bitstream(self.bitstream),
             *gb_config_bitstream(self.bitstream, width=self.args.width),
             PRINT("Done."),
-
-            # # TODO: Do it again to test the interrupts, but remove later.
-            # PRINT("Configuring CGRA..."),
-            # # *gc_config_bitstream(self.bitstream),
-            # *gb_config_bitstream(self.bitstream, width=self.args.width),
-            # PRINT("Done."),
 
             # Set up global buffer for pointwise
             *configure_io(IO_INPUT_STREAM, BANK_ADDR(0), len(im), width=self.args.width),

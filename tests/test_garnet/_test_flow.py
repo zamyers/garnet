@@ -230,31 +230,31 @@ def test_flow(args):
     #     args = args,
     # )
 
-    #app = OuterProduct(
-    #    bitstream = 'applications/outerprod/handcrafted_ub_outerprod_gb.bs',
-    #    weightfiles = [
-    #        'applications/outerprod/weights.gray',  # TODO: hack
-    #    ],
-    #    infiles = [
-    #        'applications/outerprod/input.gray',  # TODO: hack
-    #    ],
-    #    goldfile = 'applications/outerprod/handcrafted_ub_outerprod_gb_gold.raw',
-    #    outfile = 'logs/outerprod.gray',  # TODO: hack
-    #    args = args,
-    #)
-
-    app = Conv3x3ReLU(
-        bitstream = 'applications/simple_layer/handcrafted_ub_layer_gb.bs',
-        weightfiles = [
-            'applications/simple_layer/weights.gray',
-        ],
-        infiles = [
-            'applications/simple_layer/input.gray',
-        ],
-        goldfile = 'applications/simple_layer/gold.gray',
-        outfile = 'logs/conv3x3relu.raw',
-        args = args,
+    app = OuterProduct(
+       bitstream = 'applications/outerprod/handcrafted_ub_outerprod_gb.bs',
+       weightfiles = [
+           'applications/outerprod/weights.gray',  # TODO: hack
+       ],
+       infiles = [
+           'applications/outerprod/input.gray',  # TODO: hack
+       ],
+       goldfile = 'applications/outerprod/handcrafted_ub_outerprod_gb_gold.raw',
+       outfile = 'logs/outerprod.gray',  # TODO: hack
+       args = args,
     )
+
+    # app = Conv3x3ReLU(
+    #     bitstream = 'applications/simple_layer/handcrafted_ub_layer_gb.bs',
+    #     weightfiles = [
+    #         'applications/simple_layer/weights.gray',
+    #     ],
+    #     infiles = [
+    #         'applications/simple_layer/input.gray',
+    #     ],
+    #     goldfile = 'applications/simple_layer/gold.gray',
+    #     outfile = 'logs/conv3x3relu.raw',
+    #     args = args,
+    # )
 
     #app = Tiled(
     #    bitstream = 'applications/conv_3_3/conv_3_3.bs',
