@@ -776,8 +776,8 @@ def configure_io(mode, addr, size, io_ctrl=None, mask=None, num_active=None, num
         if num_inactive is None:
             raise NotImplementedError("num_inactive must be specified if num_active is not None.")
         cmds += [
-            WRITE_REG(IO_NUM_ACTIVE_REG(io_ctrl, num_active)),
-            WRITE_REG(IO_NUM_INACTIVE_REG(io_ctrl, num_inactive)),
+            WRITE_REG(IO_NUM_ACTIVE_REG(io_ctrl), num_active),
+            WRITE_REG(IO_NUM_INACTIVE_REG(io_ctrl), num_inactive),
         ]
 
     return cmds
