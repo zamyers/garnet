@@ -390,8 +390,8 @@ class WRITE_DATA(Command):
             # tester.circuit.soc_data_wr_data = self.data[k:k + 8]
             tester.poke(tester._circuit.soc_data_wr_data, int(data[k // 8]))
             # tester.circuit.soc_data_wr_strb = 0b11111111
-            # tester.poke(tester._circuit.soc_data_wr_strb, 0b11111111)
-            tester.poke(tester._circuit.soc_data_wr_strb, (1 << ((self.size - k) % 8)) - 1)
+            tester.poke(tester._circuit.soc_data_wr_strb, 0b11111111)
+            # tester.poke(tester._circuit.soc_data_wr_strb, (1 << ((self.size - k) % 8)) - 1)
 
             # propagate inputs
             tester.eval()

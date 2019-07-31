@@ -214,13 +214,13 @@ def test_flow(args):
     #     ),
     # ]
 
-    # app = OneShotValid(
-    #     bitstream = 'applications/conv_3_3/conv_3_3.bs',
-    #     infile = 'applications/conv_3_3/conv_3_3_input.raw',
-    #     goldfile = 'applications/conv_3_3/conv_3_3_gold.raw',
-    #     outfile = 'logs/conv_3_3.raw',
-    #     args = args,
-    # )
+    app = OneShotValid(
+        bitstream = 'applications/conv_3_3/conv_3_3.bs',
+        infile = 'applications/conv_3_3/conv_3_3_input.raw',
+        goldfile = 'applications/conv_3_3/conv_3_3_gold.raw',
+        outfile = 'logs/conv_3_3.raw',
+        args = args,
+    )
 
     # app = OneShotStall(
     #     bitstream = 'applications/conv_3_3/conv_3_3.bs',
@@ -230,18 +230,18 @@ def test_flow(args):
     #     args = args,
     # )
 
-    app = OuterProduct(
-       bitstream = 'applications/outerprod/handcrafted_ub_outerprod_gb.bs',
-       weightfiles = [
-           'applications/outerprod/weights.gray',  # TODO: hack
-       ],
-       infiles = [
-           'applications/outerprod/input.gray',  # TODO: hack
-       ],
-       goldfile = 'applications/outerprod/handcrafted_ub_outerprod_gb_gold.raw',
-       outfile = 'logs/outerprod.gray',  # TODO: hack
-       args = args,
-    )
+    # app = OuterProduct(
+    #    bitstream = 'applications/outerprod/handcrafted_ub_outerprod_gb.bs',
+    #    weightfiles = [
+    #        'applications/outerprod/weights.gray',  # TODO: hack
+    #    ],
+    #    infiles = [
+    #        'applications/outerprod/input.gray',  # TODO: hack
+    #    ],
+    #    goldfile = 'applications/outerprod/handcrafted_ub_outerprod_gb_gold.raw',
+    #    outfile = 'logs/outerprod.gray',  # TODO: hack
+    #    args = args,
+    # )
 
     # app = Conv3x3ReLU(
     #     bitstream = 'applications/simple_layer/handcrafted_ub_layer_gb.bs',
@@ -298,9 +298,12 @@ def test_flow(args):
     create_testbench(tester, commands)
     print(f"Testbench generation done. (Took {time.time() - start}s)")
 
+    start = time.time()
     # Generate straightline C code
     with open("tests/build/test.c", "w") as f:
         f.write(create_straightline_code(commands))
+
+    print(f"Generating straightline code took {time.time() - start} sec.")
 
     if not args.no_sim:
         print("Running test...")

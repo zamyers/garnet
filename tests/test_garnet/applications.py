@@ -30,8 +30,8 @@ class OneShotValid():
 
             # Configure the CGRA
             PRINT("Configuring CGRA..."),
-            # *gc_config_bitstream(self.bitstream),
-            *gb_config_bitstream(self.bitstream, width=self.args.width),
+            *gc_config_bitstream(self.bitstream),
+            # *gb_config_bitstream(self.bitstream, width=self.args.width),
             PRINT("Done."),
 
             # Set up global buffer for pointwise
@@ -352,18 +352,8 @@ class OuterProduct():
             PRINT("Done."),
         ]
 
-        # Load weights to consecutive memory in global buffer
-        wt_addr = BANK_ADDR(0)
-        wt_len = 0
-        for wt in wts:
-            command_list += [
-                WRITE_DATA(wt_addr, 0xc0ffee, wt.nbytes, wt),
-            ]
-            wt_addr += wt.nbytes
-            wt_len += len(wt)
-
         # Load images to consecutive memory in global buffer
-        im_addr = BANK_ADDR(4)
+        im_addr = BANK_ADDR(0)
         im_len = 0
         for im in ims:
             command_list += [
@@ -372,42 +362,178 @@ class OuterProduct():
             im_addr += im.nbytes
             im_len += len(im)
 
-        command_list += [
-            *configure_io(IO_INPUT_STREAM, BANK_ADDR(0), len(wts[0]), width=self.args.width),
-            *configure_io(IO_INPUT_STREAM, BANK_ADDR(4), im_len, width=self.args.width),
-            *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16), len(gold), width=self.args.width),
+        # Load weights to consecutive memory in global buffer
+        wt_addr = BANK_ADDR(4)
+        wt_len = 0
+        for wt in wts:
+            command_list += [
+                WRITE_DATA(wt_addr, 0xc0ffee, wt.nbytes, wt),
+            ]
+            wt_addr += wt.nbytes
+            wt_len += len(wt)
 
-            # Run the application
+        # send 16 weights, wait 48 cycles, send more weights, etc.
+        # for the image, send it all at once
+
+        # first 16 weights, all 64 inputs
+        # next 16 weights, all 64 inputs
+        # next 16 weights, all 64 inputs
+        # next 16 weights, all 64 inputs
+
+        command_list += [
+            # TODO: not sure if the offsets are 8-bit or 16-bit?
+
+            # image row 0, weight row 0
+            *configure_io(IO_INPUT_STREAM, BANK_ADDR(0), 16, io_ctrl=0, width=self.args.width),
+            *configure_io(IO_INPUT_STREAM, BANK_ADDR(4), 16, io_ctrl=1, width=self.args.width),
+            *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16), 1, io_ctrl=2, width=self.args.width),
+
             PRINT("Starting application..."),
             WRITE_REG(STALL_REG, 0),
 
             PEND(0b01, "start"),
             WRITE_REG(CGRA_START_REG, 1),
-            # PRINT("Waiting for completion..."),
-            # PRINT("Done."),
+
+            # weight row 1
+            *configure_io(IO_INPUT_STREAM, BANK_ADDR(4) + 32, 16, io_ctrl=1, width=self.args.width),
+            *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16) + 2, 1, io_ctrl=2, width=self.args.width),
+            WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
+            WAIT(0b01, "start"),
+
+            # weight row 2 (needs compute to be done with row 0 first)
+            *configure_io(IO_INPUT_STREAM, BANK_ADDR(4) + 64, 16, io_ctrl=1, width=self.args.width),
+            *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16) + 4, 1, io_ctrl=2, width=self.args.width),
+            WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
+            WAIT(0b01, "start"),
+
+            # weight row 3 (needs compute to be done with row 1 first)
+            *configure_io(IO_INPUT_STREAM, BANK_ADDR(4) + 96, 16, io_ctrl=1, width=self.args.width),
+            *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16) + 6, 1, io_ctrl=2, width=self.args.width),
+            WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
+            WAIT(0b01, "start"),
+
+            # image row 1, weight row 0
+            *configure_io(IO_INPUT_STREAM, BANK_ADDR(0) + 32, 16, io_ctrl=0, width=self.args.width),
+            *configure_io(IO_INPUT_STREAM, BANK_ADDR(4), 16, io_ctrl=1, width=self.args.width),
+            *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16) + 8, 1, io_ctrl=2, width=self.args.width),
+            WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
+            WAIT(0b01, "start"),
+
+            # weight row 1
+            *configure_io(IO_INPUT_STREAM, BANK_ADDR(4) + 32, 16, io_ctrl=1, width=self.args.width),
+            *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16) + 10, 1, io_ctrl=2, width=self.args.width),
+            WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
+            WAIT(0b01, "start"),
+
+            # weight row 2 (needs compute to be done with row 0 first)
+            *configure_io(IO_INPUT_STREAM, BANK_ADDR(4) + 64, 16, io_ctrl=1, width=self.args.width),
+            *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16) + 12, 1, io_ctrl=2, width=self.args.width),
+            WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
+            WAIT(0b01, "start"),
+
+            # weight row 3 (needs compute to be done with row 1 first)
+            *configure_io(IO_INPUT_STREAM, BANK_ADDR(4) + 96, 16, io_ctrl=1, width=self.args.width),
+            *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16) + 14, 1, io_ctrl=2, width=self.args.width),
+            WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
+            WAIT(0b01, "start"),
+
+            # image row 2, weight row 0
+            *configure_io(IO_INPUT_STREAM, BANK_ADDR(0) + 64, 16, io_ctrl=0, width=self.args.width),
+            *configure_io(IO_INPUT_STREAM, BANK_ADDR(4), 16, io_ctrl=1, width=self.args.width),
+            *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16) + 16, 1, io_ctrl=2, width=self.args.width),
+            WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
+            WAIT(0b01, "start"),
+
+            # weight row 1
+            *configure_io(IO_INPUT_STREAM, BANK_ADDR(4) + 32, 16, io_ctrl=1, width=self.args.width),
+            *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16) + 18, 1, io_ctrl=2, width=self.args.width),
+            WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
+            WAIT(0b01, "start"),
+
+            # weight row 2 (needs compute to be done with row 0 first)
+            *configure_io(IO_INPUT_STREAM, BANK_ADDR(4) + 64, 16, io_ctrl=1, width=self.args.width),
+            *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16) + 20, 1, io_ctrl=2, width=self.args.width),
+            WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
+            WAIT(0b01, "start"),
+
+            # weight row 3 (needs compute to be done with row 1 first)
+            *configure_io(IO_INPUT_STREAM, BANK_ADDR(4) + 96, 16, io_ctrl=1, width=self.args.width),
+            *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16) + 22, 1, io_ctrl=2, width=self.args.width),
+            WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
+            WAIT(0b01, "start"),
+
+            # image row 3, weight row 0
+            *configure_io(IO_INPUT_STREAM, BANK_ADDR(0) + 96, 16, io_ctrl=0, width=self.args.width),
+            *configure_io(IO_INPUT_STREAM, BANK_ADDR(4), 16, io_ctrl=1, width=self.args.width),
+            *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16) + 24, 1, io_ctrl=2, width=self.args.width),
+            WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
+            WAIT(0b01, "start"),
+
+            # weight row 1
+            *configure_io(IO_INPUT_STREAM, BANK_ADDR(4) + 32, 16, io_ctrl=1, width=self.args.width),
+            *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16) + 26, 1, io_ctrl=2, width=self.args.width),
+            WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
+            WAIT(0b01, "start"),
+
+            # weight row 2 (needs compute to be done with row 0 first)
+            *configure_io(IO_INPUT_STREAM, BANK_ADDR(4) + 64, 16, io_ctrl=1, width=self.args.width),
+            *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16) + 28, 1, io_ctrl=2, width=self.args.width),
+            WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
+            WAIT(0b01, "start"),
+
+            # weight row 3 (needs compute to be done with row 1 first)
+            *configure_io(IO_INPUT_STREAM, BANK_ADDR(4) + 96, 16, io_ctrl=1, width=self.args.width),
+            *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16) + 30, 1, io_ctrl=2, width=self.args.width),
+            WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
+            WAIT(0b01, "start"),
+
+
+
+            # # TODO: not sure if +32 or +16 for offsets, forget if addr is byte or 16-bits
+            # *configure_io(IO_INPUT_STREAM, BANK_ADDR(0), 64, io_ctrl=0, width=self.args.width),
+            # *configure_io(IO_INPUT_STREAM, BANK_ADDR(1) + 32, 16, io_ctrl=1, width=self.args.width),
+            # *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16) + 32, 16, io_ctrl=2, width=self.args.width),
+            # WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
+            # WAIT(0b01, "start"),
+
+            # # TODO: not sure if +64 or +32 for offsets, forget if addr is byte or 16-bits
+            # *configure_io(IO_INPUT_STREAM, BANK_ADDR(0), 64, io_ctrl=0, width=self.args.width),
+            # *configure_io(IO_INPUT_STREAM, BANK_ADDR(1) + 64, 16, io_ctrl=1, width=self.args.width),
+            # *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16) + 64, 16, io_ctrl=2, width=self.args.width),
+            # WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
+            # WAIT(0b01, "start"),
+
+            # # TODO: not sure if +96 or +48 for offsets, forget if addr is byte or 16-bits
+            # *configure_io(IO_INPUT_STREAM, BANK_ADDR(0), 64, io_ctrl=0, width=self.args.width),
+            # *configure_io(IO_INPUT_STREAM, BANK_ADDR(1) + 96, 16, io_ctrl=1, width=self.args.width),
+            # *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16) + 96, 16, io_ctrl=2, width=self.args.width),
+            # WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
+            # WAIT(0b01, "start"),
         ]
 
-        # c code
-        # wait until semaphore == 0
-        # disable interrupts
-        # signal semaphore
-        # auto_restart = 1
-        # enable interrupts
+        # command_list += [
+        #     *configure_io(IO_INPUT_STREAM, BANK_ADDR(0), im_len, io_ctrl=0, width=self.args.width),
+        #     *configure_io(IO_INPUT_STREAM, BANK_ADDR(4), len(wts[0]), io_ctrl=1, width=self.args.width),
+        #     *configure_io(IO_OUTPUT_STREAM, BANK_ADDR(16), len(gold), io_ctrl=2, width=self.args.width),
 
-        # interrupt handler
-        # if semaphore > 0
-        #   if auto_restart == 1
-        #     auto_restart = 0
-        #     cgra_start = 1
-        # decrement semaphore
+        #     # Run the application
+        #     PRINT("Starting application..."),
+        #     WRITE_REG(STALL_REG, 0),
 
-        for k in range(1, len(wts)):
-            command_list += [
-                *configure_io(IO_INPUT_STREAM, BANK_ADDR(0) + k*len(wts[0]), len(wts[k]), width=self.args.width),
-                *configure_io(IO_INPUT_STREAM, BANK_ADDR(4), im_len, width=self.args.width),
-                WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
-                WAIT(0b01, "start"),
-            ]
+        #     PEND(0b01, "start"),
+        #     WRITE_REG(CGRA_START_REG, 1),
+        #     # PRINT("Waiting for completion..."),
+        #     # PRINT("Done."),
+        # ]
+
+        # for k in range(1, len(wts)):
+        #     assert False, "Not yet tested."
+        #     command_list += [
+        #         *configure_io(IO_INPUT_STREAM, BANK_ADDR(0) + k*len(wts[0]), len(wts[k]), width=self.args.width),
+        #         *configure_io(IO_INPUT_STREAM, BANK_ADDR(4), im_len, width=self.args.width),
+        #         WRITE_REG(CGRA_AUTO_RESTART_REG, 1),
+        #         WAIT(0b01, "start"),
+        #     ]
 
         command_list += [
             WAIT(0b01, "start"),

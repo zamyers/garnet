@@ -1,3 +1,5 @@
+#!/bin/sh
+
 rm -rf genesis*
 rm -rf tests/build/*
 
@@ -40,4 +42,4 @@ ln -s sram_stub.v sram_512w_16b.v
 cp /cad/cadence/GENUS17.21.000.lnx86/share/synth/lib/chipware/sim/verilog/CW/CW_tap.v .
 cd -
 
-python tests/test_garnet/_test_flow.py --from-verilog --recompile --width 32
+# python tests/test_garnet/_test_flow.py --from-verilog --recompile --width 32
