@@ -18,6 +18,7 @@ def tile_id_physical(interconnect: Interconnect):
         tie_lo_width = tile_id_width // 2
     else:
         tie_lo_width = (tile_id_width // 2) + 1
+    has_hi_lo = False
     for (x, y) in interconnect.tile_circuits:
         tile = interconnect.tile_circuits[(x, y)]
         tile_core = tile.core
@@ -27,6 +28,12 @@ def tile_id_physical(interconnect: Interconnect):
             hi=magma.Out(magma.Bits[tie_hi_width]),
             lo=magma.Out(magma.Bits[tie_lo_width])
         )
+        if not has_hi_lo:
+            interconnect.global_names = []
+            interconnect.global_names.append("hi")
+            interconnect.global_names.append("lo")
+            interconnect.global_names.append("tile_id")
+            has_hi_lo = True
         # wire all hi bits high
         tile.wire(tile.ports.hi, Const((2 ** tie_hi_width) - 1))
         # wire all lo bits low

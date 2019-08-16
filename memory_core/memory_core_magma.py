@@ -2,7 +2,7 @@ import magma
 import mantle
 from canal.interconnect import Interconnect
 from gemstone.common.configurable import ConfigurationType, \
-    ConfigRegister, _generate_config_register
+    ConfigRegister
 from gemstone.common.core import ConfigurableCore, CoreFeature, PnRTag
 from gemstone.common.mux_wrapper import MuxWrapper
 from gemstone.generator.const import Const

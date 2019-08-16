@@ -2,9 +2,11 @@ from gemstone.common.mux_wrapper_aoi import AOIMuxWrapper, AOIMuxType
 from gemstone.common.transform import replace, Generator, FromMagma
 from io_core.io_core_magma import IOCore
 from canal.interconnect import Interconnect
-from gemstone.common.configurable import Configurable, ConfigurationType
+from gemstone.common.configurable import Configurable, ConfigurationType,\
+    ConfigRegister
 import magma
 import mantle
+import json
 
 
 class PowerDomainConfigReg(Configurable):
@@ -21,6 +23,8 @@ class PowerDomainConfigReg(Configurable):
         self.add_port("ps_en_out", magma.Out(magma.Bits[1]))
         self.wire(self.ports.ps_en_out, self.registers.ps_en.ports.O)
         self._setup_config()
+
+        self.instance_name = "pd_config_reg"
 
     def name(self):
         return "PowerDomainConfigReg"
@@ -134,9 +138,14 @@ class PowerDomainOR(Generator):
 def add_aon_read_config_data(interconnect: Interconnect):
     # we need to replace each read_config_data_or with more circuits
     # it should be in the children
+    names_dict = {}
     for (x, y) in interconnect.tile_circuits:
         tile = interconnect.tile_circuits[(x, y)]
         children = tile.children()
+        tile_name = tile.name()
+        if tile_name not in names_dict:
+            names_dict[tile_name] = set()
+        names = names_dict[tile_name]
         for child in children:
             if isinstance(child, FromMagma) and \
                     child.underlying.name == "read_config_data_or":
@@ -151,8 +160,52 @@ def add_aon_read_config_data(interconnect: Interconnect):
                 pd_or = PowerDomainOR(tile.config_data_width)
                 replace(tile, child, pd_or)
 
+                # add it to the list of instance names
+                names.add(pd_or.instance_name)
+                names.add(pd_feature.instance_name)
+
+                # feature based on index
+                feature_index = tile.features().index(pd_feature)
+                names.add(f"DECODE_FEATURE_{feature_index}")
+                names.add(f"FEATURE_AND_{feature_index}")
+
+                # get the child names
+                # create a circuit to kick in the children generation
+                cc = pd_feature.children()
+                for c in cc:
+                    if isinstance(c, ConfigRegister):
+                        c.circuit()
+                        for ch in c.children():
+                            if ch.instance_name is not None:
+                                names.add(ch.instance_name)
+
                 # add config input to the the module
                 pd_or.add_port("I_not", magma.In(magma.Bits[1]))
                 tile.wire(pd_or.ports.I_not, pd_feature.ports.ps_en_out)
                 pd_or.wire(pd_or.ports.I_not, pd_or.not_gate.ports.I)
                 break
+        if len(names) == 0:
+            names_dict.pop(tile.name())
+    for name in names_dict:
+        names_dict[name] = list(names_dict[name])
+    # dump the files at top level
+    with open("PD_names.json", "w+") as f:
+        json.dump(names_dict, f)
+
+    # also dump the global signals
+    names = []
+    for signal in interconnect.globals:
+        port = interconnect.ports[signal]
+        if isinstance(port._T, magma.ArrayKind):
+            if "Ks" not in port._T.T.__dict__:
+                names.append(signal)
+            else:
+                child_name = port._T.T.Ks
+                for n in child_name:
+                    names.append(signal + "_" + n)
+        else:
+            names.append(signal)
+
+    names += interconnect.global_names
+    with open("PD_global.json", "w+") as f:
+        json.dump(names, f)
