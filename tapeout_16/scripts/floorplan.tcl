@@ -17,7 +17,7 @@ connect_global_net VSS -type pgpin -pin VBB -inst *
 
 ###Initialize the floorplan
 create_floorplan -core_margins_by die -die_size_by_io_height max -site core -die_size 4900.0 4900.0 100 100 100 100
-read_io_file ../../../../../pad_frame/io_file  -no_die_size_adjust 
+read_io_file ../../../pad_frame/io_file  -no_die_size_adjust 
 set_multi_cpu_usage -local_cpu 8
 snap_floorplan_io
 source ../../scripts/phy_placement.tcl
@@ -199,8 +199,10 @@ set tile_halo_margin [snap_to_grid $target_tile_margin 0.09 0]
 #create_place_halo -cell Tile_MemCore -halo_deltas $tile_halo_margin $tile_halo_margin $tile_halo_margin $tile_halo_margin
 create_place_halo -cell Tile_PE -halo_deltas 3 3 3 3
 create_place_halo -cell Tile_MemCore -halo_deltas 3 3 3 3
+
 #Create guide for all cgra related cells around tile grid
-set cgra_subsys [get_cells -hier cgra_subsystem]
+# set cgra_subsys [get_cells -hier cgra_subsystem] # oopsie no
+set cgra_subsys [get_cells -hier core_cgra_subsystem]
 set name [get_property $cgra_subsys hierarchical_name]
 set margin 200
 create_guide -area [expr $grid_llx - $margin] $core_to_edge [expr $grid_urx + $margin] [expr $grid_ury + $margin] -name $name

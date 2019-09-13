@@ -1,5 +1,5 @@
-[![Build Status](https://travis-ci.com/StanfordAHA/garnet.svg?branch=master)](https://travis-ci.com/StanfordAHA/garnet)
-[![Coverage Status](https://coveralls.io/repos/github/StanfordAHA/garnet/badge.svg?branch=master)](https://coveralls.io/github/StanfordAHA/garnet?branch=master)
+[![Build Status](https://travis-ci.com/StanfordAHA/garnet.svg)](https://travis-ci.com/StanfordAHA/garnet)
+[![Coverage Status](https://coveralls.io/repos/github/StanfordAHA/garnet/badge.svg?branch=master)](https://coveralls.io/github/StanfordAHA/garnet)
 
 The main purpose of this repo is to investigate and experiment with implementing our CGRA using new generator infrastructure. You will find in this repo: the original Genesis2 source for top level modules, functional models, and testing infrastructure. Also, you will find common generator patterns abstracted away to make designing, testing, and programming the CGRA faster.
 
@@ -19,20 +19,27 @@ $ python garnet.py --width 4 --height 2
 For installation instructions, read on.
 If you're using the Kiwi machine, see [this wiki page](https://github.com/rsetaluri/magma_cgra/wiki/Kiwi-Environment) for info on getting your python environment setup. 
 
-## Install CoreIR
+**NOTE** you will need python version 3.7 or higher, or else you will get errors from the "peak" package.
 
-Garnet only needs the python binding of coreir, which should be installed via
-```
-$ pip install coreir
-```
-On linux it should take less than a second to install. 
+<!--
+# ??? coreir is in requirements.txt, should be covered under
+# ??? "install python dependencies" below, yes?
+#
+# ## Install CoreIR
+# 
+# Garnet only needs the python binding of coreir, which should be installed via
+#   ```
+# $ pip install coreir
+# ```
+# On linux it should take less than a second to install. (Again, if you are using the kiwi shared environment, you should not have to do this at all.)
+-->
 
-## (Optional) Setup a virtual environment
-```
-$ pip install virtualenv
-$ virtualenv venv
-$ source venv/bin/activate
-```
+  ## (Optional) Setup a virtual environment
+  ```
+  $ pip install virtualenv
+  $ virtualenv venv
+  $ source venv/bin/activate
+  ```
 
 
 ## Install python dependencies
