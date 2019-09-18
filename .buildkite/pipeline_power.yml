@@ -13,4 +13,4 @@ steps:
   - ./gen_rtl.sh
 
   - echo "+++ RUNNING SYNTHESIS"
-    #  - ./run_synthesis.csh Tile_MemCore 1
+  - ./run_synthesis.csh Tile_MemCore 1
