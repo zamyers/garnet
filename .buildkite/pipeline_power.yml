@@ -1,0 +1,18 @@
+steps:
+- label: 'PowerFlow'
+  commands:
+
+  - echo "--- INFO"
+  - echo "I am in directory `pwd`"
+  - echo "I see the following activity files:"
+  - ls -l activity_files/*.ai | sed 's/^/   /'
+  - echo ""
+  - echo "config.sh says to do this:"
+  - cat activity_files/config.sh | sed 's/^/   /'
+  - echo ""
+
+  # Echo commands before execute
+  - set -x
+
+  - echo "+++ CONFIG.SH"
+  - activity_files/config.sh
