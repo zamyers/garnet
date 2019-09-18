@@ -9,4 +9,5 @@ steps:
   - set -x
 
   - echo "+++ RUNNING SYNTHESIS"
+  - ./gen_rtl.sh
   - ./run_synthesis.csh Tile_MemCore 1
