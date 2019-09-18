@@ -1,5 +1,5 @@
 activity_file=conv.ai
-module=Tile_MemCore
+module=Tile_MemCorefoo
 
 cat <<EOF
 
