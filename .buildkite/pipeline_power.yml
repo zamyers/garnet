@@ -1,6 +1,7 @@
 steps:
 - label: 'PowerFlow'
   commands:
+  - source ./.buildkite/setup.sh
   - echo "--- INFO"
   - cd tapeout_16
   - pwd
