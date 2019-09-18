@@ -63,8 +63,11 @@ syn_opt
 write_snapshot -directory results_syn -tag final
 write_design -innovus -basename results_syn/syn_out
 
-# write_name_mapping added for Teguh/Kathleen 9/14/2019
-# write_name_mapping [-to_file file]  (default: ./name_map.rpt)
-write_name_mapping
+redirect syn.area {report_area}
+redirect syn.area1 {report_area -detail -show_leaf_cells}
+redirect syn.area2 {report_area -detail -table_style vertical}
+
+#read_saif -saif activity.saif -instance $::env(DESIGN)
+#report power
 
 exit

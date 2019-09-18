@@ -11,7 +11,7 @@ set_false_path -from [get_ports tile_id*]  -to [all_outputs]
 set_false_path -from [get_pins -hier *inst_*] -to [all_outputs]
 
 set_attribute ungroup_ok false [get_cells *]
-set_attribute ungroup_ok true [get_cells -hier PE*]
+#set_attribute ungroup_ok true [get_cells -hier PE*]
 
 # set loads on pass through signals
 set_load 0.02 [get_ports config_out*]
