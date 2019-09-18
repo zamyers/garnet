@@ -13,5 +13,3 @@ module load hercules
 module load vcs/latest
 module load starrc/latest
 module load cx/2009.09
-
-export PATH=/nobackupkiwi/kzf/local/bin:$PATH:/cad/synopsys/pts/M-2017.06-SP3/bin
