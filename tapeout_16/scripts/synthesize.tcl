@@ -60,12 +60,12 @@ set_attr syn_map_effort high
 syn_map
 syn_opt 
 
+redirect syn.area {report_area}
+#redirect syn.area1 {report_area -detail -show_leaf_cells}
+#redirect syn.area2 {report_area -detail -show_leaf_cells -depth 10}
+
 write_snapshot -directory results_syn -tag final
 write_design -innovus -basename results_syn/syn_out
-
-redirect syn.area {report_area}
-redirect syn.area1 {report_area -detail -show_leaf_cells}
-redirect syn.area2 {report_area -detail -table_style vertical}
 
 #read_saif -saif activity.saif -instance $::env(DESIGN)
 #report power

@@ -1,16 +1,6 @@
 steps:
 - label: 'PowerFlow'
   commands:
-  - source ./.buildkite/setup.sh
-  - ./.buildkite/verify.sh
-  - echo "--- INFO"
-  - cd tapeout_16
-  - pwd
+  - ./.buildkite/gen.sh -v
 
-  - set -x
-
-  - echo "--- GEN RTL"
-  - ./gen_rtl.sh
-
-  - echo "+++ RUNNING SYNTHESIS"
-  - ./run_synthesis.csh Tile_MemCore 1
+  - ./.buildkite/syn.sh -v MemCore
