@@ -17,12 +17,12 @@ subheader +++ VERIFY PYTHON VERSION
 
 # Check for python3.7 FIXME I'm sure there's a better way... :(
 # ERROR: Package 'peak' requires a different Python: 3.6.8 not in '>=3.7' :(
-v=`python3 -c 'import sys; print(sys.version_info[0]*1000+sys.version_info[1])'`
-echo "Found python version $v -- should be at least 3007"
-if [ $v -lt 3007 ] ; then
-  echo ""; echo "ERROR found python version $v -- should be 3007"; exit 13
-fi
-echo ""
+#v=`python3 -c 'import sys; print(sys.version_info[0]*1000+sys.version_info[1])'`
+#echo "Found python version $v -- should be at least 3007"
+#if [ $v -lt 3007 ] ; then
+#  echo ""; echo "ERROR found python version $v -- should be 3007"; exit 13
+#fi
+#echo ""
 
 # expr `pwd` : '.*/tapeout_16$' > /dev/null && rightplace=true || rightplace=false
 # if [ $rightplace != true ] ; then
