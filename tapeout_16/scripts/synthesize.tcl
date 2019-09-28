@@ -67,7 +67,7 @@ redirect syn.area1 {report_area -detail}
 write_snapshot -directory results_syn -tag final
 write_design -innovus -basename results_syn/syn_out
 
-read_saif -verbose -instance Tile_MemCore ../../activity_files/xrun_Tile_MemCore.saif
+read_saif -verbose -instance Tile_MemCore ../../activity_files/xrun_memtile.saif
 report_power -depth 10 -full_instance_names Tile_MemCore/MemCore_inst0 > syn.power
 report_power -depth 10 -full_instance_names Tile_MemCore/MemCore_inst0/memory_core_inst0/doublebuffer_control > syn.power1
 #report_power -hier -depth 10 -full_instance_names -detail > syn.power1
