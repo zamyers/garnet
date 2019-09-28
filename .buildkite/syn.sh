@@ -6,6 +6,9 @@ if [ "$1" == "-q" ]; then VERBOSE=false; shift; fi
 
 TILE=$1
 
+mkdir tapeout_16/power_reports
+ls
+
 cd tapeout_16
 
 echo "--- ${TILE} SYNTHESIS"
@@ -21,13 +24,13 @@ if [ "$VERBOSE" == true ];
 fi
 # pwd; ls -l genesis_verif
 
-$nobuf ./run_synthesis.csh Tile_${TILE} ${PWR_AWARE} \
+$nobuf ./run_synthesis.csh Tile_${TILE} ${PWR_AWARE} ${APP} \
   | ${filter[*]} \
   || exit 13
 pwd
 
-ls synth/Tile_${TILE}
-ls synth/Tile_${TILE}/results_syn
+#ls synth/Tile_${TILE}
+#ls synth/Tile_${TILE}/results_syn
 
 #echo "--- final_area.rpt"
 #cat synth/Tile_${TILE}/results_syn/final_area.rpt
@@ -41,10 +44,7 @@ ls synth/Tile_${TILE}/results_syn
 #echo "--- syn.area2"
 #cat synth/Tile_${TILE}/syn.area2
 
-echo "--- syn.power"
-cat synth/Tile_${TILE}/syn.power
-
-echo "--- syn.power1"
-cat synth/Tile_${TILE}/syn.power1
+#echo "--- syn.power1"
+#cat synth/Tile_${TILE}/syn.power1
 
 cd ../
