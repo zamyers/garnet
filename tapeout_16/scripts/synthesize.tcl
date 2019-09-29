@@ -67,7 +67,7 @@ redirect syn.area1 {report_area -detail}
 write_snapshot -directory results_syn -tag final
 write_design -innovus -basename results_syn/syn_out
 
-set values {harris}
+set values {harris1}
 foreach v $values {
     read_saif -instance Tile_MemCore ../../activity_files/${v}.saif
     report_power -depth 2 -full_instance_names Tile_MemCore/MemCore_inst0 > ${v}.power
