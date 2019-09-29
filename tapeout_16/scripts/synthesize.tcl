@@ -61,7 +61,7 @@ syn_map
 syn_opt 
 
 #redirect syn.area {report_area}
-redirect syn.area {report_area -detail}
+redirect syn.area {report_area -depth 4 -detail}
 #redirect syn.area2 {report_area -detail -show_leaf_cells -depth 10}
 
 write_snapshot -directory results_syn -tag final
@@ -76,7 +76,7 @@ set values {conv_3_3a conv_3_3b harrisa harrisb harrisc avg_poola avg_poolb avg_
 foreach v $values {
     read_saif -update -instance Tile_MemCore ../../activity_files/${v}.saif
 }
-report_power -depth 3 -full_instance_names Tile_MemCore/MemCore_inst0 > average.power
+report_power -depth 3 -full_instance_names Tile_MemCore > average.power
 
 #report_power -depth 10 -full_instance_names Tile_MemCore/MemCore_inst0/memory_core_inst0/doublebuffer_control > syn.power1
 #report_power -hier -depth 10 -full_instance_names -detail > syn.power1
