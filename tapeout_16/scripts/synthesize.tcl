@@ -68,16 +68,16 @@ write_snapshot -directory results_syn -tag final
 write_design -innovus -basename results_syn/syn_out
 
 #set values {conv_3_3a conv_3_3b harrisa harrisb harrisc avg_poola avg_poolb avg_poolc avg_poold upsample strided_conva strided_convb strided_convc strided_convd strided_conve strided_convf unet_examplea unet_exampleb unet_examplec unet_exampled unet_examplee unet_examplef}
-set values {harrisa}
-#foreach v $values {
-#    read_saif -instance Tile_MemCore ../../activity_files/${v}.saif
-#    report_power -depth 3 -full_instance_names Tile_MemCore > ${v}.power
-#}
-
+set values {conv_3_3a}
 foreach v $values {
-    read_saif -update -instance Tile_MemCore ../../activity_files/${v}.saif
+    read_saif -instance Tile_MemCore ../../activity_files/${v}.saif
+    report_power -depth 3 -full_instance_names Tile_MemCore > ${v}.power
 }
-report_power -depth 3 -full_instance_names Tile_MemCore > average.power
+
+#foreach v $values {
+#    read_saif -update -instance Tile_MemCore ../../activity_files/${v}.saif
+#}
+#report_power -depth 3 -full_instance_names Tile_MemCore > average.power
 
 #report_power -depth 10 -full_instance_names Tile_MemCore/MemCore_inst0/memory_core_inst0/doublebuffer_control > syn.power1
 #report_power -hier -depth 10 -full_instance_names -detail > syn.power1
