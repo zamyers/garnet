@@ -76,4 +76,11 @@ write_db -to_file map.db
 
 write_snapshot -directory results_syn -tag final
 write_design -innovus -basename results_syn/syn_out
+
+set values {overall_conv_3_3}
+foreach v $values {
+    read_saif -instance Garnet ../../activity_files/${v}.saif
+    report_power -depth 6 -full_instance_names > ${v}.power
+}
+
 exit

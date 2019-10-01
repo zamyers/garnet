@@ -4,6 +4,9 @@ steps:
   - ./.buildkite/gen.sh -v
 
   - mkdir tapeout_16/power_reports
-  - ./.buildkite/syn.sh -v MemCore
 
-  - ./.buildkite/report.sh
+    #- ./.buildkite/syn.sh -v Tile_MemCore
+    #- ./.buildkite/report.sh Tile_MemCore
+  - ./.buildkite/syn.sh -v Tile_PE
+  - ./.buildkite/report.sh Tile_PE
+    #- ./.buildkite/syn.sh -v Garnet TOP

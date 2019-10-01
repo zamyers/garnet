@@ -5,6 +5,7 @@ if [ "$1" == "-v" ]; then VERBOSE=true;  shift; fi
 if [ "$1" == "-q" ]; then VERBOSE=false; shift; fi
 
 TILE=$1
+TOP=$2
 
 mkdir tapeout_16/power_reports
 ls
@@ -24,7 +25,7 @@ if [ "$VERBOSE" == true ];
 fi
 # pwd; ls -l genesis_verif
 
-$nobuf ./run_synthesis.csh Tile_${TILE} ${PWR_AWARE} ${APP} \
+$nobuf ./run_synthesis.csh ${TILE} ${PWR_AWARE} ${TOP} \
   | ${filter[*]} \
   || exit 13
 pwd
