@@ -14,8 +14,6 @@ set_attr library [list \
 
 set_attr lef_library [list \
 /tsmc16/download/TECH16FFC/N16FF_PRTF_Cad_1.2a/PR_tech/Cadence/LefHeader/Standard/VHV/N16_Encounter_9M_2Xa1Xd3Xe2Z_UTRDL_9T_PODE_1.2a.tlef \
-../Tile_PE/pnr.lef \
-../Tile_MemCore/pnr.lef \
 /tsmc16/TSMCHOME/digital/Back_End/lef/tcbn16ffcllbwp16p90_100a/lef/tcbn16ffcllbwp16p90.lef \
 /tsmc16/TSMCHOME/digital/Back_End/lef/tpbn16v_090a/fc/fc_lf_bu/APRDL/lef/tpbn16v.lef \
 /tsmc16/TSMCHOME/digital/Back_End/lef/tphn16ffcllgv18e_110e/mt_1/9m/9M_2XA1XD_H_3XE_VHV_2Z/lef/tphn16ffcllgv18e_9lm.lef \
@@ -79,7 +77,7 @@ write_design -innovus -basename results_syn/syn_out
 
 set values {overall_conv_3_3}
 foreach v $values {
-    read_saif -instance Garnet ../../activity_files/${v}.saif
+    read_saif -instance Garnet ../../activity_files/Garnet/${v}.saif
     report_power -depth 6 -full_instance_names > ${v}.power
 }
 
