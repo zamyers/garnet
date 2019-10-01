@@ -1,5 +1,9 @@
 puts "Starting Genus Synthesis"
 
+set corner_pad tt0p8v1p8v85c
+set corner_mem tt0p8v110c
+set corner tt0p8v85c
+
 set_attr lp_insert_clock_gating true /
 set_attr library [list \
 /tsmc16/TSMCHOME/digital/Front_End/timing_power_noise/NLDM/tcbn16ffcllbwp16p90_100a/tcbn16ffcllbwp16p90ssgnp0p72vm40c.lib \
@@ -67,10 +71,9 @@ redirect syn.area {report_area -depth 4 -detail}
 write_snapshot -directory results_syn -tag final
 write_design -innovus -basename results_syn/syn_out
 
-#set values {conv_3_3a conv_3_3b harrisa harrisb harrisc avg_poola avg_poolb avg_poolc avg_poold upsample strided_conva strided_convb strided_convc strided_convd strided_conve strided_convf unet_examplea unet_exampleb unet_examplec unet_exampled unet_examplee unet_examplef}
-set values {harris_pe}
+source ../../scripts/$::env(DESIGN)_saif.tcl
 foreach v $values {
-    read_saif -instance $::env{DESIGN) ../../activity_files/${v}.saif
+    read_saif -instance $::env(DESIGN) ../../activity_files/$::env(DESIGN)/${v}.saif
     report_power -depth 4 -full_instance_names $::env(DESIGN)> ${v}.power
 }
 

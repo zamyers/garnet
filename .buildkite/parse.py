@@ -1,15 +1,7 @@
 import argparse
 
-def main():
-    parser = argparse.ArgumentParser()
-    parser.add_argument("--input", type=str, default="", help="input file")
-    args = parser.parse_args()
-
-    if args.input == "":
-        print("please include file to parse")
-        return
-
-    f = open(args.input, 'r')
+def parse_memcore(filename):
+    f = open(filename, 'r')
 
     # Read past header
     # Area report is 20, power report is 21
@@ -92,6 +84,26 @@ def main():
     print("MEMORY,%f" % results["mem_inst"])
     print("INTERCONNECT,%f" % results["interconnect"])
     print("OTHER,%f" % other)
+
+def parse_pe(filename):
+    print("currently not implemented")
+
+def main():
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--input", type=str, default="", help="input file")
+    args = parser.parse_args()
+
+    if args.input == "":
+        print("please include file to parse")
+        return
+
+    if "Tile_MemCore" in args.input:
+        parse_memcore(args.input)
+    elif "Tile_PE" in args.input:
+        parse_pe(args.input)
+    else:
+        parse_memcore(args.input)
+        parse_pe(args.input)
 
 if __name__ == '__main__':
     main()
