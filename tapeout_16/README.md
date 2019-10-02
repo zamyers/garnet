@@ -16,8 +16,6 @@ Before you start, add the following lines to your .cshrc:
 the correct innovus v19, `module load innovus/19.10.000` must happen
 *after* `module load genus`.
 
-
-
 To Generate Garnet Verilog and put it in the correct folder for synthesis and P&R:
 1. Navigate to CGRAGenerator/hardware/tapeout\_16
 2. Do `./gen_rtl.sh`

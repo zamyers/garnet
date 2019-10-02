@@ -239,11 +239,22 @@ set_multi_cpu_usage -local_cpu 8
 set_multi_cpu_usage -local_cpu 8
 
 eval_legacy {editPowerVia -area {1090 1090 3840 3840} -delete_vias true}
-foreach x [get_property [get_cells -filter "ref_name=~*PDD* || ref_name=~*PRW* || ref_name=~*FILL*" ] full_name] {disconnect_pin -inst $x -pin RTE}
+
+foreach x \
+    [get_property \
+         [get_cells -filter "ref_name=~*PDD* || ref_name=~*PRW* || ref_name=~*FILL*" ]\
+         full_name \
+        ] \
+    {
+        disconnect_pin -inst $x -pin RTE
+    }
+
 set_db route_design_antenna_diode_insertion true 
 set_db route_design_antenna_cell_name ANTENNABWP16P90 
 set_db route_design_fix_top_layer_antenna true 
-add_core_fiducials
+
+# Add ICOVL alignment cells to center/core of chip
+set_proc_verbose add_core_fiducials; add_core_fiducials
 write_db placed_macros.db
 gen_power
 
@@ -275,11 +286,15 @@ gen_route_bumps
 route_flip_chip -eco -target connect_bump_to_pad
 # Everything should be connected now
 check_connectivity -nets pad*
+
 # after routing bumps, insert io fillers
-done_fp
+# "done_fp" is defined in vlsi/flow/scripts/gen_floorplan.tcl
+set_proc_verbose done_fp; done_fp
 
 # Drop RV power vias last
-eval_legacy {editPowerVia -add_vias true -orthogonal_only true -top_layer AP -bottom_layer 9}
+eval_legacy {
+  editPowerVia -add_vias true -orthogonal_only true -top_layer AP -bottom_layer 9
+}
 
 check_io_to_bump_connectivity
 check_connectivity -nets pad*
