@@ -1,15 +1,19 @@
 puts "Starting Genus Synthesis"
 
+set corner_pad tt0p8v1p8v85c
+set corner_mem tt0p8v110c
+set corner tt0p8v85c
+
 set_attr lp_insert_clock_gating true /
 set_attr library [list \
-/tsmc16/TSMCHOME/digital/Front_End/timing_power_noise/NLDM/tcbn16ffcllbwp16p90_100a/tcbn16ffcllbwp16p90ssgnp0p72vm40c.lib \
-/tsmc16/TSMCHOME/digital/Front_End/timing_power_noise/NLDM/tphn16ffcllgv18e_110c/tphn16ffcllgv18essgnp0p72v1p62vm40c.lib \
-/tsmc16/TSMCHOME/digital/Front_End/timing_power_noise/NLDM/tcbn16ffcllbwp16p90pm_100a/tcbn16ffcllbwp16p90pmssgnp0p72vm40c.lib \
-/sim/ajcars/mc/ts1n16ffcllsblvtc512x16m8s_130a/NLDM/ts1n16ffcllsblvtc512x16m8s_130a_ssgnp0p72vm40c.lib \
-/sim/ajcars/mc/ts1n16ffcllsblvtc256x32m4sw_130a/NLDM/ts1n16ffcllsblvtc256x32m4sw_130a_ssgnp0p72vm40c.lib \
-/sim/ajcars/mc/ts1n16ffcllsblvtc256x32m8sw_130a/NLDM/ts1n16ffcllsblvtc256x32m8sw_130a_ssgnp0p72vm40c.lib \
-/sim/ajcars/mc/ts1n16ffcllsblvtc2048x32m8sw_130a/NLDM/ts1n16ffcllsblvtc2048x32m8sw_130a_ssgnp0p72vm40c.lib \
-/sim/ajcars/mc/ts1n16ffcllsblvtc2048x64m8sw_130a/NLDM/ts1n16ffcllsblvtc2048x64m8sw_130a_ssgnp0p72vm40c.lib \
+/tsmc16/TSMCHOME/digital/Front_End/timing_power_noise/NLDM/tcbn16ffcllbwp16p90_100a/tcbn16ffcllbwp16p90${corner}.lib \
+/tsmc16/TSMCHOME/digital/Front_End/timing_power_noise/NLDM/tphn16ffcllgv18e_110c/tphn16ffcllgv18e${corner_pad}.lib \
+/tsmc16/TSMCHOME/digital/Front_End/timing_power_noise/NLDM/tcbn16ffcllbwp16p90pm_100a/tcbn16ffcllbwp16p90pm${corner}.lib \
+/sim/ajcars/mc/ts1n16ffcllsblvtc512x16m8s_130a/NLDM/ts1n16ffcllsblvtc512x16m8s_130a_${corner_mem}.lib \
+/sim/ajcars/mc/ts1n16ffcllsblvtc256x32m4sw_130a/NLDM/ts1n16ffcllsblvtc256x32m4sw_130a_${corner_mem}.lib \
+/sim/ajcars/mc/ts1n16ffcllsblvtc256x32m8sw_130a/NLDM/ts1n16ffcllsblvtc256x32m8sw_130a_${corner_mem}.lib \
+/sim/ajcars/mc/ts1n16ffcllsblvtc2048x32m8sw_130a/NLDM/ts1n16ffcllsblvtc2048x32m8sw_130a_${corner_mem}.lib \
+/sim/ajcars/mc/ts1n16ffcllsblvtc2048x64m8sw_130a/NLDM/ts1n16ffcllsblvtc2048x64m8sw_130a_${corner_mem}.lib \
 ] 
 
 set_attr lef_library [list \
@@ -60,6 +64,26 @@ set_attr syn_map_effort high
 syn_map
 syn_opt 
 
+#redirect syn.area {report_area}
+redirect syn.area {report_area -depth 4 -detail}
+#redirect syn.area2 {report_area -detail -show_leaf_cells -depth 10}
+
 write_snapshot -directory results_syn -tag final
 write_design -innovus -basename results_syn/syn_out
+
+source ../../scripts/$::env(DESIGN)_saif.tcl
+foreach v $values {
+    read_saif -instance $::env(DESIGN) ../../activity_files/$::env(DESIGN)/${v}.saif
+    report_power -depth 4 -full_instance_names $::env(DESIGN)> ${v}.power
+}
+
+#foreach v $values {
+#    read_saif -update -instance Tile_MemCore ../../activity_files/${v}.saif
+#}
+#report_power -depth 3 -full_instance_names Tile_MemCore > average.power
+
+#report_power -depth 10 -full_instance_names Tile_MemCore/MemCore_inst0/memory_core_inst0/doublebuffer_control > syn.power1
+#report_power -hier -depth 10 -full_instance_names -detail > syn.power1
+
+
 exit

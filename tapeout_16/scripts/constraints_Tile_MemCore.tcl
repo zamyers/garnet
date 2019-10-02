@@ -16,8 +16,9 @@ foreach line $lines {
   echo "setting false path from config reg $line"
 }
 
-set_attribute ungroup_ok false [get_cells *]
-set_attribute ungroup_ok true [get_cells -hier MemCore*]
+#set_attribute ungroup_ok false [get_cells *]
+#set_attribute ungroup_ok true [get_cells -hier MemCore*]
+set_attribute ungroup_ok false [get_cells -hier *]
 
 
 # set loads on pass through signals

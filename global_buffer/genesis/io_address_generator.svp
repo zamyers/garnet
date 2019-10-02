@@ -3,7 +3,7 @@
 ** Description:
 **              Address generator for I/O controller
 ** Author: Taeyoung Kong
-** Change history: 04/10/2019 - Implement first version only with interface 
+** Change history: 04/10/2019 - Implement first version only with interface
 **                 05/10/2019 - INSTREAM, OUTSTREAM modes are implemented
 **===========================================================================*/
 
@@ -23,6 +23,9 @@ module `mname` #(
 
     input  logic [GLB_ADDR_WIDTH-1:0]       start_addr,
     input  logic [GLB_ADDR_WIDTH-1:0]       num_words,
+    input  logic [GLB_ADDR_WIDTH-1:0]       num_active,
+    input  logic [GLB_ADDR_WIDTH-1:0]       num_inactive,
+    input  logic                            auto_restart,
     input  logic [1:0]                      mode,
     input  logic [CONFIG_DATA_WIDTH-1:0]    done_delay,
 
@@ -33,7 +36,7 @@ module `mname` #(
     output logic                            io_to_cgra_rd_data_valid,
     input  logic [CGRA_DATA_WIDTH-1:0]      cgra_to_io_addr_high,
     input  logic [CGRA_DATA_WIDTH-1:0]      cgra_to_io_addr_low,
-    
+
     output logic                            io_to_bank_wr_en,
     output logic [BANK_DATA_WIDTH-1:0]      io_to_bank_wr_data,
     output logic [BANK_DATA_WIDTH-1:0]      io_to_bank_wr_data_bit_sel,
@@ -56,8 +59,8 @@ localparam integer BANK_ADDR_OFFSET = $clog2(BANK_DATA_WIDTH/8); // 3
 //============================================================================//
 // register to latch data from bank
 //============================================================================//
-logic                       io_to_bank_rd_en_d1; 
-logic                       io_to_bank_rd_en_d2; 
+logic                       io_to_bank_rd_en_d1;
+logic                       io_to_bank_rd_en_d2;
 logic [BANK_DATA_WIDTH-1:0] bank_to_io_rd_data_reg;
 logic                       bank_to_io_rd_data_valid_reg;
 logic [BANK_DATA_WIDTH-1:0] int_bank_to_io_rd_data;
@@ -77,12 +80,21 @@ assign int_bank_to_io_rd_data_valid = io_to_bank_rd_en_d2 ? bank_to_io_rd_data_v
 //============================================================================//
 // INSTREAM mode
 //============================================================================//
-enum logic[1:0] {IDLE_INSTREAM, READ_INSTREAM, DONE_INSTREAM} state_instream;
+enum logic[1:0] {
+    IDLE_INSTREAM,
+    READ_ACTIVE_INSTREAM,
+    READ_INACTIVE_INSTREAM,
+    DONE_INSTREAM
+} state_instream;
 
 logic [GLB_ADDR_WIDTH-1:0]      int_addr_instream;
 
 logic [GLB_ADDR_WIDTH-1:0]      num_words_cnt_instream;
+logic [GLB_ADDR_WIDTH-1:0]      cnt_instream;
+logic [GLB_ADDR_WIDTH-1:0]      num_active_cnt_instream;
+logic [GLB_ADDR_WIDTH-1:0]      num_inactive_cnt_instream;
 logic [CONFIG_DATA_WIDTH-1:0]   done_cnt_instream;
+logic                           auto_restart_instream;
 
 logic [DATA_SEL_WIDTH-1:0]      data_sel_instream;
 logic [DATA_SEL_WIDTH-1:0]      data_sel_instream_d1;
@@ -114,17 +126,26 @@ always_ff @(posedge clk or posedge reset) begin
     if (reset) begin
         state_instream <= IDLE_INSTREAM;
         num_words_cnt_instream <= 0;
+        num_active_cnt_instream <= 0;
+        num_inactive_cnt_instream <= 0;
+        cnt_instream <= 0;
         done_cnt_instream <= 0;
+        auto_restart_instream <= 0;
         int_addr_instream <= 0;
         io_to_bank_rd_en_instream <= 0;
         cgra_done_pulse_instream <= 0;
     end
     else if (clk_en) begin
         if (mode == INSTREAM) begin
+            auto_restart_instream <= auto_restart_instream | auto_restart;
             if (cgra_start_pulse) begin
                 if (num_words > 0) begin
-                    state_instream <= READ_INSTREAM;
+                    state_instream <= READ_ACTIVE_INSTREAM;
                     num_words_cnt_instream <= num_words;
+                    // if number of active words wasn't specified (was 0), assume num_words instead
+                    num_active_cnt_instream <= (num_active > 0) ? num_active : num_words;
+                    num_inactive_cnt_instream <= num_inactive;
+                    cnt_instream <= 0;
                     done_cnt_instream <= done_delay;
                     int_addr_instream <= start_addr;
                     io_to_bank_rd_en_instream <= 1;
@@ -134,6 +155,9 @@ always_ff @(posedge clk or posedge reset) begin
                 else begin
                     state_instream <= DONE_INSTREAM;
                     num_words_cnt_instream <= 0;
+                    num_active_cnt_instream <= 0;
+                    num_inactive_cnt_instream <= 0;
+                    cnt_instream <= 0;
                     done_cnt_instream <= done_delay;
                     int_addr_instream <= start_addr;
                     io_to_bank_rd_en_instream <= 0;
@@ -145,23 +169,78 @@ always_ff @(posedge clk or posedge reset) begin
                     IDLE_INSTREAM: begin
                         state_instream <= IDLE_INSTREAM;
                         num_words_cnt_instream <= 0;
+                        num_active_cnt_instream <= 0;
+                        num_inactive_cnt_instream <= 0;
+                        cnt_instream <= 0;
                         done_cnt_instream <= 0;
                         int_addr_instream <= int_addr_instream;
                         io_to_bank_rd_en_instream <= 0;
                         cgra_done_pulse_instream <= 0;
                     end
-                    READ_INSTREAM: begin
-                        if (num_words_cnt_instream == 1) begin
-                            state_instream <= DONE_INSTREAM;
-                            num_words_cnt_instream <= 0;
-                            done_cnt_instream <= done_cnt_instream;
-                            int_addr_instream <= int_addr_instream;
-                            io_to_bank_rd_en_instream <= 0;
-                            cgra_done_pulse_instream <= 0;
+                    READ_ACTIVE_INSTREAM: begin
+                        if (cnt_instream == num_active_cnt_instream-1) begin
+                            if (num_inactive_cnt_instream == 0 && num_words_cnt_instream == 1) begin
+                                if (auto_restart_instream) begin
+                                    // TODO: should maybe send a clear signal to parent instead
+                                    // TODO: needs to generate interrupt
+                                    auto_restart_instream <= 0;
+
+                                    if (num_words > 0) begin
+                                        state_instream <= READ_ACTIVE_INSTREAM;
+                                        num_words_cnt_instream <= num_words;
+                                        // if number of active words wasn't specified (was 0), assume num_words instead
+                                        num_active_cnt_instream <= (num_active > 0) ? num_active : num_words;
+                                        num_inactive_cnt_instream <= num_inactive;
+                                        cnt_instream <= 0;
+                                        done_cnt_instream <= done_delay;
+                                        int_addr_instream <= start_addr;
+                                        io_to_bank_rd_en_instream <= 1;
+                                        cgra_done_pulse_instream <= 0;
+                                    end
+                                    // corner case when num_words is set to 0 when cgra_start_pulse is high
+                                    else begin
+                                        state_instream <= DONE_INSTREAM;
+                                        num_words_cnt_instream <= 0;
+                                        num_active_cnt_instream <= 0;
+                                        num_inactive_cnt_instream <= 0;
+                                        cnt_instream <= 0;
+                                        done_cnt_instream <= done_delay;
+                                        int_addr_instream <= start_addr;
+                                        io_to_bank_rd_en_instream <= 0;
+                                        cgra_done_pulse_instream <= 0;
+                                    end
+                                end
+                                else begin
+                                    state_instream <= DONE_INSTREAM;
+                                    num_words_cnt_instream <= 0;
+                                    num_active_cnt_instream <= 0;
+                                    num_inactive_cnt_instream <= 0;
+                                    cnt_instream <= 0;
+                                    done_cnt_instream <= done_cnt_instream;
+                                    int_addr_instream <= int_addr_instream;
+                                    io_to_bank_rd_en_instream <= 0;
+                                    cgra_done_pulse_instream <= 0;
+                                end
+                            end
+                            else begin
+                                state_instream <= READ_INACTIVE_INSTREAM;
+                                num_words_cnt_instream <= num_words_cnt_instream - 1;
+                                num_active_cnt_instream <= num_active_cnt_instream;
+                                num_inactive_cnt_instream <= num_inactive_cnt_instream;
+                                cnt_instream <= 0;
+                                done_cnt_instream <= done_cnt_instream;
+                                int_addr_instream <= int_addr_instream + CGRA_DATA_BYTE;
+                                // bank_rd_en goes high only when the last word is read
+                                io_to_bank_rd_en_instream <= (data_sel_instream == {DATA_SEL_WIDTH{1'b1}});
+                                cgra_done_pulse_instream <= 0;
+                            end
                         end
                         else begin
-                            state_instream <= READ_INSTREAM;
+                            state_instream <= READ_ACTIVE_INSTREAM;
                             num_words_cnt_instream <= num_words_cnt_instream - 1;
+                            num_active_cnt_instream <= num_active_cnt_instream;
+                            num_inactive_cnt_instream <= num_inactive_cnt_instream;
+                            cnt_instream <= cnt_instream + 1;
                             done_cnt_instream <= done_cnt_instream;
                             int_addr_instream <= int_addr_instream + CGRA_DATA_BYTE;
                             // bank_rd_en goes high only when the last word is read
@@ -169,10 +248,81 @@ always_ff @(posedge clk or posedge reset) begin
                             cgra_done_pulse_instream <= 0;
                         end
                     end
+                    READ_INACTIVE_INSTREAM: begin
+                        if (cnt_instream == num_inactive_cnt_instream-1) begin
+                            if (num_words_cnt_instream == 0) begin
+                                if (auto_restart_instream) begin
+                                    // TODO: should maybe send a clear signal to parent instead
+                                    // TODO: needs to generate interrupt
+                                    auto_restart_instream <= 0;
+
+                                    if (num_words > 0) begin
+                                        state_instream <= READ_ACTIVE_INSTREAM;
+                                        num_words_cnt_instream <= num_words;
+                                        // if number of active words wasn't specified (was 0), assume num_words instead
+                                        num_active_cnt_instream <= (num_active > 0) ? num_active : num_words;
+                                        num_inactive_cnt_instream <= num_inactive;
+                                        cnt_instream <= 0;
+                                        done_cnt_instream <= done_delay;
+                                        int_addr_instream <= start_addr;
+                                        io_to_bank_rd_en_instream <= 1;
+                                        cgra_done_pulse_instream <= 0;
+                                    end
+                                    // corner case when num_words is set to 0 when cgra_start_pulse is high
+                                    else begin
+                                        state_instream <= DONE_INSTREAM;
+                                        num_words_cnt_instream <= 0;
+                                        num_active_cnt_instream <= 0;
+                                        num_inactive_cnt_instream <= 0;
+                                        cnt_instream <= 0;
+                                        done_cnt_instream <= done_delay;
+                                        int_addr_instream <= start_addr;
+                                        io_to_bank_rd_en_instream <= 0;
+                                        cgra_done_pulse_instream <= 0;
+                                    end
+                                end
+                                else begin
+                                    state_instream <= DONE_INSTREAM;
+                                    num_words_cnt_instream <= 0;
+                                    num_active_cnt_instream <= 0;
+                                    num_inactive_cnt_instream <= 0;
+                                    cnt_instream <= 0;
+                                    done_cnt_instream <= done_cnt_instream;
+                                    int_addr_instream <= int_addr_instream;
+                                    io_to_bank_rd_en_instream <= 0;
+                                    cgra_done_pulse_instream <= 0;
+                                end
+                            end
+                            else begin
+                                state_instream <= READ_ACTIVE_INSTREAM;
+                                num_words_cnt_instream <= num_words_cnt_instream;
+                                num_active_cnt_instream <= num_active_cnt_instream;
+                                num_inactive_cnt_instream <= num_inactive_cnt_instream;
+                                cnt_instream <= 0;
+                                done_cnt_instream <= 0;
+                                int_addr_instream <= int_addr_instream;
+                                io_to_bank_rd_en_instream <= 0;
+                                cgra_done_pulse_instream <= 0;
+                            end
+                        end
+                        else begin
+                            state_instream <= READ_INACTIVE_INSTREAM;
+                            num_words_cnt_instream <= num_words_cnt_instream;
+                            num_active_cnt_instream <= num_active_cnt_instream;
+                            num_inactive_cnt_instream <= num_inactive_cnt_instream;
+                            cnt_instream <= cnt_instream + 1;
+                            done_cnt_instream <= 0;
+                            int_addr_instream <= int_addr_instream;
+                            io_to_bank_rd_en_instream <= 0;
+                            cgra_done_pulse_instream <= 0;
+                        end
+                    end
                     DONE_INSTREAM: begin
                         if (done_cnt_instream == 0) begin
                             state_instream <= IDLE_INSTREAM;
                             num_words_cnt_instream <= 0;
+                            num_active_cnt_instream <= 0;
+                            num_inactive_cnt_instream <= 0;
                             done_cnt_instream <= 0;
                             int_addr_instream <= int_addr_instream;
                             io_to_bank_rd_en_instream <= 0;
@@ -181,6 +331,8 @@ always_ff @(posedge clk or posedge reset) begin
                         else begin
                             state_instream <= DONE_INSTREAM;
                             num_words_cnt_instream <= 0;
+                            num_active_cnt_instream <= 0;
+                            num_inactive_cnt_instream <= 0;
                             done_cnt_instream <= done_cnt_instream - 1;
                             int_addr_instream <= int_addr_instream;
                             io_to_bank_rd_en_instream <= 0;
@@ -190,6 +342,8 @@ always_ff @(posedge clk or posedge reset) begin
                     default: begin
                         state_instream <= IDLE_INSTREAM;
                         num_words_cnt_instream <= 0;
+                        num_active_cnt_instream <= 0;
+                        num_inactive_cnt_instream <= 0;
                         done_cnt_instream <= 0;
                         int_addr_instream <= int_addr_instream;
                         io_to_bank_rd_en_instream <= 0;
@@ -202,6 +356,8 @@ always_ff @(posedge clk or posedge reset) begin
         else begin
             state_instream <= IDLE_INSTREAM;
             num_words_cnt_instream <= 0;
+            num_active_cnt_instream <= 0;
+            num_inactive_cnt_instream <= 0;
             done_cnt_instream <= 0;
             int_addr_instream <= int_addr_instream;
             io_to_bank_rd_en_instream <= 0;
@@ -213,7 +369,7 @@ end
 // When num_words_cnt is non-zero, rd_data_valid is positive
 // io_to_cgra_rd_data_valid goes high 2 cycles after num_cnt is greater than 0
 // due to read latency
-assign int_rd_data_valid_instream = (num_words_cnt_instream > 0);
+assign int_rd_data_valid_instream = (num_words_cnt_instream > 0) && (state_instream == READ_ACTIVE_INSTREAM);
 always_ff @(posedge clk) begin
     if (clk_en) begin
         int_rd_data_valid_instream_d1 <= int_rd_data_valid_instream;
@@ -256,7 +412,7 @@ logic [DATA_SEL_WIDTH-1:0]      data_sel_outstream;
 // In OUTSTREAM mode, wr_en and wr_data comes from cgra
 assign cgra_to_io_wr_en_outstream = cgra_to_io_wr_en;
 assign cgra_to_io_wr_data_outstream = cgra_to_io_wr_data;
-                                                 
+
 // We need mux due to the difference BANK_DATA_WIDTH and CGRA_DATA_WIDTH
 // It will be used to decide io_to_bank_bit_sel for partial write
 assign data_sel_outstream = int_addr_outstream[CGRA_DATA_BYTE-1 +: DATA_SEL_WIDTH];
@@ -431,7 +587,7 @@ end
 // If num_words is set to n, it generates cgra_done_pulse when the sum of
 // the number of cgra writes and reads becomes n.
 // If both cgra_to_io_wr_en and cgra_to_io_rd_en are asserted at the same
-// cycle (which is not desired scenario), cgra_to_io_wr_en has priority. 
+// cycle (which is not desired scenario), cgra_to_io_wr_en has priority.
 //============================================================================//
 enum logic[1:0] {IDLE_SRAM, RUN_SRAM, RUN_SRAM_LOOP, DONE_SRAM} state_sram;
 
@@ -463,7 +619,7 @@ logic [DATA_SEL_WIDTH-1:0]      data_sel_sram_d2;
 // In SRAM mode, wr_en and wr_data comes from cgra
 assign cgra_to_io_wr_en_sram = cgra_to_io_wr_en;
 assign cgra_to_io_wr_data_sram = cgra_to_io_wr_data;
-                                                 
+
 // In SRAM mode, rd_en comes from cgra
 assign cgra_to_io_rd_en_sram = cgra_to_io_rd_en;
 
