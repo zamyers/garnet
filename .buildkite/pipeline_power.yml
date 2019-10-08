@@ -5,12 +5,17 @@ steps:
 
   - mkdir tapeout_16/power_reports
 
-  - ./.buildkite/syn.sh -v Tile_MemCore harris
-  - ./.buildkite/syn.sh -v Tile_MemCore conv_3_3
-  - ./.buildkite/syn.sh -v Tile_MemCore avg_pool 
-  - ./.buildkite/syn.sh -v Tile_MemCore upsample 
-  - ./.buildkite/syn.sh -v Tile_MemCore strided_conv
-  - ./.buildkite/syn.sh -v Tile_MemCore unet_example
+  - ./.buildkite/syn.sh -q Tile_MemCore harris
+  - ./.buildkite/report.sh Tile_MemCore
+  - ./.buildkite/syn.sh -q Tile_MemCore conv_3_3
+  - ./.buildkite/report.sh Tile_MemCore
+  - ./.buildkite/syn.sh -q Tile_MemCore avg_pool 
+  - ./.buildkite/report.sh Tile_MemCore
+  - ./.buildkite/syn.sh -q Tile_MemCore upsample 
+  - ./.buildkite/report.sh Tile_MemCore
+  - ./.buildkite/syn.sh -q Tile_MemCore strided_conv
+  - ./.buildkite/report.sh Tile_MemCore
+  - ./.buildkite/syn.sh -q Tile_MemCore unet_example
   - ./.buildkite/report.sh Tile_MemCore
     #- ./.buildkite/syn.sh -v Tile_PE
     #- ./.buildkite/report.sh Tile_PE
