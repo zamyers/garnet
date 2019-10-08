@@ -4,21 +4,38 @@ env:
 
 
 steps:
+
+# let's re-able for a bit and see what happens!
+# - label: 'DISABLED!'
+#   command: exit 13
+#   # Note exit doesn't take effect until we hit this "wait" barrier
+# - wait ###########################################################
+
+
 - label: 'Generator'
+  agents: { jobsize: "hours" }
   command: .buildkite/GEN.sh -v
 
-- wait ###################################################################
+- wait #############################################################
+
+
 
 - label: 'Synthesis: PE tile'
+  agents: { jobsize: "hours" }
   command: .buildkite/SYN.sh -q PE
 
 - label: 'Synthesis: Memory tile'
+  agents: { jobsize: "hours" }
   command: .buildkite/SYN.sh -q MemCore
 
-- wait ###################################################################
+- wait #############################################################
+
+
 
 - label: 'PNR: PE tile'
+  agents: { jobsize: "hours" }
   command: .buildkite/PNR.sh -q PE
 
 - label: 'PNR: Memory tile'
+  agents: { jobsize: "hours" }
   command: .buildkite/PNR.sh -q MemCore
