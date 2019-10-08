@@ -72,7 +72,7 @@ write_snapshot -directory results_syn -tag final
 write_design -innovus -basename results_syn/syn_out
 
 #source ../../scripts/$::env(DESIGN)_saif.tcl
-source ../../scripts/$::env(DEDSIGN)_$::env(APP)_saif.tcl
+source ../../scripts/$::env(DESIGN)_$::env(APP)_saif.tcl
 foreach v $values {
     read_saif -instance $::env(DESIGN) ../../activity_files/$::env(DESIGN)/${v}.saif
 #    report_power -depth 4 -full_instance_names $::env(DESIGN)> ${v}.power
