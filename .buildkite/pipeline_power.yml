@@ -5,9 +5,14 @@ steps:
 
   - mkdir tapeout_16/power_reports
 
-    #- ./.buildkite/syn.sh -v Tile_MemCore
-    #- ./.buildkite/report.sh Tile_MemCore
-  - ./.buildkite/syn.sh -v Tile_PE
-  - ./.buildkite/report.sh Tile_PE
+  - ./.buildkite/syn.sh -v Tile_MemCore harris
+  - ./.buildkite/syn.sh -v Tile_MemCore conv_3_3
+  - ./.buildkite/syn.sh -v Tile_MemCore avg_pool 
+  - ./.buildkite/syn.sh -v Tile_MemCore upsample 
+  - ./.buildkite/syn.sh -v Tile_MemCore strided_conv
+  - ./.buildkite/syn.sh -v Tile_MemCore unet_example
+  - ./.buildkite/report.sh Tile_MemCore
+    #- ./.buildkite/syn.sh -v Tile_PE
+    #- ./.buildkite/report.sh Tile_PE
     #- ./.buildkite/syn.sh -v Garnet TOP
     #- ./.buildkite/report.sh Garnet

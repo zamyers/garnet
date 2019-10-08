@@ -8,6 +8,7 @@
 
 echo "  setenv DESIGN $1";    setenv DESIGN $1
 echo "  setenv PWR_AWARE $2"; setenv PWR_AWARE $2
+echo "  setenv APP $3";       setenv APP $3
 
 if (-d synth/$1) then
   rm -rf synth/$1
@@ -31,7 +32,7 @@ pwd
 ls -ld ../..
 ls -l ../../genesis_verif
 set echo
-if ("$3" == "") then 
+if ("$4" == "") then 
     # For tiles (I think)
     genus -abort_on_error -no_gui -legacy_ui -f ../../scripts/synthesize.tcl || exit 13
 else
