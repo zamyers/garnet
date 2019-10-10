@@ -37,7 +37,7 @@ echo Checking for errors
 grep -i error do_gen.log
 echo ""
 
-cp garnet.v genesis_verif/garnet.sv
+cp tapeout_16/clockgated_genesis_verif/garnet.sv genesis_verif/garnet.sv
 
 cp -r genesis_verif/ tapeout_16/
 

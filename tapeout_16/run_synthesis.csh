@@ -30,7 +30,7 @@ which genus; which innovus
 cd synth/$1
 pwd
 ls -ld ../..
-ls -l ../../genesis_verif
+ls -l ../../clockgated_genesis_verif
 set echo
 if ("$4" == "") then 
     # For tiles (I think)

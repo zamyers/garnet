@@ -5,7 +5,7 @@ steps:
 
   - mkdir tapeout_16/power_reports
 
-  - ./.buildkite/syn.sh -q Tile_MemCore harris
+  - ./.buildkite/syn.sh -v Tile_MemCore harris
   - ./.buildkite/report.sh Tile_MemCore
   - ./.buildkite/syn.sh -q Tile_MemCore conv_3_3
   - ./.buildkite/report.sh Tile_MemCore
