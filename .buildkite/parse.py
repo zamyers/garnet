@@ -84,6 +84,7 @@ def parse_memcore(filename):
     print("MEMORY,%f" % results["mem_inst"])
     print("INTERCONNECT,%f" % results["interconnect"])
     print("OTHER,%f" % other)
+    print("OTHER2,%f" % (results["fifo_control"] + results["linebuffer_control"] + results["sram_control"] + other))
 
 def parse_pe(filename):
     print("currently not implemented")
