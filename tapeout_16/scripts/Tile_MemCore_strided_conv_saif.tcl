@@ -1,2 +1,2 @@
-set values {strided_conva strided_convb strided_convc strided_convd strided_conve strided_convf}
+set values {strided_conv0 strided_conv1 strided_conv2 strided_conv3 strided_conv4 strided_conv5 strided_conv6 strided_conv7 strided_conv8 strided_conv9 strided_conv10 strided_conv11 strided_conv12 strided_conv13 strided_conv14 strided_conv15 strided_conv16 strided_conv17 strided_conv18 strided_conv19 strided_conv20}
 
