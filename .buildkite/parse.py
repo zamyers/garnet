@@ -35,6 +35,18 @@ def parse_memcore(filename):
                 part_of_db = False
             elif "switch_db_reg_sel" in field:
                 part_of_db = True
+            elif "enable_chain" in field:
+                part_of_db = True
+            elif "arbitrary_addr" in field:
+                part_of_db = True
+            elif field.startswith("switch_db"):
+                # switch_db_reg_sel, switch_db_reg_value, switch_db_sel
+                part_of_db = True
+            elif field.startswith("chain_wen_in"):
+                # chain_wen_in_reg_value, chain_wen_in_reg_sel, chain_wen_in_sel
+                part_of_db = True
+            elif "rate_matched" in field:
+                part_of_db = True
             elif "doublebuffer_control" in field:
                 part_of_db = True
 
@@ -52,8 +64,10 @@ def parse_memcore(filename):
                 if "mem_inst" in results.keys():
                     total += results["mem_inst"]
                 results["mem_inst"] = total
-            if field == "fifo_control":
-                results[field] = total
+            if field == "fifo_control" or field == "circular_en":
+                if "fifo_control" in results.keys():
+                    total += results["fifo_control"]
+                results["fifo_control"] = total
             if field == "linebuffer_control":
                 results[field] = total
             if field == "sram_control":
