@@ -77,7 +77,8 @@ foreach v $values {
     read_saif -instance $::env(DESIGN) ../../activity_files/$::env(DESIGN)/${v}.saif
 #    report_power -depth 4 -full_instance_names $::env(DESIGN)> ${v}.power
 }
-report_power -depth 4 -full_instance_names $::env(DESIGN) > $::env(APP).power
+report_power -depth 4 -full_instance_names -flat $::env(DESIGN) > $::env(APP).power
+report_power -depth 4 -full_instance_names -flat -rtl_cross_reference $::env(DESIGN) > $::env(APP)2.power
 
 #foreach v $values {
 #    read_saif -update -instance Tile_MemCore ../../activity_files/${v}.saif
