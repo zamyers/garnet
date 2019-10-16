@@ -1,9 +1,9 @@
-module TS1N16FFCLLSBLVTC512X64M8SW
+module TS1N16FFCLLSBLVTC512X16M8S
 (
-    Q, CLK, CEB, BWEB, WEB, A, D, RTSEL, WTSEL
+    Q, CLK, CEB, WEB, A, D, RTSEL, WTSEL
 );
 
-localparam WIDTH = 64;
+localparam WIDTH = 16;
 localparam ADDR_WIDTH = 9;
 
 output reg [WIDTH-1:0] Q;
@@ -12,7 +12,6 @@ input        CEB;
 input        WEB;
 input [ADDR_WIDTH-1:0]  A;
 input [WIDTH-1:0] D;
-input [WIDTH-1:0] BWEB;
 
 input [1:0]  RTSEL;
 input [1:0]  WTSEL;
@@ -27,7 +26,7 @@ always @(posedge CLK) begin
         Q = data_array[A];
         if (WEB == 1'b0) begin
             for(i=0; i<WIDTH; i=i+1) begin
-                if (!(BWEB[i]) == 1) data_array[A][i] = D[i];  // ACTIVE LOW!!
+                data_array[A][i] = D[i];
             end
         end
         test_sig = data_array[A];
