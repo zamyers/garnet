@@ -21,3 +21,6 @@ steps:
     #- ./.buildkite/report.sh Tile_PE
     #- ./.buildkite/syn.sh -v Garnet TOP
     #- ./.buildkite/report.sh Garnet
+    a
+    artifact_paths:
+      - "tapeout_16/**/*.power"
