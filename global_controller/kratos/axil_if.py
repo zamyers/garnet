@@ -11,10 +11,9 @@ class Axil:
                 super().__init__()
 
                 # clk
-                Generator.clock("clk", 1)
-
+                self.clock("clk", 1)
                 # reset
-                Generator.reset("resetn", 1)
+                self.reset("resetn", 1)
 
         return _AxilInput()
 
@@ -51,7 +50,6 @@ class Axil:
                 self.input("rresp", 2)
                 self.input("rvalid", 1)
                 self.output("rready", 1)
-
 
         return _AxilMaster(self.axil_awidth, self.axil_dwidth)
 
