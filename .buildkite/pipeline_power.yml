@@ -22,5 +22,5 @@ steps:
     #- ./.buildkite/syn.sh -v Garnet TOP
     #- ./.buildkite/report.sh Garnet
     
-    artifact_paths:
-      - "tapeout_16/**/*.power"
+  artifact_paths:
+    - "tapeout_16/**/*.power"
