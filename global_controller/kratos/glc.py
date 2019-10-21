@@ -1,6 +1,6 @@
 from kratos import *
 from axil_if import Axil
-from glc_cfg_arbiter import GlcCfgArbiter
+from glc_axil_controller import GlcAxilController
 
 class GlobalController(Generator):
     def __init__(self, p_axil_awidth, p_axil_dwidth):
@@ -13,9 +13,8 @@ class GlobalController(Generator):
         self.axil_if = Axil(self.p_axil_awidth, self.p_axil_dwidth)
 
         # Port declaration
-        self.axil_in = self.port_bundle("axil_in", self.axil_if.input())
-        self._clk = self.axil_in.ports.clk
-        self._rst_n = self.axil_in.ports.resetn
+        self.clk = self.clock("clk")
+        self.rst_n = self.reset("rst_n")
 
         self.axil_s = self.port_bundle("axil_s", self.axil_if.slave())
 
@@ -25,12 +24,12 @@ class GlobalController(Generator):
         '''
         This function instantiates configuration arbiter
         '''
-        self.add_child("cfg_arbiter",
-                GlcCfgArbiter(self.p_axil_awidth, self.p_axil_dwidth),
-                comment="configuration arbiter")
-        self.wire(self._clk, self["cfg_arbiter"]._clk)
-        self.wire(self._rst_n, self["cfg_arbiter"]._rst_n)
-        self.wire(self.axil_s, self["cfg_arbiter"].axil_s)
+        self.add_child("axil_controller",
+                GlcAxilController(self.p_axil_awidth, self.p_axil_dwidth),
+                comment="axi-lite controller")
+        self.wire(self.clk, self["axil_controller"].clk)
+        self.wire(self.rst_n, self["axil_controller"].rst_n)
+        self.wire(self.axil_s, self["axil_controller"].axil_s)
 
 if __name__ == "__main__":
     glc = GlobalController(16, 16)
