@@ -1,5 +1,6 @@
 from kratos import *
 from axil_if import Axil
+from glc_cfg_if import GlcCfg
 from enum import Enum
 from math import log2, ceil
 
@@ -19,11 +20,13 @@ class WrState(Enum):
 
 class GlcAxilController(Generator):
     def __init__(self, p_axil_awidth, p_axil_dwidth):
-        super().__init__("cfg_arbiter")
+        super().__init__("glc_axil_controller")
 
         # Parameters
         self.p_axil_awidth = p_axil_awidth
         self.p_axil_dwidth = p_axil_dwidth
+        self.p_glc_cfg_awidth = p_axil_awidth
+        self.p_glc_cfg_dwidth = p_axil_dwidth
 
         self.clk = self.clock("clk")
         self.rst_n = self.reset("rst_n")
@@ -32,8 +35,9 @@ class GlcAxilController(Generator):
         self.axil_if = Axil(self.p_axil_awidth, self.p_axil_dwidth)
         self.axil_s = self.port_bundle("axil_s", self.axil_if.slave())
 
-        # add configuration ports
-        self.add_axil_cfg_ports()
+        # Global Controller internal interface
+        self.glc_cfg_if = GlcCfg(self.p_glc_cfg_awidth, self.p_glc_cfg_dwidth)
+        self.glc_cfg_m = self.port_bundle("glc_cfg_m", self.glc_cfg_if.master())
 
         # Declare internavl variables
         self.declare_internal_vars()
@@ -44,16 +48,6 @@ class GlcAxilController(Generator):
 
         # Output wiring
         self.output_wiring()
-
-    def add_axil_cfg_ports(self):
-        self._axil_cfg_wr_req = self.output("_axil_cfg_wr_req", 1)
-        self._axil_cfg_wr_addr = self.output("_axil_cfg_wr_addr", self.p_axil_awidth)
-        self._axil_cfg_wr_data = self.output("_axil_cfg_wr_data", self.p_axil_dwidth)
-        self._axil_cfg_wr_resp = self.input("_axil_cfg_wr_resp", 1)
-        self._axil_cfg_rd_req = self.output("_axil_cfg_rd_req", 1)
-        self._axil_cfg_rd_addr = self.output("_axil_cfg_rd_addr", self.p_axil_awidth)
-        self._axil_cfg_rd_data = self.input("_axil_cfg_rd_data", self.p_axil_dwidth)
-        self._axil_cfg_rd_resp = self.input("_axil_cfg_rd_resp", 1)
 
     def declare_internal_vars(self):
         self._rd_state = self.var("_rd_state", ceil(log2(len(RdState))))
@@ -79,9 +73,9 @@ class GlcAxilController(Generator):
             self._bresp = 0b00
             self._bvalid = 0
 
-            self._axil_cfg_wr_req = 0
-            self._axil_cfg_wr_addr = 0
-            self._axil_cfg_wr_data = 0
+            self.glc_cfg_m.wr_req = 0
+            self.glc_cfg_m.wr_addr = 0
+            self.glc_cfg_m.wr_data = 0
         else:
             # IDLE state
             if self._wr_state == WrState.IDLE.value:
@@ -90,28 +84,28 @@ class GlcAxilController(Generator):
                 self._bresp = 0b00
                 self._bvalid = 0
 
-                self._axil_cfg_wr_req = 0
-                self._axil_cfg_wr_data = 0
-                self._axil_cfg_wr_addr = 0
+                self.glc_cfg_m.wr_req = 0
+                self.glc_cfg_m.wr_data = 0
+                self.glc_cfg_m.wr_addr = 0
 
                 if self.axil_s.awvalid and self._awready:
                     self._awready = 0
                     self._wready = 1
                     self._wr_state = WrState.REQ.value
-                    self._axil_cfg_wr_addr = self.axil_s.awaddr
+                    self.glc_cfg_m.wr_addr = self.axil_s.awaddr
                 elif self.axil_s.awvalid:
                     self._awready = 1
             # REQ state
             elif self._wr_state == WrState.REQ.value:
                 if self.axil_s.wvalid and self._wready:
                     self._wready = 0
-                    self._axil_cfg_wr_req = 1
-                    self._axil_cfg_wr_data = self.axil_s.wdata
+                    self.glc_cfg_m.wr_req = 1
+                    self.glc_cfg_m.wr_data = self.axil_s.wdata
                     self._wr_state = WrState.WAIT.value
             # WAIT state
             elif self._wr_state == WrState.WAIT.value:
-                if self._axil_cfg_wr_resp:
-                    self._axil_cfg_wr_req = 0
+                if self.glc_cfg_m.wr_resp:
+                    self.glc_cfg_m.wr_req = 0
                     self._bresp = 0b00
                     self._bvalid = 1
                     self._wr_state = WrState.RESP.value
@@ -130,8 +124,8 @@ class GlcAxilController(Generator):
             self._rresp = 0b00
             self._rdata = 0
 
-            self._axil_cfg_rd_req = 0
-            self._axil_cfg_rd_addr = 0
+            self.glc_cfg_m.rd_req = 0
+            self.glc_cfg_m.rd_addr = 0
         else:
             # IDLE state
             if self._rd_state == RdState.IDLE.value:
@@ -139,27 +133,27 @@ class GlcAxilController(Generator):
                 self._rresp = 0b00
                 self._bvalid = 0
 
-                self._axil_cfg_rd_req = 0
-                self._axil_cfg_rd_addr = 0
+                self.glc_cfg_m.rd_req = 0
+                self.glc_cfg_m.rd_addr = 0
 
                 if self.axil_s.arvalid and self._arready:
                     self._arready = 0
                     self._rd_state = RdState.REQ.value
-                    self._axil_cfg_rd_addr = self.axil_s.araddr
+                    self.glc_cfg_m.rd_addr = self.axil_s.araddr
                 # global controller can only handlee read or write at one time
                 elif self.axil_s.arvalid and ~self.axil_s.awvalid:
                     self._arready = 1
             # REQ state
             elif self._rd_state == RdState.REQ.value:
-                self._axil_cfg_rd_req = 1
+                self.glc_cfg_m.rd_req = 1
                 self._rd_state = RdState.WAIT.value
             # WAIT state
             elif self._rd_state == RdState.WAIT.value:
-                if self._axil_cfg_rd_resp:
-                    self._axil_cfg_rd_req = 0
+                if self.glc_cfg_m.rd_resp:
+                    self.glc_cfg_m.rd_req = 0
                     self._rresp = 0b00
                     self._rvalid = 1
-                    self._rdata = self._axil_cfg_rd_data
+                    self._rdata = self.glc_cfg_m.rd_data
                     self._rd_state = RdState.RESP.value
             # RESP state
             elif self._rd_state == RdState.RESP.value:
@@ -169,9 +163,10 @@ class GlcAxilController(Generator):
 
     def output_wiring(self):
         self.wire(self.axil_s.awready, self._awready)
-        self.wire(self.axil_s.arready, self._arready)
+        self.wire(self.axil_s.wready, self._wready)
         self.wire(self.axil_s.bresp, self._bresp)
         self.wire(self.axil_s.bvalid, self._bvalid)
+        self.wire(self.axil_s.arready, self._arready)
         self.wire(self.axil_s.rresp, self._rresp)
         self.wire(self.axil_s.rdata, self._rdata)
         self.wire(self.axil_s.rvalid, self._rvalid)
