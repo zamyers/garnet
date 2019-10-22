@@ -1,6 +1,6 @@
 from kratos import *
 from axil_if import Axil
-from glc_cfg_if import GlcCfg
+from cfg_if import Cfg
 from enum import Enum
 from math import log2, ceil
 

@@ -23,11 +23,13 @@ class GlobalController(Generator):
         self.clk = self.clock("clk")
         self.rst_n = self.reset("rst_n")
         self.axil_s = self.port_bundle("axil_s", self.axil_if.slave())
-        self.glc_cfg_m = self.port_bundle("glc_cfg_", self.glc_cfg_if.master())
+        self.glc_cfg_m = self.port_bundle("glc_cfg_m", self.glc_cfg_if.master())
+        self.glb_cfg_m = self.port_bundle("glb_cfg_m", self.glb_cfg_if.master())
 
-        self.inst_config_arbiter()
+        self.inst_axil_controller()
+        self.inst_cfg_arbiter()
 
-    def inst_config_arbiter(self):
+    def inst_axil_controller(self):
         '''
         This function instantiates configuration arbiter
         '''
@@ -38,6 +40,12 @@ class GlobalController(Generator):
         self.wire(self.rst_n, self["glc_axil_controller"].rst_n)
         self.wire(self.axil_s, self["glc_axil_controller"].axil_s)
         self.wire(self.glc_cfg_m, self["glc_axil_controller"].glc_cfg_m)
+
+    def inst_cfg_arbiter(self):
+        pass
+
+    def inst_glc_core(self):
+        pass
 
 if __name__ == "__main__":
     glc = GlobalController(16, 16)
