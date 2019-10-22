@@ -78,8 +78,9 @@ foreach v $values {
 #    report_power -depth 4 -full_instance_names $::env(DESIGN)> ${v}.power
 }
 #report_power -depth 4 -full_instance_names $::env(DESIGN) > $::env(APP).power
-report_power -full_instance_names -flat $::env(DESIGN) > $::env(APP).power
-report_power -full_instance_names -rtl_cross_reference -detail -flat $::env(DESIGN) > $::env(APP)2.power
+report_power -full_instance_names $::env(DESIGN) > $::env(APP).power
+#report_power -full_instance_names -flat $::env(DESIGN) > $::env(APP).power
+#report_power -full_instance_names -rtl_cross_reference -detail -flat $::env(DESIGN) > $::env(APP)2.power
 
 #foreach v $values {
 #    read_saif -update -instance Tile_MemCore ../../activity_files/${v}.saif
