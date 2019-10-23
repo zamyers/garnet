@@ -47,7 +47,7 @@ class GlobalController(Generator):
 
     def inst_axil_controller(self):
         '''
-        This function instantiates configuration arbiter
+        This function instantiates axi-lite controller
         '''
         self.add_child("glc_axil_controller",
                 GlcAxilController(self.p_axil_awidth, self.p_axil_dwidth),
