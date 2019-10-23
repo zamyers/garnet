@@ -64,4 +64,6 @@ class GlobalController(Generator):
 
 if __name__ == "__main__":
     glc = GlobalController(16, 16)
-    verilog(glc, filename="glc.sv", optimize_passthrough=False)
+    verilog(glc, filename="glc.sv",
+            output_dir = "src",
+            optimize_passthrough=False)

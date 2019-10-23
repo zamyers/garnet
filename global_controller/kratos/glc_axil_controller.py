@@ -4,20 +4,6 @@ from interface.handshake_if import Handshake
 from enum import Enum
 from math import log2, ceil
 
-# read state
-class RdState(Enum):
-    IDLE = 0
-    REQ = 1
-    WAIT = 2
-    RESP = 3
-
-# write state
-class WrState(Enum):
-    IDLE = 0
-    REQ = 1
-    WAIT = 2
-    RESP = 3
-
 class GlcAxilController(Generator):
     def __init__(self, p_axil_awidth, p_axil_dwidth):
         super().__init__("glc_axil_controller")
@@ -30,6 +16,11 @@ class GlcAxilController(Generator):
 
         self.clk = self.clock("clk")
         self.rst_n = self.reset("rst_n")
+
+        # read state
+        self.RdState = self.enum("RdState", {"RD_IDLE": 0, "RD_REQ": 1, "RD_WAIT": 2, "RD_RESP": 3})
+        # write state
+        self.WrState = self.enum("WrState", {"WR_IDLE": 0, "WR_REQ": 1, "WR_WAIT": 2, "WR_RESP": 3})
 
         # Axi-lite interface
         self.axil_if = Axil(self.p_axil_awidth, self.p_axil_dwidth)
@@ -50,8 +41,8 @@ class GlcAxilController(Generator):
         self.output_wiring()
 
     def declare_internal_vars(self):
-        self._rd_state = self.var("_rd_state", ceil(log2(len(RdState))))
-        self._wr_state = self.var("_wr_state", ceil(log2(len(WrState))))
+        self._rd_state = self.enum_var("_rd_state", self.RdState)
+        self._wr_state = self.enum_var("_wr_state", self.WrState)
 
         self._arready = self.var("_arready", 1)
         self._awready = self.var("_awready", 1)
@@ -66,7 +57,7 @@ class GlcAxilController(Generator):
     @always((posedge, "clk"), (negedge, "rst_n"))
     def seq_axi_wr_fsm(self):
         if ~self.rst_n:
-            self._wr_state = WrState.IDLE.value
+            self._wr_state = self.WrState.WR_IDLE
 
             self._awready = 0
             self._wready = 0
@@ -78,7 +69,7 @@ class GlcAxilController(Generator):
             self.glc_hs_m.wr_data = 0
         else:
             # IDLE state
-            if self._wr_state == WrState.IDLE.value:
+            if self._wr_state == self.WrState.WR_IDLE:
                 self._awready = 0
                 self._wready = 0
                 self._bresp = 0b00
@@ -91,34 +82,34 @@ class GlcAxilController(Generator):
                 if self.axil_s.awvalid and self._awready:
                     self._awready = 0
                     self._wready = 1
-                    self._wr_state = WrState.REQ.value
+                    self._wr_state = self.WrState.WR_REQ
                     self.glc_hs_m.wr_addr = self.axil_s.awaddr
                 elif self.axil_s.awvalid:
                     self._awready = 1
             # REQ state
-            elif self._wr_state == WrState.REQ.value:
+            elif self._wr_state == self.WrState.WR_REQ:
                 if self.axil_s.wvalid and self._wready:
                     self._wready = 0
                     self.glc_hs_m.wr_req = 1
                     self.glc_hs_m.wr_data = self.axil_s.wdata
-                    self._wr_state = WrState.WAIT.value
+                    self._wr_state = self.WrState.WR_WAIT
             # WAIT state
-            elif self._wr_state == WrState.WAIT.value:
+            elif self._wr_state == self.WrState.WR_WAIT:
                 if self.glc_hs_m.wr_ack:
                     self.glc_hs_m.wr_req = 0
                     self._bresp = 0b00
                     self._bvalid = 1
-                    self._wr_state = WrState.RESP.value
+                    self._wr_state = self.WrState.WR_RESP
             # RESP state
-            elif self._wr_state == WrState.RESP.value:
+            elif self._wr_state == self.WrState.WR_RESP:
                 if self.axil_s.bready and self._bvalid:
                     self._bvalid = 0
-                    self._wr_state = WrState.IDLE.value
+                    self._wr_state = self.WrState.WR_IDLE
 
     @always((posedge, "clk"), (negedge, "rst_n"))
     def seq_axi_rd_fsm(self):
         if ~self.rst_n:
-            self._rd_state = RdState.IDLE.value
+            self._rd_state = self.RdState.RD_IDLE
 
             self._arready = 0
             self._rresp = 0b00
@@ -128,7 +119,7 @@ class GlcAxilController(Generator):
             self.glc_hs_m.rd_addr = 0
         else:
             # IDLE state
-            if self._rd_state == RdState.IDLE.value:
+            if self._rd_state == self.RdState.RD_IDLE:
                 self._arready = 0
                 self._rresp = 0b00
                 self._bvalid = 0
@@ -138,28 +129,28 @@ class GlcAxilController(Generator):
 
                 if self.axil_s.arvalid and self._arready:
                     self._arready = 0
-                    self._rd_state = RdState.REQ.value
+                    self._rd_state = self.RdState.RD_REQ
                     self.glc_hs_m.rd_addr = self.axil_s.araddr
                 # global controller can only handlee read or write at one time
                 elif self.axil_s.arvalid and ~self.axil_s.awvalid:
                     self._arready = 1
             # REQ state
-            elif self._rd_state == RdState.REQ.value:
+            elif self._rd_state == self.RdState.RD_REQ:
                 self.glc_hs_m.rd_req = 1
-                self._rd_state = RdState.WAIT.value
+                self._rd_state = self.RdState.RD_WAIT
             # WAIT state
-            elif self._rd_state == RdState.WAIT.value:
+            elif self._rd_state == self.RdState.RD_WAIT:
                 if self.glc_hs_m.rd_ack:
                     self.glc_hs_m.rd_req = 0
                     self._rresp = 0b00
                     self._rvalid = 1
                     self._rdata = self.glc_hs_m.rd_data
-                    self._rd_state = RdState.RESP.value
+                    self._rd_state = self.RdState.RD_RESP
             # RESP state
-            elif self._rd_state == RdState.RESP.value:
+            elif self._rd_state == self.RdState.RD_RESP:
                 if self.axil_s.rready and self._rvalid:
                     self._rvalid = 0
-                    self._rd_state = RdState.IDLE.value
+                    self._rd_state = self.RdState.RD_IDLE
 
     def output_wiring(self):
         self.wire(self.axil_s.awready, self._awready)
