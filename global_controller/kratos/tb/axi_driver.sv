@@ -6,8 +6,8 @@
 ** Change history:  10/22/2019 - Implement first version of axi driver
 **===========================================================================*/
 
-parameter AXI_DWIDTH = 32;
-parameter AXI_AWIDTH = 12;
+localparam AXI_DWIDTH = 32;
+localparam AXI_AWIDTH = 12;
 
 typedef struct {
     logic [AXI_DWIDTH-1:0] wr_data;

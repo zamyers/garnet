@@ -1,4 +1,15 @@
-module top();
+/*=============================================================================
+** Module: tb_top.sv
+** Description:
+**              top testbench for axi-lite
+** Author: Taeyoung Kong
+** Change history:  10/22/2019 - Implement first version of testbench
+**===========================================================================*/
+
+localparam AXI_DWIDTH = 32;
+localparam AXI_AWIDTH = 12;
+
+module tb_top();
     logic clk;
     logic rst_n;
 
@@ -19,7 +30,11 @@ module top();
 //============================================================================//
 // Instantiate interface
 //============================================================================//
-   axil_if axil_ifc_inst (
+   axil_if #(
+       .AXI_DWIDTH(AXI_DWIDTH),
+       .AXI_AWIDTH(AXI_AWIDTH)
+   )
+   axil_ifc(
        .clk(clk),
        .rst_n(rst_n)
    );
@@ -27,55 +42,38 @@ module top();
 //============================================================================//
 // Instantiate dut
 //============================================================================//
-   glc glc_dut ();
+   glc dut ();
 
-   //Since we aren't using interface here, assign singals 
-   //Inputs
-   assign dut.tck = dut_ifc.tck;
-   assign dut.clk_in = dut_ifc.Clk;
-   assign dut.reset_in = dut_ifc.Reset;
-   assign dut.tdi = dut_ifc.tdi;
-   assign dut.tms = dut_ifc.tms;
-   assign dut.trst_n = dut_ifc.trst_n;
-   assign dut.config_data_in = dut_ifc.config_data_cgra2gc;
-   assign dut.glb_config_data_in = dut_ifc.glb_config_data_cgra2gc;
-   assign dut.glb_sram_config_data_in = dut_ifc.glb_sram_config_data_cgra2gc;
-   assign dut.cgra_done_pulse = dut_ifc.cgra_done_pulse;
-   assign dut.config_done_pulse = dut_ifc.config_done_pulse;
+   //Since we are not using interface for glc, directly assign singals 
+   assign dut.AWADDR = axil_ifc.AWADDR;
+   assign dut.AWVALID = axil_ifc.AWVALID;
+   assign dut.AWPROT = axil_ifc.AWPROT;
+   assign axil_ifc.AWREADY = dut.AWREADY;
 
-   // AXI inputs
-   assign dut.AWADDR = dut_ifc.AWADDR;
-   assign dut.AWVALID = dut_ifc.AWVALID;
-   assign dut.WDATA = dut_ifc.WDATA;
-   assign dut.WVALID = dut_ifc.WVALID;
+   assign dut.WDATA = axil_ifc.WDATA;
+   assign dut.WSTRB = axil_ifc.WSTRB;
+   assign dut.WVALID = axil_ifc.WVALID;
+   assign axil_ifc.WREADY = dut.WREADY;
 
-   assign dut.ARADDR = dut_ifc.ARADDR;
-   assign dut.ARVALID = dut_ifc.ARVALID;
-   assign dut.RREADY = dut_ifc.RREADY;
+   assign dut.ARADDR = axil_ifc.ARADDR;
+   assign dut.ARVALID = axil_ifc.ARVALID;
+   assign dut.ARPROT = axil_ifc.ARPROT;
+   assign axil_ifc.ARREADY = dut.ARREADY;
 
-   //Outputs
-   assign dut_ifc.config_addr_gc2cgra = dut.config_addr_out;
-   assign dut_ifc.config_data_gc2cgra = dut.config_data_out;
-   assign dut_ifc.glb_config_addr_gc2cgra = dut.glb_config_addr_out;
-   assign dut_ifc.glb_config_data_gc2cgra = dut.glb_config_data_out;
-   assign dut_ifc.glb_sram_config_addr_gc2cgra = dut.glb_sram_config_addr_out;
-   assign dut_ifc.glb_sram_config_data_gc2cgra = dut.glb_sram_config_data_out;
-   assign dut_ifc.tdo = dut.tdo;
+   assign axil_ifc.BVALID = dut.BVALID;
+   assign axil_ifc.BRESP = dut.BRESP;
+   assign dut.BREADY = axil_ifc.BREADY;
 
-   // AXI outputs
-   assign dut_ifc.AWREADY = dut.AWREADY;
-   assign dut_ifc.WREADY = dut.WREADY;
-   assign dut_ifc.RDATA = dut.RDATA;
-   assign dut_ifc.RVALID = dut.RVALID;
-   assign dut_ifc.ARREADY = dut.ARREADY;
-   assign dut_ifc.RRESP = dut.RRESP;
+   assign dut.RREADY = axil_ifc.RREADY;
+   assign axil_ifc.RDATA = dut.RDATA;
+   assign axil_ifc.RVALID = dut.RVALID;
+   assign axil_ifc.RRESP = dut.RRESP;
 
 //============================================================================//
 // Instantiate test_glc
 //============================================================================//
     test_glc test_glc_inst (
-        .ifc(axil_ifc_inst)
+        .ifc(axil_ifc)
     );
       
 endmodule
- 

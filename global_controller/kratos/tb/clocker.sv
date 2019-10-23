@@ -1,6 +1,6 @@
 module clocker (
     output logic clk,
-    output logic reset
+    output logic rst_n
 );
 
 always #5 clk <= ~clk;

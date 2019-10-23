@@ -1,7 +1,8 @@
 interface axil_if #(
-    parameter AXI_AWIDTH = 12,
-    parameter AXI_DWIDTH = 32
-) (
+    parameter integer AXI_AWIDTH = 12,
+    parameter integer AXI_DWIDTH = 32
+)
+(
     input logic clk,
     input logic rst_n
 );
