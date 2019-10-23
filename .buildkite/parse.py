@@ -139,7 +139,7 @@ def parse_pe(filename):
     print("CONNECTION BOX,%f" % results["CB"])
     print("SWITCH BOX,%f" % results["SB"])
     print("OTHER,%f" % other)
-    print(f"{results['alu']},{results['CB']},{results['SB']},{other}")
+    print("%.3E,%.3E,%.3E,%.3E" % (results['alu'],results['CB'],results['SB'],other))
 
 def main():
     parser = argparse.ArgumentParser()
