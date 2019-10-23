@@ -43,7 +43,7 @@ class _Reg:
 
 class GlcCore(Generator):
     def __init__(self, p_glc_hs_awidth, p_glc_hs_dwidth):
-        super().__init__("glc_axil_controller", True)
+        super().__init__("glc_core", True)
 
         # python variables
         self._global_addr = 0
@@ -87,13 +87,15 @@ class GlcCore(Generator):
     def declare_internal_vars(self):
         self._rd_addr = self.var("_rd_addr",
                 self.p_glc_hs_awidth - self.p_glc_hs_byte_offset)
-        self._rd_addr.assign(self.glc_hs_s.rd_addr[self.p_glc_hs_awidth - 1,
-                                                   self.p_glc_hs_byte_offset])
+        self.wire(self._rd_addr,
+                  self.glc_hs_s.rd_addr[self.p_glc_hs_awidth - 1,
+                                        self.p_glc_hs_byte_offset])
 
         self._wr_addr = self.var("_wr_addr",
                 self.p_glc_hs_awidth - self.p_glc_hs_byte_offset)
-        self._wr_addr.assign(self.glc_hs_s.wr_addr[self.p_glc_hs_awidth - 1,
-                                                   self.p_glc_hs_byte_offset])
+        self.wire(self._wr_addr,
+                  self.glc_hs_s.wr_addr[self.p_glc_hs_awidth - 1,
+                                        self.p_glc_hs_byte_offset])
 
         self._rd_data = self.var("_rd_data", self.p_glc_hs_dwidth)
         # self.glc_hs_s.rd_data.assign(self._rd_data)
@@ -110,7 +112,7 @@ class GlcCore(Generator):
             self.glc_hs_s.wr_ack = 1
             for idx in range(len(self._regs)):
                 if self._wr_addr == self._regs[idx].addr:
-                    self._regs[idx].reg = self.glc_hs_s.wr_data
+                    self._regs[idx].reg = self.glc_hs_s.wr_data[self._regs[idx].width-1, 0]
         else:
             self.glc_hs_s.wr_ack = 0
 
