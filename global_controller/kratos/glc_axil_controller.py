@@ -2,11 +2,10 @@ from kratos import *
 from interface.axil_if import Axil
 from interface.handshake_if import Handshake
 from enum import Enum
-from math import log2, ceil
 
 class GlcAxilController(Generator):
     def __init__(self, p_axil_awidth, p_axil_dwidth):
-        super().__init__("glc_axil_controller")
+        super().__init__("glc_axil_controller", True)
 
         # Parameters
         self.p_axil_awidth = p_axil_awidth
