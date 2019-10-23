@@ -1,4 +1,4 @@
-interface axi_if #(
+interface axil_if #(
     parameter AXI_AWIDTH = 12,
     parameter AXI_DWIDTH = 32
 ) (
@@ -121,4 +121,4 @@ interface axi_if #(
         input   clk,
         input   rst_n
     );
-endinterface: axi_if
+endinterface: axil_if
