@@ -8,6 +8,6 @@ for f in $FILES
 do
     echo "--- $f SUMMARY"
     python ./.buildkite/parse.py --input=$f
-    echo "--- $f dump"
-    cat $f
+#    echo "--- $f dump"
+#    cat $f
 done

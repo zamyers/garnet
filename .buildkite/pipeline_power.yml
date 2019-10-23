@@ -17,7 +17,9 @@ steps:
     #- ./.buildkite/report.sh Tile_MemCore
     #- ./.buildkite/syn.sh -q Tile_MemCore strided_conv
     #- ./.buildkite/report.sh Tile_MemCore
-  - ./.buildkite/syn.sh -v Tile_PE conv_3_3
+  - ./.buildkite/syn.sh -v Tile_PE conv_3_3_add
+  - ./.buildkite/report.sh Tile_PE
+  - ./.buildkite/syn.sh -v Tile_PE conv_3_3_mul
   - ./.buildkite/report.sh Tile_PE
     #- ./.buildkite/syn.sh -v Garnet TOP
     #- ./.buildkite/report.sh Garnet
