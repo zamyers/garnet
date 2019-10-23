@@ -68,6 +68,7 @@ class GlobalController(Generator):
         self.wire(self.rst_n, self["glc_core"].rst_n)
         self.wire(self["glc_core"].glc_hs_s, self["glc_axil_controller"].glc_hs_m)
 
+
     def inst_cfg_arbiter(self):
         pass
 

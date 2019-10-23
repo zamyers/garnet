@@ -66,6 +66,7 @@ class GlcCore(Generator):
 
         self.declare_internal_vars()
         self.define_reg()
+        self.add_code(self.seq_reg_write)
         self.add_code(self.seq_reg_read)
 
     def add_reg(self, _name, _width):
