@@ -1,6 +1,6 @@
 from kratos import *
-from interface.axil_if import Axil
-from interface.handshake_if import Handshake
+from interface.axil_ifc import Axil
+from interface.handshake_ifc import Handshake
 from enum import Enum
 
 class GlcAxilController(Generator):
@@ -22,12 +22,12 @@ class GlcAxilController(Generator):
         self.WrState = self.enum("WrState", {"WR_IDLE": 0, "WR_REQ": 1, "WR_WAIT": 2, "WR_RESP": 3})
 
         # Axi-lite interface
-        self.axil_if = Axil(self.p_axil_awidth, self.p_axil_dwidth)
-        self.axil_s = self.port_bundle("axil_s", self.axil_if.slave())
+        self.axil_ifc = Axil(self.p_axil_awidth, self.p_axil_dwidth)
+        self.axil_s = self.port_bundle("axil_s", self.axil_ifc.slave())
 
         # Global Controller internal interface
-        self.glc_hs_if = Handshake(self.p_glc_hs_awidth, self.p_glc_hs_dwidth)
-        self.glc_hs_m = self.port_bundle("glc_hs_m", self.glc_hs_if.master())
+        self.glc_hs_ifc = Handshake(self.p_glc_hs_awidth, self.p_glc_hs_dwidth)
+        self.glc_hs_m = self.port_bundle("glc_hs_m", self.glc_hs_ifc.master())
 
         # Declare internavl variables
         self.declare_internal_vars()
@@ -40,18 +40,18 @@ class GlcAxilController(Generator):
         self.output_wiring()
 
     def declare_internal_vars(self):
-        self._rd_state = self.enum_var("_rd_state", self.RdState)
-        self._wr_state = self.enum_var("_wr_state", self.WrState)
+        self._rd_state = self.enum_var("rd_state", self.RdState)
+        self._wr_state = self.enum_var("wr_state", self.WrState)
 
-        self._arready = self.var("_arready", 1)
-        self._awready = self.var("_awready", 1)
-        self._wready = self.var("_wready", 1)
+        self._arready = self.var("arready", 1)
+        self._awready = self.var("awready", 1)
+        self._wready = self.var("wready", 1)
 
-        self._rvalid = self.var("_rvalid", 1)
-        self._rdata = self.var("_rdata", self.p_axil_dwidth)
-        self._rresp = self.var("_rresp", 2)
-        self._bresp = self.var("_bresp", 2)
-        self._bvalid = self.var("_bvalid", 1)
+        self._rvalid = self.var("rvalid", 1)
+        self._rdata = self.var("rdata", self.p_axil_dwidth)
+        self._rresp = self.var("rresp", 2)
+        self._bresp = self.var("bresp", 2)
+        self._bvalid = self.var("bvalid", 1)
 
     @always((posedge, "clk"), (negedge, "rst_n"))
     def seq_axi_wr_fsm(self):

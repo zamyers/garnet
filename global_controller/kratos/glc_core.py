@@ -1,10 +1,10 @@
 from kratos import *
-from interface.handshake_if import Handshake
+from interface.handshake_ifc import Handshake
 from math import log2, ceil
 
 class _Reg:
     def __init__(self, _module, _name, _width, _addr):
-        self._name = _name
+        self._name = "reg_" + _name
         self._addr = _addr
         self._width = _width
         self._reg = _module.var(self._name, self._width)
@@ -55,14 +55,14 @@ class GlcCore(Generator):
         self.p_glc_hs_byte_offset = ceil(log2(p_glc_hs_dwidth/8))
 
         # Global Controller internal interface
-        self.glc_hs_if = Handshake(self.p_glc_hs_awidth, self.p_glc_hs_dwidth)
+        self.glc_hs_ifc = Handshake(self.p_glc_hs_awidth, self.p_glc_hs_dwidth)
 
         # declare ports
         self.clk = self.clock("clk")
         self.rst_n = self.reset("rst_n")
 
         # glc handshake slave ports
-        self.glc_hs_s = self.port_bundle("glc_hs_s", self.glc_hs_if.slave())
+        self.glc_hs_s = self.port_bundle("glc_hs_s", self.glc_hs_ifc.slave())
 
         self.declare_internal_vars()
         self.define_reg()
@@ -76,29 +76,28 @@ class GlcCore(Generator):
         return _reg
 
     def define_reg(self):
-        self._ier = self.add_reg("_ier", 2)
-        self._isr = self.add_reg("_isr", 2)
-        self._cgra_wr_en = self.add_reg("_cgra_wr_en", 1)
-        self._cgra_rd_en = self.add_reg("_cgra_rd_en", 1)
-        self._cgra_addr = self.add_reg("_cgra_addr", 32)
-        self._cgra_wr_data = self.add_reg("_cgra_wr_data", 32)
-        self._cgra_rd_data = self.add_reg("_cgra_rd_data", 32)
+        self._ier = self.add_reg("ier", 2)
+        self._isr = self.add_reg("isr", 2)
+        self._cgra_wr_en = self.add_reg("cgra_wr_en", 1)
+        self._cgra_rd_en = self.add_reg("cgra_rd_en", 1)
+        self._cgra_addr = self.add_reg("cgra_addr", 32)
+        self._cgra_wr_data = self.add_reg("cgra_wr_data", 32)
+        self._cgra_rd_data = self.add_reg("cgra_rd_data", 32)
 
     def declare_internal_vars(self):
-        self._rd_addr = self.var("_rd_addr",
+        self._rd_addr = self.var("rd_addr",
                 self.p_glc_hs_awidth - self.p_glc_hs_byte_offset)
         self.wire(self._rd_addr,
                   self.glc_hs_s.rd_addr[self.p_glc_hs_awidth - 1,
                                         self.p_glc_hs_byte_offset])
 
-        self._wr_addr = self.var("_wr_addr",
+        self._wr_addr = self.var("wr_addr",
                 self.p_glc_hs_awidth - self.p_glc_hs_byte_offset)
         self.wire(self._wr_addr,
                   self.glc_hs_s.wr_addr[self.p_glc_hs_awidth - 1,
                                         self.p_glc_hs_byte_offset])
 
-        self._rd_data = self.var("_rd_data", self.p_glc_hs_dwidth)
-        # self.glc_hs_s.rd_data.assign(self._rd_data)
+        self._rd_data = self.var("rd_data", self.p_glc_hs_dwidth)
         self.wire(self.glc_hs_s.rd_data, self._rd_data)
 
     @always((posedge, "clk"), (negedge, "rst_n"))

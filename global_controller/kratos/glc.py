@@ -1,7 +1,7 @@
 from kratos import *
-from interface.axil_if import Axil
-from interface.handshake_if import Handshake
-from interface.cfg_if import Cfg
+from interface.axil_ifc import Axil
+from interface.handshake_ifc import Handshake
+from interface.cfg_ifc import Cfg
 from glc_axil_controller import GlcAxilController
 from glc_core import GlcCore
 
@@ -26,21 +26,21 @@ class GlobalController(Generator):
         self.p_glb_hs_dwidth = self.p_axil_dwidth
 
         # Axi-lite interface
-        self.axil_if = Axil(self.p_axil_awidth, self.p_axil_dwidth)
+        self.axil_ifc = Axil(self.p_axil_awidth, self.p_axil_dwidth)
 
         # Config interface
-        # self.cgra_cfg_if = Cfg(self.p_cgra_cfg_awidth, self.p_cgra_cfg_dwidth)
-        # self.glb_cfg_if = Cfg(self.p_glb_cfg_awidth, self.p_glb_cfg_dwidth)
+        # self.cgra_cfg_ifc = Cfg(self.p_cgra_cfg_awidth, self.p_cgra_cfg_dwidth)
+        # self.glb_cfg_ifc = Cfg(self.p_glb_cfg_awidth, self.p_glb_cfg_dwidth)
 
         # Global controller internal handshake interface
-        # self.glc_hs_if = Handshake(self.p_glc_hs_awidth, self.p_glc_hs_dwidth)
-        # self.glb_hs_if = Handshake(self.p_glb_hs_awidth, self.p_glb_hs_dwidth)
+        # self.glc_hs_ifc = Handshake(self.p_glc_hs_awidth, self.p_glc_hs_dwidth)
+        # self.glb_hs_ifc = Handshake(self.p_glb_hs_awidth, self.p_glb_hs_dwidth)
 
         # Port declaration
         self.clk = self.clock("clk")
         self.rst_n = self.reset("rst_n")
-        self.axil_s = self.port_bundle("axil_s", self.axil_if.slave())
-        # self.glb_cfg_m = self.port_bundle("glb_cfg_m", self.glb_cfg_if.master())
+        self.axil_s = self.port_bundle("axil_s", self.axil_ifc.slave())
+        # self.glb_cfg_m = self.port_bundle("glb_cfg_m", self.glb_cfg_ifc.master())
 
         self.inst_axil_controller()
         self.inst_glc_core()
