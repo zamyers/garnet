@@ -76,7 +76,7 @@ class GlcCore(Generator):
         return _reg
 
     def define_reg(self):
-        self._ier = self.add_reg("ier", 2)
+        self._ier = self.add_reg("_ier", 2)
         self._isr = self.add_reg("_isr", 2)
         self._cgra_wr_en = self.add_reg("_cgra_wr_en", 1)
         self._cgra_rd_en = self.add_reg("_cgra_rd_en", 1)
@@ -128,4 +128,3 @@ class GlcCore(Generator):
                     self._rd_data = ext(self._regs[idx].reg, self._rd_data.width)
         else:
             self.glc_hs_s.rd_ack = 0
-

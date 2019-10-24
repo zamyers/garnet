@@ -78,7 +78,7 @@ class GlcAxilController(Generator):
                 self.glc_hs_m.wr_data = 0
                 self.glc_hs_m.wr_addr = 0
 
-                if self.axil_s.awvalid and self._awready:
+                if self.axil_s.awvalid & self._awready:
                     self._awready = 0
                     self._wready = 1
                     self._wr_state = self.WrState.WR_REQ
@@ -87,7 +87,7 @@ class GlcAxilController(Generator):
                     self._awready = 1
             # REQ state
             elif self._wr_state == self.WrState.WR_REQ:
-                if self.axil_s.wvalid and self._wready:
+                if self.axil_s.wvalid & self._wready:
                     self._wready = 0
                     self.glc_hs_m.wr_req = 1
                     self.glc_hs_m.wr_data = self.axil_s.wdata
@@ -101,7 +101,7 @@ class GlcAxilController(Generator):
                     self._wr_state = self.WrState.WR_RESP
             # RESP state
             elif self._wr_state == self.WrState.WR_RESP:
-                if self.axil_s.bready and self._bvalid:
+                if self.axil_s.bready & self._bvalid:
                     self._bvalid = 0
                     self._wr_state = self.WrState.WR_IDLE
 
@@ -126,12 +126,12 @@ class GlcAxilController(Generator):
                 self.glc_hs_m.rd_req = 0
                 self.glc_hs_m.rd_addr = 0
 
-                if self.axil_s.arvalid and self._arready:
+                if self.axil_s.arvalid & self._arready:
                     self._arready = 0
                     self._rd_state = self.RdState.RD_REQ
                     self.glc_hs_m.rd_addr = self.axil_s.araddr
                 # global controller can only handlee read or write at one time
-                elif self.axil_s.arvalid and ~self.axil_s.awvalid:
+                elif self.axil_s.arvalid & ~self.axil_s.awvalid:
                     self._arready = 1
             # REQ state
             elif self._rd_state == self.RdState.RD_REQ:
@@ -147,7 +147,7 @@ class GlcAxilController(Generator):
                     self._rd_state = self.RdState.RD_RESP
             # RESP state
             elif self._rd_state == self.RdState.RD_RESP:
-                if self.axil_s.rready and self._rvalid:
+                if self.axil_s.rready & self._rvalid:
                     self._rvalid = 0
                     self._rd_state = self.RdState.RD_IDLE
 
