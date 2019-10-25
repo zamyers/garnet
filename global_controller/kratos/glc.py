@@ -33,7 +33,6 @@ class GlobalController(Generator):
         # self.glb_cfg_ifc = Cfg(self.p_glb_cfg_awidth, self.p_glb_cfg_dwidth)
 
         # Global controller internal handshake interface
-        # self.glc_hs_ifc = Handshake(self.p_glc_hs_awidth, self.p_glc_hs_dwidth)
         # self.glb_hs_ifc = Handshake(self.p_glb_hs_awidth, self.p_glb_hs_dwidth)
 
         # Port declaration
@@ -41,6 +40,7 @@ class GlobalController(Generator):
         self.rst_n = self.reset("rst_n")
         self.axil_s = self.port_bundle("axil_s", self.axil_ifc.slave())
         # self.glb_cfg_m = self.port_bundle("glb_cfg_m", self.glb_cfg_ifc.master())
+        # self.cgra_cfg_m = self.port_bundle("cgra_cfg_m", self.cgra_cfg_ifc.master())
 
         self.inst_axil_controller()
         self.inst_glc_core()
@@ -68,12 +68,11 @@ class GlobalController(Generator):
         self.wire(self.rst_n, self["glc_core"].rst_n)
         self.wire(self["glc_core"].glc_hs_s, self["glc_axil_controller"].glc_hs_m)
 
-
     def inst_cfg_arbiter(self):
         pass
 
 if __name__ == "__main__":
     glc = GlobalController(12, 32)
     verilog(glc, filename="glc.sv",
-            output_dir = "src",
+            output_dir = "rtl",
             optimize_passthrough=False)

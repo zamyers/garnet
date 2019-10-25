@@ -104,8 +104,7 @@ class GlcCore(Generator):
     def seq_reg_write(self):
         if ~self.rst_n:
             for idx in range(len(self._regs)):
-                if self._wr_addr == self._regs[idx].addr:
-                    self._regs[idx].reg = 0
+                self._regs[idx].reg = 0
             self.glc_hs_s.wr_ack = 0
         elif (self.glc_hs_s.wr_req):
             self.glc_hs_s.wr_ack = 1
