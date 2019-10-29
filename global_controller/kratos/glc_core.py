@@ -13,33 +13,17 @@ class _Reg:
     def name(self):
         return self._name
 
-    @name.setter
-    def name(self, value):
-        self._name = value
-
     @property
     def width(self):
         return self._width
-
-    @width.setter
-    def width(self, value):
-        self._width = value
 
     @property
     def addr(self):
         return self._addr
 
-    @addr.setter
-    def addr(self, value):
-        self._addr = value
-
     @property
     def reg(self):
         return self._reg
-
-    @reg.setter
-    def reg(self, value):
-        self._reg = value
 
 class GlcCore(Generator):
     def __init__(self, p_glc_hs_awidth, p_glc_hs_dwidth):
