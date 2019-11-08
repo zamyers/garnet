@@ -5,10 +5,10 @@
 -e git://github.com/rdaly525/MetaMapper.git#egg=metamapper
 -e git://github.com/Kuree/karst.git#egg=karst
 -e git://github.com/joyliu37/BufferMapping#egg=buffer_mapping
--e git+git://github.com/pyhdi/pyverilog.git#egg=pyverilog
+-e git://github.com/pyhdi/pyverilog.git#egg=pyverilog
+-e git://github.com/phanrahan/magma.git#egg=magma-lang
 ordered_set
 coreir==2.0.19
-magma-lang
 mantle==1.0.6
 cosa
 fault==2.0.13
