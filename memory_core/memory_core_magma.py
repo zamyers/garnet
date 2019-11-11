@@ -205,19 +205,12 @@ class MemCore(ConfigurableCore):
 
         # MEM Config
         configurations = [
-            ("stencil_width", 16),
-            ("arbitrary_addr", 1),
-            ("starting_addr", 16),
-            ("iter_cnt", 32),
-            ("dimensionality", 4),
-            ("circular_en", 1),
             ("almost_count", 4),
             ("enable_chain", 1),
             ("mode", 2),
             ("tile_en", 1),
             ("chain_idx", 4),
-            ("depth", 16),
-            ("rate_matched", 1)
+            ("depth", 16)
         ]
 
         # Do all the stuff for the main config
@@ -230,14 +223,6 @@ class MemCore(ConfigurableCore):
             else:
                 self.wire(main_feature.registers[config_reg_name].ports.O,
                           self.underlying.ports[config_reg_name])
-
-        for idx in range(iterator_support):
-            main_feature.add_config(f"stride_{idx}", 16)
-            main_feature.add_config(f"range_{idx}", 32)
-            self.wire(main_feature.registers[f"stride_{idx}"].ports.O,
-                      self.underlying.ports[f"stride_{idx}"])
-            self.wire(main_feature.registers[f"range_{idx}"].ports.O,
-                      self.underlying.ports[f"range_{idx}"])
 
         # SRAM
         or_all_cfg_rd = FromMagma(mantle.DefineOr(4, 1))
@@ -293,15 +278,9 @@ class MemCore(ConfigurableCore):
         mode_config = (self.get_reg_index("mode"), instr["mode"].value)
         if "depth" in instr and ("is_ub" not in instr or (not instr["is_ub"])):
             depth_config = (self.get_reg_index("depth"), instr["depth"])
-            rate_matched = (self.get_reg_index("rate_matched"), 1)
-            iter_cnt = (self.get_reg_index("iter_cnt"), instr["depth"])
-            dimensionality = (self.get_reg_index("dimensionality"), 1)
-            stride_0 = (self.get_reg_index("stride_0"), 1)
-            range_0 = (self.get_reg_index("range_0"), instr["depth"])
             switch_db = (self.get_reg_index("switch_db_reg_sel"), 1)
 
-            configs += [depth_config, rate_matched, iter_cnt, dimensionality,
-                        stride_0, range_0, switch_db]
+            configs += [depth_config, switch_db]
         if "content" in instr:
             # this is SRAM content
             content = instr["content"]
