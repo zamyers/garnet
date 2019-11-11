@@ -76,4 +76,5 @@ write_db -to_file map.db
 
 write_snapshot -directory results_syn -tag final
 write_design -innovus -basename results_syn/syn_out
+write_name_mapping
 exit
