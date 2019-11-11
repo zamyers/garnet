@@ -45,7 +45,6 @@ module `mname`(
    almost_empty, 
 
    switch_db,
-   rate_matched,
 
    config_addr, 
    config_data, 
@@ -58,18 +57,6 @@ module `mname`(
    // Fake
    read_config_data,
    // Config
-   stencil_width,
-   arbitrary_addr,
-   starting_addr,
-   iter_cnt,
-   dimensionality,
-//; for(my $idx = 0; $idx < $iterator_support; $idx++){
-   `'stride_' . $idx`,
-//; }
-//; for(my $idx = 0; $idx < $iterator_support; $idx++){
-  `'range_' . $idx`,
-//; }
-   circular_en,
    almost_count,
    enable_chain,
    mode,
@@ -78,20 +65,6 @@ module `mname`(
    chain_idx
 );
 
-// ALL CONFIG
-input logic [15:0] stencil_width;
-input logic        arbitrary_addr;
-input logic [15:0] starting_addr;
-input logic [31:0] iter_cnt;
-input logic [3:0]  dimensionality;
-input logic        rate_matched;   
-//; for(my $idx = 0; $idx < $iterator_support; $idx++) {
-input logic [15:0] `'stride_' . $idx`;
-//; }
-//; for(my $idx = 0; $idx < $iterator_support; $idx++) {
-input logic [31:0] `'range_' . $idx`;
-//; }
-input logic circular_en;
 input logic  [3:0]      almost_count;
 input logic             enable_chain;
 input logic  [1:0]      mode;
@@ -102,8 +75,6 @@ input logic  [15:0]     depth;
 // ========================================================
 // Inputs and Outputs
 // ========================================================
-logic [15:0] stride [`$iterator_support-1`:0];
-logic [31:0] range [`$iterator_support-1`:0];
 // Clock + Reset
 input clk;
 input clk_en;
@@ -141,37 +112,11 @@ output logic [31:0] read_config_data;
 output logic [31:0] `'read_data_sram_' . $i`;
 //; }
 //
-logic [`$awidth-1`:0] lb_addr [`$bbanks-1`:0];
-logic [`$wwidth-1`:0] lb_mem_data_out [`$bbanks-1`:0];
-logic [`$bbanks-1`:0] lb_wen;
-logic [`$bbanks-1`:0] lb_cen;
-logic lb_valid_out;
-logic ren_lb_to_fifo;
-//
-logic [`$awidth-1`:0] fifo_addr [`$bbanks-1`:0];
-logic [`$wwidth-1`:0] fifo_mem_data_out [`$bbanks-1`:0];
-logic [`$wwidth-1`:0] fifo_out;
-logic [`$bbanks-1`:0] fifo_wen;
-logic [`$bbanks-1`:0] fifo_cen;
-logic fifo_almost_full;
-logic fifo_almost_empty;
-logic fifo_valid_out;
-logic fifo_full;
-logic fifo_empty;
-logic [15:0] num_words_mem_fifo_to_lb;
-//
 logic [`$awidth-1`:0] sram_addr [`$bbanks-1`:0];
 logic [`$wwidth-1`:0] sram_mem_data_out [`$bbanks-1`:0];
 logic [`$wwidth-1`:0] sram_out;
 logic [`$bbanks-1`:0] sram_wen;
 logic [`$bbanks-1`:0] sram_cen;
-//
-logic [`$awidth-1`:0] db_addr [`$bbanks-1`:0];
-logic [`$wwidth-1`:0] db_mem_data_out [`$bbanks-1`:0];
-logic [`$wwidth-1`:0] db_out;
-logic [`$bbanks-1`:0] db_wen;
-logic [`$bbanks-1`:0] db_cen;
-logic db_valid_out;
 
 logic [`$wwidth-1`:0] mem_data_out [`$bbanks-1`:0];
 logic  [`$wwidth-1`:0]  mem_data_in [`$bbanks-1`:0];
@@ -189,14 +134,6 @@ logic             gclk_in;
 logic [`$bank_addr_width-1`:0] sram_sel;
 logic [`$bbanks-1`:0] mem_cen;
 logic  [`$bbanks-1`:0] mem_cen_int;
-
-
-//; for(my $idx = 0; $idx < $iterator_support; $idx++) {
-assign stride[`$idx`] = `'stride_' . $idx`;
-//; }
-//; for(my $idx = 0; $idx < $iterator_support; $idx++) {
-assign range[`$idx`] = `'range_' . $idx`; 
-//; }
 
 // ========================================================
 // No more wire declarations after this 
@@ -270,46 +207,9 @@ always_comb begin
    end
 
    else begin
-   case (mode)
-
-   // ========================================================
-   // LINE BUFFER MODE
-   // ========================================================
-   2'd0: begin 
-      mem_cen_int = fifo_cen;
-      mem_wen = fifo_wen;
-      mem_ren = {`$bbanks`{1'b1}};
-      mem_addr = fifo_addr;
-      mem_data_in = fifo_mem_data_out;
-      data_out = fifo_out; 
-      valid_out = lb_valid_out; 
-      almost_full = fifo_almost_full;
-      almost_empty = fifo_almost_empty;
-      full = fifo_full;
-      empty = fifo_empty;
-   end
-
-   // ========================================================
-   // FIFO MODE
-   // ========================================================
-   2'd1: begin 
-      mem_cen_int = fifo_cen;
-      mem_wen = fifo_wen;
-      mem_ren = {`$bbanks`{1'b1}};
-      mem_addr = fifo_addr;
-      mem_data_in = fifo_mem_data_out;
-      data_out = fifo_out;
-      valid_out = fifo_valid_out;
-      almost_full = fifo_almost_full;
-      almost_empty = fifo_almost_empty;
-      full = fifo_full;
-      empty = fifo_empty;
-   end
-
-   // ========================================================
-   // SRAM/LUT MODE
-   // ========================================================
-   2'd2: begin 
+      // ========================================================
+      // SRAM/LUT MODE
+      // ========================================================
       mem_cen_int = sram_cen;
       mem_wen = sram_wen;
       mem_ren = {`$bbanks`{1'b1}};
@@ -322,48 +222,7 @@ always_comb begin
       full = 1'b0;
       empty = 1'b0;
    end
-
-   // ========================================================
-   // DOUBLE BUFFER MODE
-   // ========================================================
-   2'd3: begin 
-      mem_cen_int = db_cen;
-      mem_wen = db_wen;
-      mem_ren = {`$bbanks`{1'b1}};
-      mem_addr = db_addr;
-      mem_data_in = db_mem_data_out;
-      data_out = (enable_chain & chain_wen_in) ? chain_in : db_out;
-      valid_out = (enable_chain & chain_wen_in) | db_valid_out;
-      almost_full = 1'b0;
-      almost_empty = 1'b0;
-      full = 1'b0;
-      empty = 1'b0;
-   end
-
-   // ========================================================
-   // DEFAULT MODE
-   // ========================================================
-   default: begin
-   //; for (my $i = 0; $i < $bbanks; $i++) {
-      mem_data_in[`$i`] = 0; 
-   //; }      
-      mem_cen_int = ~0;
-      mem_wen = 0;
-      mem_ren = 0;
-   //; for (my $i = 0; $i < $bbanks; $i++) {
-      mem_addr[`$i`] = 0; 
-   //; }
-      data_out = 0; 
-      valid_out = 1'b0; 
-      almost_full = 1'b0; 
-      almost_empty = 1'b0; 
-      full = 1'b0;
-      empty = 1'b0;
-   end
-
-   endcase
-   end //else
-end // END ALWAYS
+end
 
 // ========================================================
 // Select a specific SRAM (from previous cycle)
@@ -383,57 +242,6 @@ end
 //; for (my $i = 0; $i < $bbanks; $i++) {
 assign mem_cen[`$i`] = mem_cen_int[`$i`] & ( mem_wen[`$i`] | mem_ren[`$i`]) & (clk_en | (|config_en_sram));
 //; }
-
-// ========================================================
-// Instantiate (Row) LineBuffer
-// ========================================================
-//; my $lb = generate('linebuffer_control', 'linebuffer_control', dwidth => $dwidth, ddepth => $ddepth, bbanks => $bbanks, wwidth => $wwidth );
-`$lb->instantiate()`
-(
-.clk(gclk_in),
-.clk_en(clk_en), 
-.reset(reset),
-.flush(flush),
-.wen(wen_in_int),
-
-.depth(depth),
-.valid(lb_valid_out),
-
-.num_words_mem(num_words_mem_fifo_to_lb),
-.ren_to_fifo(ren_lb_to_fifo),
-.stencil_width(stencil_width)
-);
-
-// ========================================================
-// Instantiate FIFO 
-// ========================================================
-//; my $fifo = generate('fifo_control', 'fifo_control', dwidth => $dwidth, ddepth => $ddepth, wwidth => $wwidth, bbanks => $bbanks ); 
-`$fifo->instantiate()`
-(
-.clk(gclk_in),
-.clk_en(clk_en), 
-.reset(reset),
-.flush(flush),
-.ren((mode == 2'b01) ? ren_in : ren_lb_to_fifo),
-.wen(wen_in_int),
-.data_in(data_in_int),
-.data_out(fifo_out),
-.almost_empty(fifo_almost_empty),
-.almost_full(fifo_almost_full),
-.empty(fifo_empty),
-.full(fifo_full),
-.valid(fifo_valid_out),
-.depth(depth),
-.fifo_to_mem_data(fifo_mem_data_out),
-.fifo_to_mem_cen(fifo_cen),
-.fifo_to_mem_wen(fifo_wen),
-.fifo_to_mem_addr(fifo_addr),
-.mem_to_fifo_data(mem_data_out),
-.num_words_mem(num_words_mem_fifo_to_lb),
-
-.almost_count(almost_count),
-.circular_en(circular_en)
-);
 
 // ========================================================
 // Instantiate SRAM Controller
@@ -457,47 +265,6 @@ assign mem_cen[`$i`] = mem_cen_int[`$i`] & ( mem_wen[`$i`] | mem_ren[`$i`]) & (c
 .sram_to_mem_wen(sram_wen),
 .sram_to_mem_addr(sram_addr),
 .mem_to_sram_data(mem_data_out)
-);
-
-// ========================================================
-// Instantiate Double Buffer
-// ========================================================
-//; my $db = generate('doublebuffer_control', 'doublebuffer_control', dwidth => $dwidth, ddepth => $ddepth, wwidth => $wwidth, bbanks => $bbanks, iterator_support => $iterator_support ); 
-`$db->instantiate()`
-(
-.clk(gclk_in),
-.clk_en(clk_en), 
-.reset(reset),
-.flush(flush),
-.wen(wen_in),
-.ren(ren_in),
-.data_in(data_in),
-.data_out(db_out),
-
-.doublebuffer_data_in(db_mem_data_out),// to mem
-.doublebuffer_cen_mem(db_cen),
-.doublebuffer_wen_mem(db_wen),
-.doublebuffer_addr_mem(db_addr),
-.doublebuffer_data_out(mem_data_out),
-
-.addr_in(addr_in),
-
-.depth(depth),
-.valid(db_valid_out),
-.switch(switch_db),
-.chain_idx(chain_idx),
-
-.arbitrary_addr(arbitrary_addr),
-.starting_addr(starting_addr),
-.iter_cnt(iter_cnt),
-.dimensionality(dimensionality),
-.stride(stride),
-.range(range),
-
-// merge with LB
-.rate_matched(rate_matched),
-.stencil_width(stencil_width)
-
 );
 
 // ========================================================
