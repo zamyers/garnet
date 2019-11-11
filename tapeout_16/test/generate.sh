@@ -48,13 +48,6 @@ fi
         rm -rf genesis_verif
     fi
 
-    echo ""
-    echo "OMG are you kidding me."
-    echo "coreir only works if /usr/local/bin comes before /usr/bin."
-    echo 'export PATH=/usr/local/bin:$PATH'
-    echo ""
-    export PATH=/usr/local/bin:$PATH
-
     # This filter keeps Genesis output
     #   "--- Genesis Is Starting Work On Your Design ---"
     # from being an expandable category in kite log =>
