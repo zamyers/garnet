@@ -1060,7 +1060,7 @@ def map_app(pre_map):
             mem_mode = args[1]
             instr = {}
             if mem_mode == "lb":
-                instr["mode"] = MemoryMode.DB
+                instr["mode"] = MemoryMode.LINE_BUFFER
                 instr["depth"] = int(args[-1])
                 if instr["depth"] > 512:
                     split_ub(blk_id, netlist, id_to_name, bus,
