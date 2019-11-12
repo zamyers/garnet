@@ -13,13 +13,14 @@ module `mname` #(
     parameter integer GLB_ADDR_WIDTH = 32,
     parameter integer CONFIG_DATA_WIDTH = 32,
     parameter integer IDLE_MODE = 0
-)
+    )
 (
     input  logic                            clk,
     input  logic                            clk_en,
     input  logic                            reset,
     input  logic                            cgra_start_pulse,
     output logic                            cgra_done_pulse,
+    output logic                            auto_restart_instream,    
 
     input  logic [GLB_ADDR_WIDTH-1:0]       start_addr,
     input  logic [GLB_ADDR_WIDTH-1:0]       num_words,
@@ -96,7 +97,6 @@ logic [GLB_ADDR_WIDTH-1:0]      cnt_instream;
 logic [GLB_ADDR_WIDTH-1:0]      num_active_cnt_instream;
 logic [GLB_ADDR_WIDTH-1:0]      num_inactive_cnt_instream;
 logic [CONFIG_DATA_WIDTH-1:0]   done_cnt_instream;
-logic                           auto_restart_instream;
 
 logic [DATA_SEL_WIDTH-1:0]      data_sel_instream;
 logic [DATA_SEL_WIDTH-1:0]      data_sel_instream_d1;

@@ -33,6 +33,7 @@ class GlobalController(Generator):
 
             config_start_pulse=magma.Out(magma.Bit),
             config_done_pulse=magma.In(magma.Bit),
+            auto_restart_instream=magma.In(magma.Bits[8]),
 
             glb_config=magma.Out(self.axi_config_type),
             glb_read_data_in=magma.In(magma.Bits[self.data_width]),
@@ -71,6 +72,8 @@ class GlobalController(Generator):
                   self.underlying.ports.config_start_pulse)
         self.wire(self.ports.config_done_pulse,
                   self.underlying.ports.config_done_pulse)
+        self.wire(self.ports.auto_restart_instream,
+                  self.underlying.ports.auto_restart_instream)
 
         # glb configuration interface
         self.wire(self.underlying.ports.glb_config_addr_out,

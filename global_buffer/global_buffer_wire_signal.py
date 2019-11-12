@@ -29,6 +29,8 @@ def glb_glc_wiring(garnet):
                 garnet.global_buffer.ports.config_start_pulse)
     garnet.wire(garnet.global_controller.ports.config_done_pulse,
                 garnet.global_buffer.ports.config_done_pulse)
+    garnet.wire(garnet.global_controller.ports.auto_restart_instream,
+                garnet.global_buffer.ports.auto_restart_instream)
 
     return garnet
 

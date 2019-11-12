@@ -52,6 +52,7 @@ module `mname` (
     output                                              cgra_done_pulse,
     input                                               config_start_pulse,
     output                                              config_done_pulse,
+    output logic [`$num_io_channels-1`:0]               auto_restart_instream,
 
     input                                               glb_config_wr,
     input                                               glb_config_rd,
@@ -151,6 +152,7 @@ assign glb_to_cgra_cfg_data[`$i*$config_data_width` +: `$config_data_width`] = i
     .cgra_done_pulse(cgra_done_pulse),
     .config_start_pulse(config_start_pulse),
     .config_done_pulse(config_done_pulse),
+    .auto_restart_instream(auto_restart_instream),
     
     .glb_config_wr(glb_config_wr),
     .glb_config_rd(glb_config_rd),

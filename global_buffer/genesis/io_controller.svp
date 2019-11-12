@@ -27,6 +27,7 @@ module `mname` #(
 
     input                                       cgra_start_pulse,
     output logic                                cgra_done_pulse,
+    output logic  [`$num_io_channels-1`:0]      auto_restart_instream 
 
     input                                       glc_to_io_stall,
     //input                                       cgra_to_io_stall [`$num_io_channels-1`:0],
@@ -107,6 +108,7 @@ assign clk_en = !glc_to_io_stall;
 
     .cgra_start_pulse(io_cgra_start_pulse[`$i`]),
     .cgra_done_pulse(io_cgra_done_pulse[`$i`]),
+    .auto_restart_instream(auto_restart_instream[`$i`]),
 
     .start_addr(io_ctrl_start_addr[`$i`]),
     .num_words(io_ctrl_num_words[`$i`]),

@@ -7,6 +7,7 @@
 **===========================================================================*/
 
 //; use POSIX;
+//; my $num_io_channels = parameter(Name=>'num_io_channels', val=> 8, min=>1, step=>1, max=>16, doc=>'Number of io channels');
 //; my $cfg_bus_width = parameter(NAME => 'cfg_bus_width', VAL => 32, DOC => 'Width of config_data');
 //; my $cfg_addr_width = parameter(NAME => 'cfg_addr_width', VAL => 32, DOC => 'Width of config_addr');
 //; my $cfg_op_width = parameter(NAME => 'cfg_op_width', VAL => 5, DOC => 'Width of config_op');
@@ -31,6 +32,7 @@ module `mname` (
     // fast reconfiguration signals
     output logic                            config_start_pulse,
     input  logic                            config_done_pulse,
+    input  logic [`$num_io_channels-1`:0]   auto_restart_instream,
 
     // global buffer configuration
     output logic                            glb_write,
@@ -214,6 +216,7 @@ localparam
     AXI_ADDR_GLB_SRAM_CONFIG_ADDR   = `$axi_addr_width`'h034,
     AXI_ADDR_GLB_SRAM_CONFIG_DATA   = `$axi_addr_width`'h038,
     AXI_ADDR_ADVANCE_CLK            = `$axi_addr_width`'h03c;
+    AXI_ADDR_ISR_GLB                = `$axi_addr_width`'h040,
 
 logic       axi_activated;
 
@@ -231,6 +234,7 @@ always_comb begin
                 AXI_ADDR_CONFIG_START,
                 AXI_ADDR_IER,
                 AXI_ADDR_ISR,
+                AXI_ADDR_ISR_GLB,
                 AXI_ADDR_CGRA_SOFT_RESET_EN,
                 AXI_ADDR_CGRA_CONFIG_ADDR,
                 AXI_ADDR_GLB_SRAM_CONFIG_ADDR:  op_axi = cgra_ctrl_write; 
@@ -257,6 +261,7 @@ always_comb begin
                 AXI_ADDR_CONFIG_START,
                 AXI_ADDR_IER,
                 AXI_ADDR_ISR,
+                AXI_ADDR_ISR_GLB,
                 AXI_ADDR_CGRA_SOFT_RESET_EN,
                 AXI_ADDR_CGRA_CONFIG_ADDR,
                 AXI_ADDR_GLB_SRAM_CONFIG_ADDR:  op_axi = cgra_ctrl_read; 
@@ -478,6 +483,7 @@ logic                           int_cgra_auto_restart;
 logic                           int_config_start;
 logic [1:0]                     int_ier;
 logic [1:0]                     int_isr;
+logic [7:0]                     int_isr_glb;
 logic                           int_cgra_soft_reset_en;
 logic [`$cfg_addr_width-1`:0]   int_cgra_config_addr;
 logic [`$cfg_addr_width-1`:0]   int_glb_sram_config_addr;
@@ -703,9 +709,14 @@ always @(posedge clk or posedge reset_in) begin
 end
 
 //============================================================================//
+// int_isr_glb (interrupt status register)
+//============================================================================//
+assign int_isr_glb = auto_restart_instream;
+
+//============================================================================//
 // interrupt signal
 //============================================================================//
-assign interrupt = |int_isr;
+assign interrupt = (|int_isr) | (|int_isr_glb);
 
 //============================================================================//
 // During fast reconfiguration, config_addr_out and config_data_out goes to 0
@@ -734,6 +745,7 @@ always @(posedge clk or posedge reset_in) begin
                 AXI_ADDR_CGRA_SOFT_RESET_EN: cgra_ctrl_rd_data <= int_cgra_soft_reset_en;
                 AXI_ADDR_CGRA_CONFIG_ADDR: cgra_ctrl_rd_data <= int_cgra_config_addr;
                 AXI_ADDR_GLB_SRAM_CONFIG_ADDR: cgra_ctrl_rd_data <= int_glb_sram_config_addr;
+                AXI_ADDR_ISR_GLB: cgra_ctrl_rd_data <= int_isr_glb[7:0];
                 default: cgra_ctrl_rd_data <= 0;
             endcase
         end
