@@ -216,7 +216,7 @@ localparam
     AXI_ADDR_GLB_SRAM_CONFIG_ADDR   = `$axi_addr_width`'h034,
     AXI_ADDR_GLB_SRAM_CONFIG_DATA   = `$axi_addr_width`'h038,
     AXI_ADDR_ADVANCE_CLK            = `$axi_addr_width`'h03c;
-    AXI_ADDR_ISR_GLB                = `$axi_addr_width`'h040,
+    AXI_ADDR_ISR_GLB                = `$axi_addr_width`'h040;
 
 logic       axi_activated;
 
