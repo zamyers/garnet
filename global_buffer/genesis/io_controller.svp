@@ -27,7 +27,7 @@ module `mname` #(
 
     input                                       cgra_start_pulse,
     output logic                                cgra_done_pulse,
-    output logic  [`$num_io_channels-1`:0]      auto_restart_instream 
+    output logic  [`$num_io_channels-1`:0]      auto_restart_instream,
 
     input                                       glc_to_io_stall,
     //input                                       cgra_to_io_stall [`$num_io_channels-1`:0],
