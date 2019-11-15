@@ -53,7 +53,7 @@ class GlobalBuffer(Generator):
             cgra_done_pulse=magma.Out(magma.Bit),
             config_start_pulse=magma.In(magma.Bit),
             config_done_pulse=magma.Out(magma.Bit),
-            auto_restart_instream=magma.Out(magma.Bits[8]),
+            # auto_restart_instream=magma.Out(magma.Bits[8]),
 
             cgra_config=magma.In(self.config_type),
             glb_to_cgra_config=magma.Out(
@@ -147,8 +147,8 @@ class GlobalBuffer(Generator):
                   self.underlying.ports.config_start_pulse)
         self.wire(self.ports.config_done_pulse,
                   self.underlying.ports.config_done_pulse)
-        self.wire(self.ports.auto_restart_instream,
-                  self.underlying.ports.auto_restart_instream)
+        # self.wire(self.ports.auto_restart_instream,
+        #           self.underlying.ports.auto_restart_instream)
 
         self.wire(self.ports.glb_config.write[0],
                   self.underlying.ports.glb_config_wr)
