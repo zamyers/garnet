@@ -53,7 +53,7 @@ class GlobalBuffer(Generator):
             cgra_done_pulse=magma.Out(magma.Bit),
             config_start_pulse=magma.In(magma.Bit),
             config_done_pulse=magma.Out(magma.Bit),
-            auto_restart_instream=magma.Out(magma.Bits[8]),
+            auto_restart_instream=magma.Out(magma.Bits[self.num_io]),
 
             cgra_config=magma.In(self.config_type),
             glb_to_cgra_config=magma.Out(
