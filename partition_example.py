@@ -37,7 +37,7 @@ class ChainOfCells(Generator):
         super().__init__()
 
         self.width = 2
-        self.length = 8
+        self.length = 1
 
         T = magma.Bits[self.width]
 

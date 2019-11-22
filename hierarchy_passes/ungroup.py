@@ -64,7 +64,7 @@ def ungroup(top: Generator, *insts):
                     top_port = wire[ind - 1]
                     port_key = hash(port)
                     # check if either of the endpoints are split
-                    if (len(port._ops) > 0) or (len(top_port._ops) > 0):
+                    if (len(port._ops) > 0):
                         connections_to_replace[port_key]['split'] = True
                     connections_to_replace[port_key]['ext_intermediate'].append(port)
                     connections_to_replace[port_key]['external'].append(top_port)
@@ -76,7 +76,7 @@ def ungroup(top: Generator, *insts):
                     internal_port = wire[ind - 1]
                     port_key = hash(port)
                     # check if either of the endpoints are split
-                    if (len(port._ops) > 0) or (len(internal_port._ops) > 0):
+                    if (len(port._ops) > 0):
                         connections_to_replace[port_key]['split'] = True
                     # Handle pass through case here
                     if internal_port.owner() == inst:
@@ -95,7 +95,7 @@ def ungroup(top: Generator, *insts):
                 in_port = p2
                 out_port = p1
             # For all pass through connections, insert a PassThrough module (to be removed later)
-            pass_through_inst = PassThrough(in_port.type(), "passthrough")
+            pass_through_inst = PortJoiner(in_port.type(), "passthrough")
             inst.remove_wire(in_port, out_port)
             inst.wire(in_port, pass_through_inst.ports.I)
             inst.wire(out_port, pass_through_inst.ports.O)
@@ -142,12 +142,14 @@ def ungroup(top: Generator, *insts):
                     intermediate = external_combiner
                     #intermediate._ops = []
                     for op in ext_intermediate._ops:
+                        print(op.index)
                         intermediate = op(intermediate)
                     top.wire(external, intermediate)
                 for internal, int_intermediate in zip(connection['internal'], connection['int_intermediate']):
                     intermediate = internal_combiner
                     #intermediate._ops = []
                     for op in int_intermediate._ops:
+                        print(op.index)
                         intermediate = op(intermediate)
                     top.wire(internal, intermediate)
             # No split connection
@@ -157,12 +159,12 @@ def ungroup(top: Generator, *insts):
                         top.wire(external, internal)
 
         # Finally, clean up the PassThroughs
-        for pass_through_inst in pass_through_insts:
-            external_inputs = get_external_connections(pass_through_inst.ports.I)
-            external_outputs = get_external_connections(pass_through_inst.ports.O)
-            assert(len(external_inputs) == 1)
-            assert(len(external_inputs) == len(external_outputs))
-            # Bypass pass-through connection
-            top.remove_wire(external_inputs[0], pass_through_inst.ports.I)
-            top.remove_wire(external_outputs[0], pass_through_inst.ports.O)
-            top.wire(external_inputs[0], external_outputs[0])
+        #for pass_through_inst in pass_through_insts:
+        #    external_inputs = get_external_connections(pass_through_inst.ports.I)
+        #    external_outputs = get_external_connections(pass_through_inst.ports.O)
+        #    assert(len(external_inputs) == 1)
+        #    assert(len(external_inputs) == len(external_outputs))
+        #    # Bypass pass-through connection
+        #    top.remove_wire(external_inputs[0], pass_through_inst.ports.I)
+        #    top.remove_wire(external_outputs[0], pass_through_inst.ports.O)
+        #    top.wire(external_inputs[0], external_outputs[0])
