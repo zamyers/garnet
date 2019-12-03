@@ -1,36 +1,14 @@
 from kratos import *
 from interface.handshake_ifc import Handshake
 from math import log2, ceil
-
-class _Reg:
-    def __init__(self, _module, _name, _width, _addr):
-        self._name = "reg_" + _name
-        self._addr = _addr
-        self._width = _width
-        self._reg = _module.var(self._name, self._width)
-
-    @property
-    def name(self):
-        return self._name
-
-    @property
-    def width(self):
-        return self._width
-
-    @property
-    def addr(self):
-        return self._addr
-
-    @property
-    def reg(self):
-        return self._reg
+from collections import namedtuple
 
 class GlcCore(Generator):
     def __init__(self, p_glc_hs_awidth, p_glc_hs_dwidth):
         super().__init__("glc_core", True)
 
-        # python variables
-        self._global_addr = 0
+        # register list
+        self._Reg = namedtuple('Reg', 'name reg addr width')
         self._regs = []
 
         # Parameters
@@ -53,20 +31,19 @@ class GlcCore(Generator):
         self.add_code(self.seq_reg_write)
         self.add_code(self.seq_reg_read)
 
-    def add_reg(self, _name, _width):
-        _reg = _Reg(self, _name, _width, self._global_addr)
+    def add_regs(self, _name, _addr, _width):
+        _reg = self._Reg(name=_name, reg=self.var(_name, _width),
+                         addr=_addr, width=_width)
         self._regs.append(_reg)
-        self._global_addr += 1
-        return _reg
 
     def define_reg(self):
-        self._ier = self.add_reg("ier", 2)
-        self._isr = self.add_reg("isr", 2)
-        self._cgra_wr_en = self.add_reg("cgra_wr_en", 1)
-        self._cgra_rd_en = self.add_reg("cgra_rd_en", 1)
-        self._cgra_addr = self.add_reg("cgra_addr", 32)
-        self._cgra_wr_data = self.add_reg("cgra_wr_data", 32)
-        self._cgra_rd_data = self.add_reg("cgra_rd_data", 32)
+        self._ier = self.add_reg("ier", 0, 2)
+        self._isr = self.add_reg("isr", 1, 2)
+        self._cgra_wr_en = self.add_reg("cgra_wr_en", 2, 1)
+        self._cgra_rd_en = self.add_reg("cgra_rd_en", 3, 1)
+        self._cgra_addr = self.add_reg("cgra_addr", 4, 32)
+        self._cgra_wr_data = self.add_reg("cgra_wr_data", 5, 32)
+        self._cgra_rd_data = self.add_reg("cgra_rd_data", 6, 32)
 
     def declare_internal_vars(self):
         self._rd_addr = self.var("rd_addr",
