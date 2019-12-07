@@ -1,6 +1,3 @@
-set ::USE_ALTERNATIVE_M1_STRIPE_GENERATION 0
-source ../../scripts/vlsi/flow/scripts/alt_add_M1_stripes.tcl
-
 ###################################
 ## a collection of floorplan procedures
 ## mostly written by Brian Richards
@@ -59,10 +56,9 @@ proc done_fp {} {
     # man page (add_io_fillers)
 
     # [stevo]: add -logic so fillers get RTE signal connection
+    #   [steveri 11/2019]: Dunno where "-derive_connectivity" came from, but it
+    #   throws errs when used in conjunction w/Soong-jin's ANAIOPAD shenanigans
     # add_io_fillers -cells "$ioFillerCells" -logic -derive_connectivity
-
-    # [steveri 11/2019]: Dunno where "-derive_connectivity" comes from, but it
-    # throws errors when used in conjunction w/Soong-jin's ANAIOPAD shenanigans
     add_io_fillers -cells "$ioFillerCells" -logic
 
     # [stevo]: connect corner cells to RTE
@@ -173,11 +169,16 @@ proc gen_bumps {} {
 #    assign_signal_to_bump -selected -net AVDD1 
 
     # Select all VSS bumps
+    # sr 1911: Gives warning "**WARN: (IMPSIP-7355):  PG net 'VSS' is dangling."
+    # Even though/if do "eval_legacy { globalNetConnect VSS -pin VSS }"
+    # Dangling net doesn't seem to harm/help anything tho
+
     deselect_bumps
     select_bumps -bumps [bumps_of_type $bump_types "g"]
     assign_signal_to_bump -selected -net VSS 
 
-    # This is the original code. Looks like a VDD->VSS short to me!!!
+    # sr 1910 This is the original code. Looks like a VDD->VSS short to me!!!
+    # sr 1911 Okay never mind, it goes to the VSS *port* of the VDD pad I guess.
     assign_bumps -multi_bumps_to_multi_pads -selected -pg_only \
         -pg_nets VSS -pg_insts ${io_root}*VDDPST_* \
         -exclude_region {1050 1050 3840 3840}
@@ -196,11 +197,16 @@ proc gen_bumps {} {
 
 
     # Select all VDD bumps
+    # sr 1911: **WARN: (IMPSIP-7355):  PG net 'VDDPST' is dangling.
+    # Dangling net doesn't seem to harm/help anything tho
     deselect_bumps
     select_bumps -bumps [bumps_of_type $bump_types "o"]
     assign_signal_to_bump -selected -net VDDPST
     assign_bumps -multi_bumps_to_multi_pads -selected -pg_only -pg_nets VDDPST -pg_insts ${io_root}*VDDPST_*  -exclude_region {1050 1050 3840 3840}
     #assign_bumps -multi_bumps_to_multi_pads -selected -pg_only -pg_nets VDDPST -pg_insts ${io_root}*VDDPSTANA_*  -exclude_region {1050 1050 3840 3840}
+
+    # sr 1911: **WARN: (IMPSIP-7355):  PG net 'VDD' is dangling.
+    # Dangling net doesn't seem to harm/help anything tho
     deselect_bumps
     select_bumps -bumps [bumps_of_type $bump_types "b"]
     assign_signal_to_bump -selected -net VDD
@@ -380,12 +386,17 @@ proc bumps_of_type {bump_array type} {
 }
 
 proc gen_route_bumps {} {
-  gen_rdl_blockages
+
+  # sr 1912 These blockages are cousing a *lot* of problems
+  # They render many/most bumps unroutable, see me for details (steveri)
+  # gen_rdl_blockages
 
   deselect_bumps -bumps *
   select_bumps -type signal
   select_bumps -type power
   select_bumps -type ground
+
+  # Deselect power/gnd bumps in the middle (?why?)
   foreach bump [get_db selected] {
     regexp {GarnetSOC_pad_frame\/(Bump_\d\d*\.)(\S*)\.(\S*)} $bump -> base row col
     if {($row>3) && ($row<24) && ($col>3) && ($col<24)} {
@@ -400,7 +411,12 @@ proc gen_route_bumps {} {
   set_db flip_chip_top_layer AP
   set_db flip_chip_route_style manhattan 
   set_db flip_chip_connect_power_cell_to_bump true 
-  route_flip_chip -incremental -target connect_bump_to_pad -verbose -route_engine global_detail -selected_bumps -bottom_layer AP -top_layer AP -route_width 3.6 -double_bend_route
+  puts -nonewline "@file_info: Before rfc: Time now "; date +%H:%M
+  puts "@file_info gen_floorplan.tcl/gen_route_bumps: route_flip_chip"
+  route_flip_chip -incremental -target connect_bump_to_pad -verbose \
+      -route_engine global_detail -selected_bumps \
+      -bottom_layer AP -top_layer AP -route_width 3.6 -double_bend_route
+  puts -nonewline "@file_info: After rfc: Time now "; date +%H:%M
 
 
   ##select_bumps -type ground
@@ -420,12 +436,16 @@ proc gen_route_bumps {} {
     set_db add_stripes_stacked_via_bottom_layer AP
     set_db add_stripes_stacked_via_top_layer AP
 
+  puts -nonewline "@file_info: Time now "; date +%H:%M
+  puts "@file_info gen_floorplan.tcl/gen_route_bumps: add_stripes"
   add_stripes -nets {VDD VSS} \
   -over_bumps 1 \
   -layer AP -direction horizontal \
   -width 30.0 -spacing 20.0 -number_of_sets 1 \
   -start_from left \
   -area {1050.0 1050.0 3850.0 3850.0}
+  puts "@file_info: - Bump Stripes Complete"
+  puts -nonewline "@file_info: Time now "; date +%H:%M
 }
 
 
@@ -860,19 +880,19 @@ proc gen_power {} {
       -target_via_layer_range { M2(2) M8(8) } \
       -inst [get_db [get_db insts *IOPAD*VDDANA_*] .name]
     
-    # Note M1 stripe generation takes like seven hours
-    # se "alt_add_stripes mechanism to try out adding by region etc
-  if {$::USE_ALTERNATIVE_M1_STRIPE_GENERATION} {
-    # Doing it in three sections (to, middle, bottom)
-    # seems to take an hour longer actually...
-    set_db add_stripes_stacked_via_bottom_layer M2
-    set_db add_stripes_stacked_via_top_layer M2
-    alt_add_M1_stripes {}
-  } else {
     puts "@file_info: ----------------"
     puts "@file_info: gen_floorplan.tcl/gen_power: add_stripes M1"
     puts "@file_info: - expect this to take like 7 hours"
     puts -nonewline "@file_info: Time now "; date +%H:%M
+
+    puts "@file_info: trying new hack that should shorten the 7 hours significantly"
+    puts "@file_info: turning off DRC during M1 stripe generation ONLY"
+    set orig_asid_value [ get_db add_stripes_ignore_drc ]
+    puts "@file_info: BEFORE: add_stripes_ignore_drc=$orig_asid_value"
+    set_db add_stripes_ignore_drc true
+    set t [ get_db add_stripes_ignore_drc ]
+    puts "@file_info: NOW: add_stripes_ignore_drc=$t"
+    
     # standard cell rails in M1
     # [stevo]: no vias
     set_db add_stripes_stacked_via_bottom_layer M2
@@ -893,10 +913,16 @@ proc gen_power {} {
       -block_ring_bottom_layer_limit M1   \
       -width pin_width   \
       -nets {VSS VDD}
-  }
+
     echo M1 Stripes Complete
     puts "@file_info: - M1 Stripes Complete"
     puts -nonewline "@file_info: Time now "; date +%H:%M
+    puts "@file_info: ----------------"
+    # set_db add_stripes_ignore_drc true
+    puts "@file_info: restoring add_stripe DRC"
+    set_db add_stripes_ignore_drc $orig_asid_value
+    set t [ get_db add_stripes_ignore_drc ]
+    puts "@file_info: NOW: add_stripes_ignore_drc=$t"
     puts "@file_info: ----------------"
 
     ####NB DIS# Add M2 horizontal stripes matching M1, but narrower (0.064)
@@ -995,4 +1021,3 @@ proc snap_pads {inst_names} {
     }
   }
 }
-
