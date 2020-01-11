@@ -62,7 +62,6 @@ def construct():
   rtl          = Step( this_dir + '/../common/rtl'           )
   constraints  = Step( this_dir + '/constraints'             )
   iplugins     = Step( this_dir + '/cadence-innovus-plugins' )
-  init         = Step( this_dir + '/cadence-innovus-init'    )
   gen_sram     = Step( this_dir + '/gen_sram_macro'          )
 
   # Default steps
@@ -72,7 +71,7 @@ def construct():
   dc           = Step( 'synopsys-dc-synthesis',         default=True )
   iflow        = Step( 'cadence-innovus-flowgen',       default=True )
   #iplugins     = Step( 'cadence-innovus-plugins',       default=True )
-  #init         = Step( 'cadence-innovus-init',          default=True )
+  init         = Step( 'cadence-innovus-init',          default=True )
   place        = Step( 'cadence-innovus-place',         default=True )
   cts          = Step( 'cadence-innovus-cts',           default=True )
   postcts_hold = Step( 'cadence-innovus-postcts_hold',  default=True )
@@ -84,15 +83,26 @@ def construct():
   lvs          = Step( 'mentor-calibre-lvs',            default=True )
   debugcalibre = Step( 'cadence-innovus-debug-calibre', default=True )
 
-  # Hack to add sram macro inputs to downstream nodes
-  dc._config['inputs'].append('sram_tt.db')
+  # Add (dummy) parameters to the default innovus init step
+
+  init.update_params( {
+    'core_width'  : 0,
+    'core_height' : 0
+    }, allow_new=True )
+
+  # Add sram macro inputs to downstream nodes
+
+  dc.extend_inputs( ['sram_tt.db'] )
+
   # These steps need timing and lef info for srams
+
   sram_steps = [iflow, init, place, cts, postcts_hold, route, postroute, signoff]
   for step in sram_steps:
-    step._config['inputs'].extend(['sram_tt.lib', 'sram.lef'])
+    step.extend_inputs( ['sram_tt.lib', 'sram.lef'] )
+
   # Need the sram gds to merge into the final layout
-  gdsmerge._config['inputs'].append('sram.gds')
-  
+
+  gdsmerge.extend_inputs( ['sram.gds'] )
 
   #-----------------------------------------------------------------------
   # Graph -- Add nodes
@@ -135,7 +145,7 @@ def construct():
   g.connect_by_name( adk,      gdsmerge     )
   g.connect_by_name( adk,      drc          )
   g.connect_by_name( adk,      lvs          )
-  
+
   g.connect_by_name( gen_sram,      dc           )
   g.connect_by_name( gen_sram,      iflow        )
   g.connect_by_name( gen_sram,      init         )

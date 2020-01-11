@@ -54,10 +54,9 @@ def construct():
 
   # Custom steps
 
-  rtl          = Step( this_dir + '/../common/rtl'                     )
+  rtl          = Step( this_dir + '/../common/rtl'           )
   constraints  = Step( this_dir + '/constraints'             )
   iplugins     = Step( this_dir + '/cadence-innovus-plugins' )
-  init         = Step( this_dir + '/cadence-innovus-init'    )
 
   # Default steps
 
@@ -66,7 +65,7 @@ def construct():
   dc           = Step( 'synopsys-dc-synthesis',         default=True )
   iflow        = Step( 'cadence-innovus-flowgen',       default=True )
   #iplugins     = Step( 'cadence-innovus-plugins',       default=True )
-  #init         = Step( 'cadence-innovus-init',          default=True )
+  init         = Step( 'cadence-innovus-init',          default=True )
   place        = Step( 'cadence-innovus-place',         default=True )
   cts          = Step( 'cadence-innovus-cts',           default=True )
   postcts_hold = Step( 'cadence-innovus-postcts_hold',  default=True )
@@ -77,6 +76,13 @@ def construct():
   drc          = Step( 'mentor-calibre-drc',            default=True )
   lvs          = Step( 'mentor-calibre-lvs',            default=True )
   debugcalibre = Step( 'cadence-innovus-debug-calibre', default=True )
+
+  # Add (dummy) parameters to the default innovus init step
+
+  init.update_params( {
+    'core_width'  : 0,
+    'core_height' : 0
+    }, allow_new=True )
 
   #-----------------------------------------------------------------------
   # Graph -- Add nodes
