@@ -58,7 +58,6 @@ def construct():
   glb_tile     = Step( this_dir + '/glb_tile'                )
   constraints  = Step( this_dir + '/constraints'             )
   iplugins     = Step( this_dir + '/cadence-innovus-plugins' )
-  init         = Step( this_dir + '/cadence-innovus-init'    )
 
   # Default steps
 
@@ -67,7 +66,7 @@ def construct():
   dc           = Step( 'synopsys-dc-synthesis',         default=True )
   iflow        = Step( 'cadence-innovus-flowgen',       default=True )
   #iplugins     = Step( 'cadence-innovus-plugins',       default=True )
-  #init         = Step( 'cadence-innovus-init',          default=True )
+  init         = Step( 'cadence-innovus-init',          default=True )
   place        = Step( 'cadence-innovus-place',         default=True )
   cts          = Step( 'cadence-innovus-cts',           default=True )
   postcts_hold = Step( 'cadence-innovus-postcts_hold',  default=True )
@@ -79,16 +78,24 @@ def construct():
   lvs          = Step( 'mentor-calibre-lvs',            default=True )
   debugcalibre = Step( 'cadence-innovus-debug-calibre', default=True )
 
-  # Hack to add glb_tile macro inputs to downstream nodes
-  dc._config['inputs'].append('glb_tile.db')
+  # Add (dummy) parameters to the default innovus init step
+
+  init.update_params( {
+    'core_width'  : 0,
+    'core_height' : 0
+    }, allow_new=True )
+
+  # Add glb_tile macro inputs to downstream nodes
+
+  dc.extend_inputs( ['glb_tile.db'] )
+
   # These steps need timing info for glb_tiles
   tile_steps = [iflow, init, place, cts, postcts_hold, route, postroute, signoff, gdsmerge]
   for step in tile_steps:
-    step._config['inputs'].extend(['glb_tile_tt.lib', 'glb_tile.lef'])
+    step.extend_inputs( ['glb_tile_tt.lib', 'glb_tile.lef'] )
   # Need the glb_tile gds to merge into the final layout
-  gdsmerge._config['inputs'].append('glb_tile.gds.gz')
+  gdsmerge.extend_inputs( ['glb_tile.gds.gz'] )
   
-
   #-----------------------------------------------------------------------
   # Graph -- Add nodes
   #-----------------------------------------------------------------------
@@ -130,7 +137,7 @@ def construct():
   g.connect_by_name( adk,      gdsmerge     )
   g.connect_by_name( adk,      drc          )
   g.connect_by_name( adk,      lvs          )
-  
+
   g.connect_by_name( glb_tile,      dc           )
   g.connect_by_name( glb_tile,      iflow        )
   g.connect_by_name( glb_tile,      init         )
