@@ -82,11 +82,11 @@ def construct():
   # Hack to add glb_tile macro inputs to downstream nodes
   dc._config['inputs'].append('glb_tile.db')
   # These steps need timing info for glb_tiles
-  tile_steps = [iflow, init, place, cts, postcts_hold, route, postroute, signoff]
+  tile_steps = [iflow, init, place, cts, postcts_hold, route, postroute, signoff, gdsmerge]
   for step in tile_steps:
     step._config['inputs'].extend(['glb_tile_tt.lib', 'glb_tile.lef'])
-  # Need the sram gds to merge into the final layout
-  # gdsmerge._config['inputs'].append('sram.gds')
+  # Need the glb_tile gds to merge into the final layout
+  gdsmerge._config['inputs'].append('glb_tile.gds.gz')
   
 
   #-----------------------------------------------------------------------

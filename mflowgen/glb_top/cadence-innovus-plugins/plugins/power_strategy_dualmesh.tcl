@@ -72,7 +72,14 @@ setAddStripeMode -reset
 setAddStripeMode -stacked_via_bottom_layer 1 \
                  -stacked_via_top_layer    3
 
-# addStripe -nets {VSS VDD} -layer 3 -direction vertical \
+# Ensure M3 stripes cross fully over bottom M1 stripe to prevent DRCs
+set stripeLlx [dbGet top.fPlan.coreBox_llx]
+set stripeLly [expr [dbGet top.fPlan.coreBox_lly] - [dbGet [dbGetLayerByZ 1].pitchY]]
+set stripeUrx [dbGet top.fPlan.coreBox_urx]
+set stripeUry [dbGet top.fPlan.coreBox_ury]
+setAddStripeMode -area [list $stripeLlx $stripeLly $stripeUrx $stripeUry]
+
+addStripe -nets {VSS VDD} -layer 3 -direction vertical \
     -width $M3_str_width                                \
     -spacing $M3_str_intraset_spacing                   \
     -set_to_set_distance $M3_str_interset_pitch         \
@@ -119,7 +126,7 @@ setAddStripeMode -stacked_via_bottom_layer 3 \
 # blockage is in the way (e.g., connections from core ring to pads).
 # Restrict any routing around blockages to use only layers for power.
 
-# addStripe -nets {VSS VDD} -layer $pmesh_bot -direction horizontal \
+addStripe -nets {VSS VDD} -layer $pmesh_bot -direction horizontal \
     -width $pmesh_bot_str_width                                   \
     -spacing $pmesh_bot_str_intraset_spacing                      \
     -set_to_set_distance $pmesh_bot_str_interset_pitch            \
@@ -158,7 +165,7 @@ setAddStripeMode -stacked_via_bottom_layer $pmesh_bot \
 # blockage is in the way (e.g., connections from core ring to pads).
 # Restrict any routing around blockages to use only layers for power.
 
-# addStripe -nets {VSS VDD} -layer $pmesh_top -direction vertical \
+addStripe -nets {VSS VDD} -layer $pmesh_top -direction vertical \
     -width $pmesh_top_str_width                                 \
     -spacing $pmesh_top_str_intraset_spacing                    \
     -set_to_set_distance $pmesh_top_str_interset_pitch          \
