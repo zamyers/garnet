@@ -13,22 +13,22 @@ module glb_host_interconnect (
     input  logic [TILE_SEL_ADDR_WIDTH-1:0]  glb_tile_id,
     
     // East
-    input  logic                            h2b_wr_en_esti,
-    input  logic [BANK_DATA_WIDTH/8-1:0]    h2b_wr_strb_esti,
-    input  logic [GLB_ADDR_WIDTH-1:0]       h2b_wr_addr_esti,
-    input  logic [BANK_DATA_WIDTH-1:0]      h2b_wr_data_esti,
-    input  logic                            h2b_rd_en_esti,
-    input  logic [GLB_ADDR_WIDTH-1:0]       h2b_rd_addr_esti,
-    output logic [BANK_DATA_WIDTH-1:0]      b2h_rd_data_esto,
+    input  logic                            h2b_wr_en_desti,
+    input  logic [BANK_DATA_WIDTH/8-1:0]    h2b_wr_strb_desti,
+    input  logic [GLB_ADDR_WIDTH-1:0]       h2b_wr_addr_desti,
+    input  logic [BANK_DATA_WIDTH-1:0]      h2b_wr_data_desti,
+    input  logic                            h2b_rd_en_desti,
+    input  logic [GLB_ADDR_WIDTH-1:0]       h2b_rd_addr_desti,
+    output logic [BANK_DATA_WIDTH-1:0]      b2h_rd_data_desto,
 
     // West
-    output logic                            h2b_wr_en_wsto,
-    output logic [BANK_DATA_WIDTH/8-1:0]    h2b_wr_strb_wsto,
-    output logic [GLB_ADDR_WIDTH-1:0]       h2b_wr_addr_wsto,
-    output logic [BANK_DATA_WIDTH-1:0]      h2b_wr_data_wsto,
-    output logic                            h2b_rd_en_wsto,
-    output logic [GLB_ADDR_WIDTH-1:0]       h2b_rd_addr_wsto,
-    input  logic [BANK_DATA_WIDTH-1:0]      b2h_rd_data_wsti,
+    output logic                            h2b_wr_en_dwsto,
+    output logic [BANK_DATA_WIDTH/8-1:0]    h2b_wr_strb_dwsto,
+    output logic [GLB_ADDR_WIDTH-1:0]       h2b_wr_addr_dwsto,
+    output logic [BANK_DATA_WIDTH-1:0]      h2b_wr_data_dwsto,
+    output logic                            h2b_rd_en_dwsto,
+    output logic [GLB_ADDR_WIDTH-1:0]       h2b_rd_addr_dwsto,
+    input  logic [BANK_DATA_WIDTH-1:0]      b2h_rd_data_dwsti,
 
     // Bank
     output logic                            h2b_wr_en [0:NUM_BANKS-1],
@@ -58,19 +58,19 @@ logic [BANK_ADDR_WIDTH-1:0]     int_h2b_wr_addr_d1;
 //============================================================================//
 // write muxing
 //============================================================================//
-assign int_tile_h2b_wr_en = h2b_wr_en_esti && (glb_tile_id == h2b_wr_addr_esti[BANK_ADDR_WIDTH + BANK_SEL_ADDR_WIDTH +: TILE_SEL_ADDR_WIDTH]);
-assign int_h2b_wr_bank_sel = h2b_wr_addr_esti[BANK_ADDR_WIDTH +: BANK_SEL_ADDR_WIDTH];
+assign int_tile_h2b_wr_en = h2b_wr_en_desti && (glb_tile_id == h2b_wr_addr_desti[BANK_ADDR_WIDTH + BANK_SEL_ADDR_WIDTH +: TILE_SEL_ADDR_WIDTH]);
+assign int_h2b_wr_bank_sel = h2b_wr_addr_desti[BANK_ADDR_WIDTH +: BANK_SEL_ADDR_WIDTH];
 always_comb begin
     for (int i=0; i<NUM_BANKS; i=i+1) begin
        int_h2b_wr_en[i] = int_tile_h2b_wr_en && (i == int_h2b_wr_bank_sel);
     end
 end
-assign int_h2b_wr_data = h2b_wr_data_esti;
-assign int_h2b_wr_addr = h2b_wr_addr_esti[0 +: BANK_ADDR_WIDTH];
+assign int_h2b_wr_data = h2b_wr_data_desti;
+assign int_h2b_wr_addr = h2b_wr_addr_desti[0 +: BANK_ADDR_WIDTH];
 always_comb begin
     for (int i=0; i<BANK_DATA_WIDTH/8; i=i+1) begin
         // Byte-addressable
-        int_h2b_wr_data_bit_sel[i*8 +: 8] = {8{h2b_wr_strb_esti[i]}};
+        int_h2b_wr_data_bit_sel[i*8 +: 8] = {8{h2b_wr_strb_desti[i]}};
     end
 end
 
@@ -120,15 +120,15 @@ logic                           h2b_rd_en_d2;
 //============================================================================//
 // read muxing
 //============================================================================//
-assign int_tile_h2b_rd_en = h2b_rd_en_esti && (glb_tile_id == h2b_rd_addr_esti[BANK_ADDR_WIDTH + BANK_SEL_ADDR_WIDTH +: TILE_SEL_ADDR_WIDTH]);
-assign int_h2b_rd_bank_sel = h2b_rd_addr_esti[BANK_ADDR_WIDTH +: BANK_SEL_ADDR_WIDTH];
+assign int_tile_h2b_rd_en = h2b_rd_en_desti && (glb_tile_id == h2b_rd_addr_desti[BANK_ADDR_WIDTH + BANK_SEL_ADDR_WIDTH +: TILE_SEL_ADDR_WIDTH]);
+assign int_h2b_rd_bank_sel = h2b_rd_addr_desti[BANK_ADDR_WIDTH +: BANK_SEL_ADDR_WIDTH];
 always_comb begin
     for (int i=0; i<NUM_BANKS; i=i+1) begin
         int_h2b_rd_en[i] = int_tile_h2b_rd_en && (i == int_h2b_rd_bank_sel);
     end
 end
 
-assign int_h2b_rd_addr = h2b_rd_addr_esti[0 +: BANK_ADDR_WIDTH];
+assign int_h2b_rd_addr = h2b_rd_addr_desti[0 +: BANK_ADDR_WIDTH];
 
 //============================================================================//
 // read pipelining
@@ -150,7 +150,7 @@ always_ff @(posedge clk) begin
 end
 
 always_ff @(posedge clk) begin
-    h2b_rd_en_d1 <= h2b_rd_en_esti;
+    h2b_rd_en_d1 <= h2b_rd_en_desti;
 end
 
 always_ff @(posedge clk) begin
@@ -171,15 +171,15 @@ end
 // bypass assignment
 //============================================================================//
 always_comb begin
-    h2b_wr_en_wsto = h2b_wr_en_esti;
-    h2b_wr_strb_wsto = h2b_wr_strb_esti;
-    h2b_wr_addr_wsto = h2b_wr_addr_esti;
-    h2b_wr_data_wsto = h2b_wr_data_esti;
-    h2b_rd_en_wsto = h2b_rd_en_esti;
-    h2b_rd_addr_wsto = h2b_rd_addr_esti;
+    h2b_wr_en_dwsto = h2b_wr_en_desti;
+    h2b_wr_strb_dwsto = h2b_wr_strb_desti;
+    h2b_wr_addr_dwsto = h2b_wr_addr_desti;
+    h2b_wr_data_dwsto = h2b_wr_data_desti;
+    h2b_rd_en_dwsto = h2b_rd_en_desti;
+    h2b_rd_addr_dwsto = h2b_rd_addr_desti;
 end
 
-assign int_b2h_rd_data = int_tile_h2b_rd_en_d2 ? int_b2h_rd_data_d1[int_h2b_rd_bank_sel_d2] : b2h_rd_data_wsti;
+assign int_b2h_rd_data = int_tile_h2b_rd_en_d2 ? int_b2h_rd_data_d1[int_h2b_rd_bank_sel_d2] : b2h_rd_data_dwsti;
 
 logic [BANK_DATA_WIDTH-1:0]   b2h_rd_data_reg;
 always_ff @(posedge clk or posedge reset) begin
@@ -187,10 +187,10 @@ always_ff @(posedge clk or posedge reset) begin
         b2h_rd_data_reg <= 0;
     end
     else begin
-        b2h_rd_data_reg <= b2h_rd_data_esto;
+        b2h_rd_data_reg <= b2h_rd_data_desto;
     end
 end
 
-assign b2h_rd_data_esto = h2b_rd_en_d2 ? int_b2h_rd_data : b2h_rd_data_reg;
+assign b2h_rd_data_desto = h2b_rd_en_d2 ? int_b2h_rd_data : b2h_rd_data_reg;
 
 endmodule

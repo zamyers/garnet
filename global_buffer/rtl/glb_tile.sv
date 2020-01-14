@@ -36,40 +36,40 @@ module glb_tile (
     output logic [CFG_DATA_WIDTH-1:0]       glb_sram_config_rd_data,
 
     // East - host
-    input  logic                            h2b_wr_en_esti,
-    input  logic [BANK_DATA_WIDTH/8-1:0]    h2b_wr_strb_esti,
-    input  logic [GLB_ADDR_WIDTH-1:0]       h2b_wr_addr_esti,
-    input  logic [BANK_DATA_WIDTH-1:0]      h2b_wr_data_esti,
-    input  logic                            h2b_rd_en_esti,
-    input  logic [GLB_ADDR_WIDTH-1:0]       h2b_rd_addr_esti,
-    output logic [BANK_DATA_WIDTH-1:0]      b2h_rd_data_esto,
+    input  logic                            h2b_wr_en_desti,
+    input  logic [BANK_DATA_WIDTH/8-1:0]    h2b_wr_strb_desti,
+    input  logic [GLB_ADDR_WIDTH-1:0]       h2b_wr_addr_desti,
+    input  logic [BANK_DATA_WIDTH-1:0]      h2b_wr_data_desti,
+    input  logic                            h2b_rd_en_desti,
+    input  logic [GLB_ADDR_WIDTH-1:0]       h2b_rd_addr_desti,
+    output logic [BANK_DATA_WIDTH-1:0]      b2h_rd_data_desto,
 
     // West - host
-    output logic                            h2b_wr_en_wsto,
-    output logic [BANK_DATA_WIDTH/8-1:0]    h2b_wr_strb_wsto,
-    output logic [GLB_ADDR_WIDTH-1:0]       h2b_wr_addr_wsto,
-    output logic [BANK_DATA_WIDTH-1:0]      h2b_wr_data_wsto,
-    output logic                            h2b_rd_en_wsto,
-    output logic [GLB_ADDR_WIDTH-1:0]       h2b_rd_addr_wsto,
-    input  logic [BANK_DATA_WIDTH-1:0]      b2h_rd_data_wsti,
+    output logic                            h2b_wr_en_dwsto,
+    output logic [BANK_DATA_WIDTH/8-1:0]    h2b_wr_strb_dwsto,
+    output logic [GLB_ADDR_WIDTH-1:0]       h2b_wr_addr_dwsto,
+    output logic [BANK_DATA_WIDTH-1:0]      h2b_wr_data_dwsto,
+    output logic                            h2b_rd_en_dwsto,
+    output logic [GLB_ADDR_WIDTH-1:0]       h2b_rd_addr_dwsto,
+    input  logic [BANK_DATA_WIDTH-1:0]      b2h_rd_data_dwsti,
 
     // West - fbrc
-    input  logic                            f2b_wr_en_wsti,
-    input  logic [BANK_DATA_WIDTH-1:0]      f2b_wr_data_wsti,
-    input  logic [BANK_DATA_WIDTH-1:0]      f2b_wr_data_bit_sel_wsti,
-    input  logic                            f2b_rd_en_wsti,
-    input  logic [GLB_ADDR_WIDTH-1:0]       f2b_addr_wsti,
-    output logic [BANK_DATA_WIDTH-1:0]      b2f_rd_data_wsto,
-    output logic                            b2f_rd_data_valid_wsto,
+    input  logic                            f2b_wr_en_dwsti,
+    input  logic [BANK_DATA_WIDTH-1:0]      f2b_wr_data_dwsti,
+    input  logic [BANK_DATA_WIDTH-1:0]      f2b_wr_data_bit_sel_dwsti,
+    input  logic                            f2b_rd_en_dwsti,
+    input  logic [GLB_ADDR_WIDTH-1:0]       f2b_addr_dwsti,
+    output logic [BANK_DATA_WIDTH-1:0]      b2f_rd_data_dwsto,
+    output logic                            b2f_rd_data_valid_dwsto,
 
     // East - fbrc
-    output logic                            f2b_wr_en_esto,
-    output logic [BANK_DATA_WIDTH-1:0]      f2b_wr_data_esto,
-    output logic [BANK_DATA_WIDTH-1:0]      f2b_wr_data_bit_sel_esto,
-    output logic                            f2b_rd_en_esto,
-    output logic [GLB_ADDR_WIDTH-1:0]       f2b_addr_esto,
-    input  logic [BANK_DATA_WIDTH-1:0]      b2f_rd_data_esti,
-    input  logic                            b2f_rd_data_valid_esti,
+    output logic                            f2b_wr_en_desto,
+    output logic [BANK_DATA_WIDTH-1:0]      f2b_wr_data_desto,
+    output logic [BANK_DATA_WIDTH-1:0]      f2b_wr_data_bit_sel_desto,
+    output logic                            f2b_rd_en_desto,
+    output logic [GLB_ADDR_WIDTH-1:0]       f2b_addr_desto,
+    input  logic [BANK_DATA_WIDTH-1:0]      b2f_rd_data_desti,
+    input  logic                            b2f_rd_data_valid_desti,
 
     // South - fbrc
     input  logic                            f2b_wr_en_sthi,
@@ -81,26 +81,26 @@ module glb_tile (
     output logic                            b2f_rd_word_valid_stho,
 
     // West - cfg-bank
-    input  logic                            c2b_rd_en_wsti,
-    input  logic [GLB_ADDR_WIDTH-1:0]       c2b_addr_wsti,
-    output logic [BANK_DATA_WIDTH-1:0]      b2c_rd_data_wsto,
-    output logic                            b2c_rd_data_valid_wsto,
+    input  logic                            c2b_rd_en_dwsti,
+    input  logic [GLB_ADDR_WIDTH-1:0]       c2b_addr_dwsti,
+    output logic [BANK_DATA_WIDTH-1:0]      b2c_rd_data_dwsto,
+    output logic                            b2c_rd_data_valid_dwsto,
 
     // East - cfg-bank
-    output logic                            c2b_rd_en_esto,
-    output logic [GLB_ADDR_WIDTH-1:0]       c2b_addr_esto,
-    input  logic [BANK_DATA_WIDTH-1:0]      b2c_rd_data_esti,
-    input  logic                            b2c_rd_data_valid_esti,
+    output logic                            c2b_rd_en_desto,
+    output logic [GLB_ADDR_WIDTH-1:0]       c2b_addr_desto,
+    input  logic [BANK_DATA_WIDTH-1:0]      b2c_rd_data_desti,
+    input  logic                            b2c_rd_data_valid_desti,
 
     // West - cfg
-    input  logic                            c2f_cfg_wr_wsti,
-    input  logic [CFG_ADDR_WIDTH-1:0]       c2f_cfg_addr_wsti,
-    input  logic [CFG_DATA_WIDTH-1:0]       c2f_cfg_data_wsti,
+    input  logic                            c2f_cfg_wr_dwsti,
+    input  logic [CFG_ADDR_WIDTH-1:0]       c2f_cfg_addr_dwsti,
+    input  logic [CFG_DATA_WIDTH-1:0]       c2f_cfg_data_dwsti,
 
     // East - cfg
-    output logic                            c2f_cfg_wr_esto,
-    output logic [CFG_ADDR_WIDTH-1:0]       c2f_cfg_addr_esto,
-    output logic [CFG_DATA_WIDTH-1:0]       c2f_cfg_data_esto,
+    output logic                            c2f_cfg_wr_desto,
+    output logic [CFG_ADDR_WIDTH-1:0]       c2f_cfg_addr_desto,
+    output logic [CFG_DATA_WIDTH-1:0]       c2f_cfg_data_desto,
 
     // South - cfg
     output logic                            c2f_cfg_wr,
@@ -215,21 +215,21 @@ glb_host_interconnect glb_host_interconnect_inst (
     .reset(reset),
     .glb_tile_id(glb_tile_id),
 
-    .h2b_wr_en_esti(h2b_wr_en_esti),
-    .h2b_wr_strb_esti(h2b_wr_strb_esti),
-    .h2b_wr_data_esti(h2b_wr_data_esti),
-    .h2b_wr_addr_esti(h2b_wr_addr_esti),
-    .h2b_rd_en_esti(h2b_rd_en_esti),
-    .h2b_rd_addr_esti(h2b_rd_addr_esti),
-    .b2h_rd_data_esto(b2h_rd_data_esto),
+    .h2b_wr_en_desti(h2b_wr_en_desti),
+    .h2b_wr_strb_desti(h2b_wr_strb_desti),
+    .h2b_wr_data_desti(h2b_wr_data_desti),
+    .h2b_wr_addr_desti(h2b_wr_addr_desti),
+    .h2b_rd_en_desti(h2b_rd_en_desti),
+    .h2b_rd_addr_desti(h2b_rd_addr_desti),
+    .b2h_rd_data_desto(b2h_rd_data_desto),
 
-    .h2b_wr_en_wsto(h2b_wr_en_wsto),
-    .h2b_wr_strb_wsto(h2b_wr_strb_wsto),
-    .h2b_wr_addr_wsto(h2b_wr_addr_wsto),
-    .h2b_wr_data_wsto(h2b_wr_data_wsto),
-    .h2b_rd_en_wsto(h2b_rd_en_wsto),
-    .h2b_rd_addr_wsto(h2b_rd_addr_wsto),
-    .b2h_rd_data_wsti(b2h_rd_data_wsti),
+    .h2b_wr_en_dwsto(h2b_wr_en_dwsto),
+    .h2b_wr_strb_dwsto(h2b_wr_strb_dwsto),
+    .h2b_wr_addr_dwsto(h2b_wr_addr_dwsto),
+    .h2b_wr_data_dwsto(h2b_wr_data_dwsto),
+    .h2b_rd_en_dwsto(h2b_rd_en_dwsto),
+    .h2b_rd_addr_dwsto(h2b_rd_addr_dwsto),
+    .b2h_rd_data_dwsti(b2h_rd_data_dwsti),
 
     .h2b_wr_en(h2b_wr_en),
     .h2b_wr_data(h2b_wr_data),
@@ -300,22 +300,22 @@ glb_fbrc_interconnect glb_fbrc_interconnect_inst (
     .config_rd_data(glb_config_rd_data_fbrc),
 
     // West
-    .f2b_wr_en_wsti(f2b_wr_en_wsti),
-    .f2b_wr_data_wsti(f2b_wr_data_wsti),
-    .f2b_wr_data_bit_sel_wsti(f2b_wr_data_bit_sel_wsti),
-    .f2b_rd_en_wsti(f2b_rd_en_wsti),
-    .f2b_addr_wsti(f2b_addr_wsti),
-    .b2f_rd_data_wsto(b2f_rd_data_wsto),
-    .b2f_rd_data_valid_wsto(b2f_rd_data_valid_wsto),
+    .f2b_wr_en_dwsti(f2b_wr_en_dwsti),
+    .f2b_wr_data_dwsti(f2b_wr_data_dwsti),
+    .f2b_wr_data_bit_sel_dwsti(f2b_wr_data_bit_sel_dwsti),
+    .f2b_rd_en_dwsti(f2b_rd_en_dwsti),
+    .f2b_addr_dwsti(f2b_addr_dwsti),
+    .b2f_rd_data_dwsto(b2f_rd_data_dwsto),
+    .b2f_rd_data_valid_dwsto(b2f_rd_data_valid_dwsto),
 
     // East
-    .f2b_wr_en_esto(f2b_wr_en_esto),
-    .f2b_wr_data_esto(f2b_wr_data_esto),
-    .f2b_wr_data_bit_sel_esto(f2b_wr_data_bit_sel_esto),
-    .f2b_rd_en_esto(f2b_rd_en_esto),
-    .f2b_addr_esto(f2b_addr_esto),
-    .b2f_rd_data_esti(b2f_rd_data_esti),
-    .b2f_rd_data_valid_esti(b2f_rd_data_valid_esti),
+    .f2b_wr_en_desto(f2b_wr_en_desto),
+    .f2b_wr_data_desto(f2b_wr_data_desto),
+    .f2b_wr_data_bit_sel_desto(f2b_wr_data_bit_sel_desto),
+    .f2b_rd_en_desto(f2b_rd_en_desto),
+    .f2b_addr_desto(f2b_addr_desto),
+    .b2f_rd_data_desti(b2f_rd_data_desti),
+    .b2f_rd_data_valid_desti(b2f_rd_data_valid_desti),
 
     // South
     .f2b_wr_en_sthi(f2b_wr_en_sthi),
@@ -355,16 +355,16 @@ glb_cfg_interconnect glb_cfg_interconnect_inst (
     .config_rd_data(glb_config_rd_data_cfg),
 
     // West
-    .c2b_rd_en_wsti(c2b_rd_en_wsti),
-    .c2b_addr_wsti(c2b_addr_wsti),
-    .b2c_rd_data_wsto(b2c_rd_data_wsto),
-    .b2c_rd_data_valid_wsto(b2c_rd_data_valid_wsto),
+    .c2b_rd_en_dwsti(c2b_rd_en_dwsti),
+    .c2b_addr_dwsti(c2b_addr_dwsti),
+    .b2c_rd_data_dwsto(b2c_rd_data_dwsto),
+    .b2c_rd_data_valid_dwsto(b2c_rd_data_valid_dwsto),
 
     // East
-    .c2b_rd_en_esto(c2b_rd_en_esto),
-    .c2b_addr_esto(c2b_addr_esto),
-    .b2c_rd_data_esti(b2c_rd_data_esti),
-    .b2c_rd_data_valid_esti(b2c_rd_data_valid_esti),
+    .c2b_rd_en_desto(c2b_rd_en_desto),
+    .c2b_addr_desto(c2b_addr_desto),
+    .b2c_rd_data_desti(b2c_rd_data_desti),
+    .b2c_rd_data_valid_desti(b2c_rd_data_valid_desti),
 
     // Bank
     .c2b_rd_en(c2b_rd_en),
@@ -377,14 +377,14 @@ glb_cfg_interconnect glb_cfg_interconnect_inst (
     .c2f_cfg_data(c2f_cfg_data),
 
     // fbrc cfg west in
-    .c2f_cfg_wr_wsti(c2f_cfg_wr_wsti),
-    .c2f_cfg_addr_wsti(c2f_cfg_addr_wsti),
-    .c2f_cfg_data_wsti(c2f_cfg_data_wsti),
+    .c2f_cfg_wr_dwsti(c2f_cfg_wr_dwsti),
+    .c2f_cfg_addr_dwsti(c2f_cfg_addr_dwsti),
+    .c2f_cfg_data_dwsti(c2f_cfg_data_dwsti),
 
     // fbrc cfg east out
-    .c2f_cfg_wr_esto(c2f_cfg_wr_esto),
-    .c2f_cfg_addr_esto(c2f_cfg_addr_esto),
-    .c2f_cfg_data_esto(c2f_cfg_data_esto)
+    .c2f_cfg_wr_desto(c2f_cfg_wr_desto),
+    .c2f_cfg_addr_desto(c2f_cfg_addr_desto),
+    .c2f_cfg_data_desto(c2f_cfg_data_desto)
 );
 
 endmodule

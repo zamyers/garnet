@@ -25,22 +25,22 @@ module glb_fbrc_interconnect (
     output logic [CONFIG_DATA_WIDTH-1:0]    config_rd_data,
     
     // West
-    input  logic                            f2b_wr_en_wsti,
-    input  logic [BANK_DATA_WIDTH-1:0]      f2b_wr_data_wsti,
-    input  logic [BANK_DATA_WIDTH-1:0]      f2b_wr_data_bit_sel_wsti,
-    input  logic                            f2b_rd_en_wsti,
-    input  logic [GLB_ADDR_WIDTH-1:0]       f2b_addr_wsti,
-    output logic [BANK_DATA_WIDTH-1:0]      b2f_rd_data_wsto,
-    output logic                            b2f_rd_data_valid_wsto,
+    input  logic                            f2b_wr_en_dwsti,
+    input  logic [BANK_DATA_WIDTH-1:0]      f2b_wr_data_dwsti,
+    input  logic [BANK_DATA_WIDTH-1:0]      f2b_wr_data_bit_sel_dwsti,
+    input  logic                            f2b_rd_en_dwsti,
+    input  logic [GLB_ADDR_WIDTH-1:0]       f2b_addr_dwsti,
+    output logic [BANK_DATA_WIDTH-1:0]      b2f_rd_data_dwsto,
+    output logic                            b2f_rd_data_valid_dwsto,
 
     // East
-    output logic                            f2b_wr_en_esto,
-    output logic [BANK_DATA_WIDTH-1:0]      f2b_wr_data_esto,
-    output logic [BANK_DATA_WIDTH-1:0]      f2b_wr_data_bit_sel_esto,
-    output logic                            f2b_rd_en_esto,
-    output logic [GLB_ADDR_WIDTH-1:0]       f2b_addr_esto,
-    input  logic [BANK_DATA_WIDTH-1:0]      b2f_rd_data_esti,
-    input  logic                            b2f_rd_data_valid_esti,
+    output logic                            f2b_wr_en_desto,
+    output logic [BANK_DATA_WIDTH-1:0]      f2b_wr_data_desto,
+    output logic [BANK_DATA_WIDTH-1:0]      f2b_wr_data_bit_sel_desto,
+    output logic                            f2b_rd_en_desto,
+    output logic [GLB_ADDR_WIDTH-1:0]       f2b_addr_desto,
+    input  logic [BANK_DATA_WIDTH-1:0]      b2f_rd_data_desti,
+    input  logic                            b2f_rd_data_valid_desti,
 
     // South
     input  logic                            f2b_wr_en_sthi,
@@ -180,11 +180,11 @@ logic [GLB_ADDR_WIDTH-1:0]  int_f2b_addr [0:NUM_BANKS-1];
 always_comb begin
     for (int i=0; i<NUM_BANKS; i=i+1) begin
         if (i == 0) begin
-            int_f2b_wr_en[0] = adgn_switch_sel[0] ? f2b_wr_en_adgno : f2b_wr_en_wsti;
-            int_f2b_wr_data[0] = adgn_switch_sel[0] ? f2b_wr_data_adgno : f2b_wr_data_wsti;
-            int_f2b_wr_data_bit_sel[0] = adgn_switch_sel[0] ? f2b_wr_data_bit_sel_adgno : f2b_wr_data_bit_sel_wsti;
-            int_f2b_addr[0] = adgn_switch_sel[0] ? f2b_addr_adgno : f2b_addr_wsti;
-            int_f2b_rd_en[0] = adgn_switch_sel[0] ? f2b_rd_en_adgno : f2b_rd_en_wsti; 
+            int_f2b_wr_en[0] = adgn_switch_sel[0] ? f2b_wr_en_adgno : f2b_wr_en_dwsti;
+            int_f2b_wr_data[0] = adgn_switch_sel[0] ? f2b_wr_data_adgno : f2b_wr_data_dwsti;
+            int_f2b_wr_data_bit_sel[0] = adgn_switch_sel[0] ? f2b_wr_data_bit_sel_adgno : f2b_wr_data_bit_sel_dwsti;
+            int_f2b_addr[0] = adgn_switch_sel[0] ? f2b_addr_adgno : f2b_addr_dwsti;
+            int_f2b_rd_en[0] = adgn_switch_sel[0] ? f2b_rd_en_adgno : f2b_rd_en_dwsti; 
         end
         else begin
             int_f2b_wr_en[i] = adgn_switch_sel[i] ? f2b_wr_en_adgno : int_f2b_wr_en[i-1];
@@ -198,11 +198,11 @@ end
 
 // bypass
 always_comb begin
-    f2b_wr_en_esto = int_f2b_wr_en[NUM_BANKS-1];
-    f2b_wr_data_esto = int_f2b_wr_data[NUM_BANKS-1];
-    f2b_wr_data_bit_sel_esto = int_f2b_wr_data_bit_sel[NUM_BANKS-1];
-    f2b_rd_en_esto = int_f2b_rd_en[NUM_BANKS-1];
-    f2b_addr_esto = int_f2b_addr[NUM_BANKS-1];
+    f2b_wr_en_desto = int_f2b_wr_en[NUM_BANKS-1];
+    f2b_wr_data_desto = int_f2b_wr_data[NUM_BANKS-1];
+    f2b_wr_data_bit_sel_desto = int_f2b_wr_data_bit_sel[NUM_BANKS-1];
+    f2b_rd_en_desto = int_f2b_rd_en[NUM_BANKS-1];
+    f2b_addr_desto = int_f2b_addr[NUM_BANKS-1];
 end
 
 //============================================================================//
@@ -260,8 +260,8 @@ end
 always_comb begin
     for (int i=NUM_BANKS-1; i>=0; i=i-1) begin
         if (i == NUM_BANKS-1) begin
-            int_b2f_rd_data[NUM_BANKS-1] = f2b_rd_en_d2[NUM_BANKS-1] ? b2f_rd_data_d1[NUM_BANKS-1] : b2f_rd_data_esti;
-            int_b2f_rd_data_valid[NUM_BANKS-1] = f2b_rd_en_d2[NUM_BANKS-1] ? b2f_rd_data_valid[NUM_BANKS-1] : b2f_rd_data_valid_esti;
+            int_b2f_rd_data[NUM_BANKS-1] = f2b_rd_en_d2[NUM_BANKS-1] ? b2f_rd_data_d1[NUM_BANKS-1] : b2f_rd_data_desti;
+            int_b2f_rd_data_valid[NUM_BANKS-1] = f2b_rd_en_d2[NUM_BANKS-1] ? b2f_rd_data_valid[NUM_BANKS-1] : b2f_rd_data_valid_desti;
         end
         else begin
             int_b2f_rd_data[i] = f2b_rd_en_d2[i] ? b2f_rd_data_d1[i] : int_b2f_rd_data[i+1];
@@ -285,8 +285,8 @@ end
 
 // read data bypass
 always_comb begin
-    b2f_rd_data_wsto = int_b2f_rd_data[0];
-    b2f_rd_data_valid_wsto = int_b2f_rd_data_valid[0];
+    b2f_rd_data_dwsto = int_b2f_rd_data[0];
+    b2f_rd_data_valid_dwsto = int_b2f_rd_data_valid[0];
 end
 
 endmodule

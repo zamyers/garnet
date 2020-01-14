@@ -70,40 +70,40 @@ logic                           int_cgra_done_pulse [0:NUM_TILES-1];
 logic                           int_config_done_pulse [0:NUM_TILES-1];
 
 // East - host
-logic                           int_h2b_wr_en_esti [0:NUM_TILES-1];
-logic [BANK_DATA_WIDTH/8-1:0]   int_h2b_wr_strb_esti [0:NUM_TILES-1];
-logic [GLB_ADDR_WIDTH-1:0]      int_h2b_wr_addr_esti [0:NUM_TILES-1];
-logic [BANK_DATA_WIDTH-1:0]     int_h2b_wr_data_esti [0:NUM_TILES-1];
-logic                           int_h2b_rd_en_esti [0:NUM_TILES-1];
-logic [GLB_ADDR_WIDTH-1:0]      int_h2b_rd_addr_esti [0:NUM_TILES-1];
-logic [BANK_DATA_WIDTH-1:0]     int_b2h_rd_data_esto [0:NUM_TILES-1];
+logic                           int_h2b_wr_en_desti [0:NUM_TILES-1];
+logic [BANK_DATA_WIDTH/8-1:0]   int_h2b_wr_strb_desti [0:NUM_TILES-1];
+logic [GLB_ADDR_WIDTH-1:0]      int_h2b_wr_addr_desti [0:NUM_TILES-1];
+logic [BANK_DATA_WIDTH-1:0]     int_h2b_wr_data_desti [0:NUM_TILES-1];
+logic                           int_h2b_rd_en_desti [0:NUM_TILES-1];
+logic [GLB_ADDR_WIDTH-1:0]      int_h2b_rd_addr_desti [0:NUM_TILES-1];
+logic [BANK_DATA_WIDTH-1:0]     int_b2h_rd_data_desto [0:NUM_TILES-1];
 
 // West - host
-logic                           int_h2b_wr_en_wsto [0:NUM_TILES-1];
-logic [BANK_DATA_WIDTH/8-1:0]   int_h2b_wr_strb_wsto [0:NUM_TILES-1];
-logic [GLB_ADDR_WIDTH-1:0]      int_h2b_wr_addr_wsto [0:NUM_TILES-1];
-logic [BANK_DATA_WIDTH-1:0]     int_h2b_wr_data_wsto [0:NUM_TILES-1];
-logic                           int_h2b_rd_en_wsto [0:NUM_TILES-1];
-logic [GLB_ADDR_WIDTH-1:0]      int_h2b_rd_addr_wsto [0:NUM_TILES-1];
-logic [BANK_DATA_WIDTH-1:0]     int_b2h_rd_data_wsti [0:NUM_TILES-1];
+logic                           int_h2b_wr_en_dwsto [0:NUM_TILES-1];
+logic [BANK_DATA_WIDTH/8-1:0]   int_h2b_wr_strb_dwsto [0:NUM_TILES-1];
+logic [GLB_ADDR_WIDTH-1:0]      int_h2b_wr_addr_dwsto [0:NUM_TILES-1];
+logic [BANK_DATA_WIDTH-1:0]     int_h2b_wr_data_dwsto [0:NUM_TILES-1];
+logic                           int_h2b_rd_en_dwsto [0:NUM_TILES-1];
+logic [GLB_ADDR_WIDTH-1:0]      int_h2b_rd_addr_dwsto [0:NUM_TILES-1];
+logic [BANK_DATA_WIDTH-1:0]     int_b2h_rd_data_dwsti [0:NUM_TILES-1];
 
 // West - fbrc
-logic                           int_f2b_wr_en_wsti [0:NUM_TILES-1];
-logic [BANK_DATA_WIDTH-1:0]     int_f2b_wr_data_wsti [0:NUM_TILES-1];
-logic [BANK_DATA_WIDTH-1:0]     int_f2b_wr_data_bit_sel_wsti [0:NUM_TILES-1];
-logic                           int_f2b_rd_en_wsti [0:NUM_TILES-1];
-logic [GLB_ADDR_WIDTH-1:0]      int_f2b_addr_wsti [0:NUM_TILES-1];
-logic [BANK_DATA_WIDTH-1:0]     int_b2f_rd_data_wsto [0:NUM_TILES-1];
-logic                           int_b2f_rd_data_valid_wsto [0:NUM_TILES-1];
+logic                           int_f2b_wr_en_dwsti [0:NUM_TILES-1];
+logic [BANK_DATA_WIDTH-1:0]     int_f2b_wr_data_dwsti [0:NUM_TILES-1];
+logic [BANK_DATA_WIDTH-1:0]     int_f2b_wr_data_bit_sel_dwsti [0:NUM_TILES-1];
+logic                           int_f2b_rd_en_dwsti [0:NUM_TILES-1];
+logic [GLB_ADDR_WIDTH-1:0]      int_f2b_addr_dwsti [0:NUM_TILES-1];
+logic [BANK_DATA_WIDTH-1:0]     int_b2f_rd_data_dwsto [0:NUM_TILES-1];
+logic                           int_b2f_rd_data_valid_dwsto [0:NUM_TILES-1];
 
 // East - fbrc
-logic                           int_f2b_wr_en_esto [0:NUM_TILES-1];
-logic [BANK_DATA_WIDTH-1:0]     int_f2b_wr_data_esto [0:NUM_TILES-1];
-logic [BANK_DATA_WIDTH-1:0]     int_f2b_wr_data_bit_sel_esto [0:NUM_TILES-1];
-logic                           int_f2b_rd_en_esto [0:NUM_TILES-1];
-logic [GLB_ADDR_WIDTH-1:0]      int_f2b_addr_esto [0:NUM_TILES-1];
-logic [BANK_DATA_WIDTH-1:0]     int_b2f_rd_data_esti [0:NUM_TILES-1];
-logic                           int_b2f_rd_data_valid_esti [0:NUM_TILES-1];
+logic                           int_f2b_wr_en_desto [0:NUM_TILES-1];
+logic [BANK_DATA_WIDTH-1:0]     int_f2b_wr_data_desto [0:NUM_TILES-1];
+logic [BANK_DATA_WIDTH-1:0]     int_f2b_wr_data_bit_sel_desto [0:NUM_TILES-1];
+logic                           int_f2b_rd_en_desto [0:NUM_TILES-1];
+logic [GLB_ADDR_WIDTH-1:0]      int_f2b_addr_desto [0:NUM_TILES-1];
+logic [BANK_DATA_WIDTH-1:0]     int_b2f_rd_data_desti [0:NUM_TILES-1];
+logic                           int_b2f_rd_data_valid_desti [0:NUM_TILES-1];
 
 // South - fbrc
 logic                           int_f2b_wr_en_sthi [0:NUM_TILES-1];
@@ -115,26 +115,26 @@ logic [CGRA_DATA_WIDTH-1:0]     int_b2f_rd_word_stho [0:NUM_TILES-1];
 logic                           int_b2f_rd_word_valid_stho [0:NUM_TILES-1];
 
 // West - cfg-bank
-logic                           int_c2b_rd_en_wsti [0:NUM_TILES-1];
-logic [GLB_ADDR_WIDTH-1:0]      int_c2b_addr_wsti [0:NUM_TILES-1];
-logic [BANK_DATA_WIDTH-1:0]     int_b2c_rd_data_wsto [0:NUM_TILES-1];
-logic                           int_b2c_rd_data_valid_wsto [0:NUM_TILES-1];
+logic                           int_c2b_rd_en_dwsti [0:NUM_TILES-1];
+logic [GLB_ADDR_WIDTH-1:0]      int_c2b_addr_dwsti [0:NUM_TILES-1];
+logic [BANK_DATA_WIDTH-1:0]     int_b2c_rd_data_dwsto [0:NUM_TILES-1];
+logic                           int_b2c_rd_data_valid_dwsto [0:NUM_TILES-1];
 
 // East - cfg-bank
-logic                           int_c2b_rd_en_esto [0:NUM_TILES-1];
-logic [GLB_ADDR_WIDTH-1:0]      int_c2b_addr_esto [0:NUM_TILES-1];
-logic [BANK_DATA_WIDTH-1:0]     int_b2c_rd_data_esti [0:NUM_TILES-1];
-logic                           int_b2c_rd_data_valid_esti [0:NUM_TILES-1];
+logic                           int_c2b_rd_en_desto [0:NUM_TILES-1];
+logic [GLB_ADDR_WIDTH-1:0]      int_c2b_addr_desto [0:NUM_TILES-1];
+logic [BANK_DATA_WIDTH-1:0]     int_b2c_rd_data_desti [0:NUM_TILES-1];
+logic                           int_b2c_rd_data_valid_desti [0:NUM_TILES-1];
 
 // West - cfg
-logic                           int_c2f_cfg_wr_wsti [0:NUM_TILES-1];
-logic [CFG_ADDR_WIDTH-1:0]      int_c2f_cfg_addr_wsti [0:NUM_TILES-1];
-logic [CFG_DATA_WIDTH-1:0]      int_c2f_cfg_data_wsti [0:NUM_TILES-1];
+logic                           int_c2f_cfg_wr_dwsti [0:NUM_TILES-1];
+logic [CFG_ADDR_WIDTH-1:0]      int_c2f_cfg_addr_dwsti [0:NUM_TILES-1];
+logic [CFG_DATA_WIDTH-1:0]      int_c2f_cfg_data_dwsti [0:NUM_TILES-1];
 
 // East - cfg
-logic                           int_c2f_cfg_wr_esto [0:NUM_TILES-1];
-logic [CFG_ADDR_WIDTH-1:0]      int_c2f_cfg_addr_esto [0:NUM_TILES-1];
-logic [CFG_DATA_WIDTH-1:0]      int_c2f_cfg_data_esto [0:NUM_TILES-1];
+logic                           int_c2f_cfg_wr_desto [0:NUM_TILES-1];
+logic [CFG_ADDR_WIDTH-1:0]      int_c2f_cfg_addr_desto [0:NUM_TILES-1];
+logic [CFG_DATA_WIDTH-1:0]      int_c2f_cfg_data_desto [0:NUM_TILES-1];
 
 // South - cfg
 logic                           int_c2f_cfg_wr [0:NUM_TILES-1];
@@ -232,20 +232,20 @@ end
 always_comb begin
     for (int i=NUM_TILES-1; i>=0; i=i-1) begin
         if (i==(NUM_TILES-1)) begin
-            int_h2b_wr_en_esti[NUM_TILES-1] = |host_to_glb_wr_strb;
-            int_h2b_wr_strb_esti[NUM_TILES-1] = host_to_glb_wr_strb;
-            int_h2b_wr_addr_esti[NUM_TILES-1] = host_to_glb_wr_addr;
-            int_h2b_wr_data_esti[NUM_TILES-1] = host_to_glb_wr_data;
-            int_h2b_rd_en_esti[NUM_TILES-1] = host_to_glb_rd_en;
-            int_h2b_rd_addr_esti[NUM_TILES-1] = host_to_glb_rd_addr;
+            int_h2b_wr_en_desti[NUM_TILES-1] = |host_to_glb_wr_strb;
+            int_h2b_wr_strb_desti[NUM_TILES-1] = host_to_glb_wr_strb;
+            int_h2b_wr_addr_desti[NUM_TILES-1] = host_to_glb_wr_addr;
+            int_h2b_wr_data_desti[NUM_TILES-1] = host_to_glb_wr_data;
+            int_h2b_rd_en_desti[NUM_TILES-1] = host_to_glb_rd_en;
+            int_h2b_rd_addr_desti[NUM_TILES-1] = host_to_glb_rd_addr;
         end
         else begin
-            int_h2b_wr_en_esti[i] = int_h2b_wr_en_wsto[i+1];
-            int_h2b_wr_strb_esti[i] = int_h2b_wr_strb_wsto[i+1]; 
-            int_h2b_wr_addr_esti[i] = int_h2b_wr_addr_wsto[i+1]; 
-            int_h2b_wr_data_esti[i] = int_h2b_wr_data_wsto[i+1]; 
-            int_h2b_rd_en_esti[i] = int_h2b_rd_en_wsto[i+1];
-            int_h2b_rd_addr_esti[i] = int_h2b_rd_addr_wsto[i+1]; 
+            int_h2b_wr_en_desti[i] = int_h2b_wr_en_dwsto[i+1];
+            int_h2b_wr_strb_desti[i] = int_h2b_wr_strb_dwsto[i+1]; 
+            int_h2b_wr_addr_desti[i] = int_h2b_wr_addr_dwsto[i+1]; 
+            int_h2b_wr_data_desti[i] = int_h2b_wr_data_dwsto[i+1]; 
+            int_h2b_rd_en_desti[i] = int_h2b_rd_en_dwsto[i+1];
+            int_h2b_rd_addr_desti[i] = int_h2b_rd_addr_dwsto[i+1]; 
         end
     end
 end
@@ -254,25 +254,25 @@ end
 always_comb begin
     for (int i=0; i<NUM_TILES; i=i+1) begin
         if (i==0) begin
-            int_b2h_rd_data_wsti[0] = '0;
+            int_b2h_rd_data_dwsti[0] = '0;
         end
         else begin
-            int_b2h_rd_data_wsti[i] = int_b2h_rd_data_esto[i-1];
+            int_b2h_rd_data_dwsti[i] = int_b2h_rd_data_desto[i-1];
         end
     end
 end
-assign glb_to_host_rd_data = int_b2h_rd_data_esto[NUM_TILES-1]; 
+assign glb_to_host_rd_data = int_b2h_rd_data_desto[NUM_TILES-1]; 
 
 // fbrc - east-west connection
 always_comb begin
     for (int i=NUM_TILES-1; i>=0; i=i-1) begin
         if (i==(NUM_TILES-1)) begin
-            int_b2f_rd_data_esti[NUM_TILES-1] = '0;
-            int_b2f_rd_data_valid_esti[NUM_TILES-1] = '0;
+            int_b2f_rd_data_desti[NUM_TILES-1] = '0;
+            int_b2f_rd_data_valid_desti[NUM_TILES-1] = '0;
         end
         else begin
-            int_b2f_rd_data_esti[i] = int_b2f_rd_data_wsto[i+1];
-            int_b2f_rd_data_valid_esti[i] = int_b2f_rd_data_valid_wsto[i+1];
+            int_b2f_rd_data_desti[i] = int_b2f_rd_data_dwsto[i+1];
+            int_b2f_rd_data_valid_desti[i] = int_b2f_rd_data_valid_dwsto[i+1];
         end
     end
 end
@@ -281,18 +281,18 @@ end
 always_comb begin
     for (int i=0; i<NUM_TILES; i=i+1) begin
         if (i==0) begin
-            int_f2b_wr_en_wsti[0] = '0;
-            int_f2b_wr_data_wsti[0] = '0;
-            int_f2b_wr_data_bit_sel_wsti[0] = '0;
-            int_f2b_rd_en_wsti[0] = '0;
-            int_f2b_addr_wsti[0] = '0;
+            int_f2b_wr_en_dwsti[0] = '0;
+            int_f2b_wr_data_dwsti[0] = '0;
+            int_f2b_wr_data_bit_sel_dwsti[0] = '0;
+            int_f2b_rd_en_dwsti[0] = '0;
+            int_f2b_addr_dwsti[0] = '0;
         end
         else begin
-            int_f2b_wr_en_wsti[i] = int_f2b_wr_en_esto[i-1];
-            int_f2b_wr_data_wsti[i] = int_f2b_wr_data_esto[i-1];
-            int_f2b_wr_data_bit_sel_wsti[i] = int_f2b_wr_data_bit_sel_esto[i-1];
-            int_f2b_rd_en_wsti[i] = int_f2b_rd_en_esto[i-1];
-            int_f2b_addr_wsti[i] = int_f2b_addr_esto[i-1];
+            int_f2b_wr_en_dwsti[i] = int_f2b_wr_en_desto[i-1];
+            int_f2b_wr_data_dwsti[i] = int_f2b_wr_data_desto[i-1];
+            int_f2b_wr_data_bit_sel_dwsti[i] = int_f2b_wr_data_bit_sel_desto[i-1];
+            int_f2b_rd_en_dwsti[i] = int_f2b_rd_en_desto[i-1];
+            int_f2b_addr_dwsti[i] = int_f2b_addr_desto[i-1];
         end
     end
 end
@@ -320,12 +320,12 @@ end
 always_comb begin
     for (int i=NUM_TILES-1; i>=0; i=i-1) begin
         if (i==(NUM_TILES-1)) begin
-            int_b2c_rd_data_esti[NUM_TILES-1] = '0;
-            int_b2c_rd_data_valid_esti[NUM_TILES-1] = '0;
+            int_b2c_rd_data_desti[NUM_TILES-1] = '0;
+            int_b2c_rd_data_valid_desti[NUM_TILES-1] = '0;
         end
         else begin
-            int_b2c_rd_data_esti[i] = int_b2c_rd_data_wsto[i+1];
-            int_b2c_rd_data_valid_esti[i] = int_b2c_rd_data_valid_wsto[i+1];
+            int_b2c_rd_data_desti[i] = int_b2c_rd_data_dwsto[i+1];
+            int_b2c_rd_data_valid_desti[i] = int_b2c_rd_data_valid_dwsto[i+1];
         end
     end
 end
@@ -334,12 +334,12 @@ end
 always_comb begin
     for (int i=0; i<NUM_TILES; i=i+1) begin
         if (i==0) begin
-            int_c2b_rd_en_wsti[0] = '0;
-            int_c2b_addr_wsti[0] = '0;
+            int_c2b_rd_en_dwsti[0] = '0;
+            int_c2b_addr_dwsti[0] = '0;
         end
         else begin
-            int_c2b_rd_en_wsti[i] = int_c2b_rd_en_esto[i-1];
-            int_c2b_addr_wsti[i] = int_c2b_addr_esto[i-1];
+            int_c2b_rd_en_dwsti[i] = int_c2b_rd_en_desto[i-1];
+            int_c2b_addr_dwsti[i] = int_c2b_addr_desto[i-1];
         end
     end
 end
@@ -348,14 +348,14 @@ end
 always_comb begin
     for (int i=0; i<NUM_TILES; i=i+1) begin
         if (i==0) begin
-            int_c2f_cfg_wr_wsti[0] = '0;
-            int_c2f_cfg_addr_wsti[0] = '0;
-            int_c2f_cfg_data_wsti[0] = '0;
+            int_c2f_cfg_wr_dwsti[0] = '0;
+            int_c2f_cfg_addr_dwsti[0] = '0;
+            int_c2f_cfg_data_dwsti[0] = '0;
         end
         else begin
-            int_c2f_cfg_wr_wsti[i] = int_c2f_cfg_wr_esto[i-1];
-            int_c2f_cfg_addr_wsti[i] = int_c2f_cfg_addr_esto[i-1];
-            int_c2f_cfg_data_wsti[i] = int_c2f_cfg_data_esto[i-1];
+            int_c2f_cfg_wr_dwsti[i] = int_c2f_cfg_wr_desto[i-1];
+            int_c2f_cfg_addr_dwsti[i] = int_c2f_cfg_addr_desto[i-1];
+            int_c2f_cfg_data_dwsti[i] = int_c2f_cfg_data_desto[i-1];
         end
     end
 end
@@ -390,37 +390,37 @@ for (i = 0; i < NUM_TILES; i=i+1) begin: generate_tile
         .glb_sram_config_wr_data(glb_sram_config_wr_data),
         .glb_sram_config_rd_data(int_glb_sram_config_rd_data[i]),
 
-        .h2b_wr_en_esti(int_h2b_wr_en_esti[i]),
-        .h2b_wr_strb_esti(int_h2b_wr_strb_esti[i]),
-        .h2b_wr_addr_esti(int_h2b_wr_addr_esti[i]),
-        .h2b_wr_data_esti(int_h2b_wr_data_esti[i]),
-        .h2b_rd_en_esti(int_h2b_rd_en_esti[i]),
-        .h2b_rd_addr_esti(int_h2b_rd_addr_esti[i]),
-        .b2h_rd_data_esto(int_b2h_rd_data_esto[i]),
+        .h2b_wr_en_desti(int_h2b_wr_en_desti[i]),
+        .h2b_wr_strb_desti(int_h2b_wr_strb_desti[i]),
+        .h2b_wr_addr_desti(int_h2b_wr_addr_desti[i]),
+        .h2b_wr_data_desti(int_h2b_wr_data_desti[i]),
+        .h2b_rd_en_desti(int_h2b_rd_en_desti[i]),
+        .h2b_rd_addr_desti(int_h2b_rd_addr_desti[i]),
+        .b2h_rd_data_desto(int_b2h_rd_data_desto[i]),
 
-        .h2b_wr_en_wsto(int_h2b_wr_en_wsto[i]),
-        .h2b_wr_strb_wsto(int_h2b_wr_strb_wsto[i]),
-        .h2b_wr_addr_wsto(int_h2b_wr_addr_wsto[i]),
-        .h2b_wr_data_wsto(int_h2b_wr_data_wsto[i]),
-        .h2b_rd_en_wsto(int_h2b_rd_en_wsto[i]),
-        .h2b_rd_addr_wsto(int_h2b_rd_addr_wsto[i]),
-        .b2h_rd_data_wsti(int_b2h_rd_data_wsti[i]),
+        .h2b_wr_en_dwsto(int_h2b_wr_en_dwsto[i]),
+        .h2b_wr_strb_dwsto(int_h2b_wr_strb_dwsto[i]),
+        .h2b_wr_addr_dwsto(int_h2b_wr_addr_dwsto[i]),
+        .h2b_wr_data_dwsto(int_h2b_wr_data_dwsto[i]),
+        .h2b_rd_en_dwsto(int_h2b_rd_en_dwsto[i]),
+        .h2b_rd_addr_dwsto(int_h2b_rd_addr_dwsto[i]),
+        .b2h_rd_data_dwsti(int_b2h_rd_data_dwsti[i]),
 
-        .f2b_wr_en_wsti(int_f2b_wr_en_wsti[i]),
-        .f2b_wr_data_wsti(int_f2b_wr_data_wsti[i]),
-        .f2b_wr_data_bit_sel_wsti(int_f2b_wr_data_bit_sel_wsti[i]),
-        .f2b_rd_en_wsti(int_f2b_rd_en_wsti[i]),
-        .f2b_addr_wsti(int_f2b_addr_wsti[i]),
-        .b2f_rd_data_wsto(int_b2f_rd_data_wsto[i]),
-        .b2f_rd_data_valid_wsto(int_b2f_rd_data_valid_wsto[i]),
+        .f2b_wr_en_dwsti(int_f2b_wr_en_dwsti[i]),
+        .f2b_wr_data_dwsti(int_f2b_wr_data_dwsti[i]),
+        .f2b_wr_data_bit_sel_dwsti(int_f2b_wr_data_bit_sel_dwsti[i]),
+        .f2b_rd_en_dwsti(int_f2b_rd_en_dwsti[i]),
+        .f2b_addr_dwsti(int_f2b_addr_dwsti[i]),
+        .b2f_rd_data_dwsto(int_b2f_rd_data_dwsto[i]),
+        .b2f_rd_data_valid_dwsto(int_b2f_rd_data_valid_dwsto[i]),
 
-        .f2b_wr_en_esto(int_f2b_wr_en_esto[i]),
-        .f2b_wr_data_esto(int_f2b_wr_data_esto[i]),
-        .f2b_wr_data_bit_sel_esto(int_f2b_wr_data_bit_sel_esto[i]),
-        .f2b_rd_en_esto(int_f2b_rd_en_esto[i]),
-        .f2b_addr_esto(int_f2b_addr_esto[i]),
-        .b2f_rd_data_esti(int_b2f_rd_data_esti[i]),
-        .b2f_rd_data_valid_esti(int_b2f_rd_data_valid_esti[i]),
+        .f2b_wr_en_desto(int_f2b_wr_en_desto[i]),
+        .f2b_wr_data_desto(int_f2b_wr_data_desto[i]),
+        .f2b_wr_data_bit_sel_desto(int_f2b_wr_data_bit_sel_desto[i]),
+        .f2b_rd_en_desto(int_f2b_rd_en_desto[i]),
+        .f2b_addr_desto(int_f2b_addr_desto[i]),
+        .b2f_rd_data_desti(int_b2f_rd_data_desti[i]),
+        .b2f_rd_data_valid_desti(int_b2f_rd_data_valid_desti[i]),
 
         .f2b_wr_en_sthi(int_f2b_wr_en_sthi[i]),
         .f2b_wr_word_sthi(int_f2b_wr_word_sthi[i]),
@@ -430,23 +430,23 @@ for (i = 0; i < NUM_TILES; i=i+1) begin: generate_tile
         .b2f_rd_word_stho(int_b2f_rd_word_stho[i]),
         .b2f_rd_word_valid_stho(int_b2f_rd_word_valid_stho[i]),
 
-        .c2b_rd_en_wsti(int_c2b_rd_en_wsti[i]),
-        .c2b_addr_wsti(int_c2b_addr_wsti[i]),
-        .b2c_rd_data_wsto(int_b2c_rd_data_wsto[i]),
-        .b2c_rd_data_valid_wsto(int_b2c_rd_data_valid_wsto[i]),
+        .c2b_rd_en_dwsti(int_c2b_rd_en_dwsti[i]),
+        .c2b_addr_dwsti(int_c2b_addr_dwsti[i]),
+        .b2c_rd_data_dwsto(int_b2c_rd_data_dwsto[i]),
+        .b2c_rd_data_valid_dwsto(int_b2c_rd_data_valid_dwsto[i]),
 
-        .c2b_rd_en_esto(int_c2b_rd_en_esto[i]),
-        .c2b_addr_esto(int_c2b_addr_esto[i]),
-        .b2c_rd_data_esti(int_b2c_rd_data_esti[i]),
-        .b2c_rd_data_valid_esti(int_b2c_rd_data_valid_esti[i]),
+        .c2b_rd_en_desto(int_c2b_rd_en_desto[i]),
+        .c2b_addr_desto(int_c2b_addr_desto[i]),
+        .b2c_rd_data_desti(int_b2c_rd_data_desti[i]),
+        .b2c_rd_data_valid_desti(int_b2c_rd_data_valid_desti[i]),
 
-        .c2f_cfg_wr_wsti(int_c2f_cfg_wr_wsti[i]),
-        .c2f_cfg_addr_wsti(int_c2f_cfg_addr_wsti[i]),
-        .c2f_cfg_data_wsti(int_c2f_cfg_data_wsti[i]),
+        .c2f_cfg_wr_dwsti(int_c2f_cfg_wr_dwsti[i]),
+        .c2f_cfg_addr_dwsti(int_c2f_cfg_addr_dwsti[i]),
+        .c2f_cfg_data_dwsti(int_c2f_cfg_data_dwsti[i]),
 
-        .c2f_cfg_wr_esto(int_c2f_cfg_wr_esto[i]),
-        .c2f_cfg_addr_esto(int_c2f_cfg_addr_esto[i]),
-        .c2f_cfg_data_esto(int_c2f_cfg_data_esto[i]),
+        .c2f_cfg_wr_desto(int_c2f_cfg_wr_desto[i]),
+        .c2f_cfg_addr_desto(int_c2f_cfg_addr_desto[i]),
+        .c2f_cfg_data_desto(int_c2f_cfg_data_desto[i]),
 
         .c2f_cfg_wr(int_c2f_cfg_wr[i]),
         .c2f_cfg_addr(int_c2f_cfg_addr[i]),

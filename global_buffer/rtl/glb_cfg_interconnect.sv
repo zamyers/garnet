@@ -24,16 +24,16 @@ module glb_cfg_interconnect (
     output logic [CONFIG_DATA_WIDTH-1:0]    config_rd_data,
     
     // West
-    input  logic                            c2b_rd_en_wsti,
-    input  logic [GLB_ADDR_WIDTH-1:0]       c2b_addr_wsti,
-    output logic [BANK_DATA_WIDTH-1:0]      b2c_rd_data_wsto,
-    output logic                            b2c_rd_data_valid_wsto,
+    input  logic                            c2b_rd_en_dwsti,
+    input  logic [GLB_ADDR_WIDTH-1:0]       c2b_addr_dwsti,
+    output logic [BANK_DATA_WIDTH-1:0]      b2c_rd_data_dwsto,
+    output logic                            b2c_rd_data_valid_dwsto,
 
     // East
-    output logic                            c2b_rd_en_esto,
-    output logic [GLB_ADDR_WIDTH-1:0]       c2b_addr_esto,
-    input  logic [BANK_DATA_WIDTH-1:0]      b2c_rd_data_esti,
-    input  logic                            b2c_rd_data_valid_esti,
+    output logic                            c2b_rd_en_desto,
+    output logic [GLB_ADDR_WIDTH-1:0]       c2b_addr_desto,
+    input  logic [BANK_DATA_WIDTH-1:0]      b2c_rd_data_desti,
+    input  logic                            b2c_rd_data_valid_desti,
 
     // Bank
     output logic                            c2b_rd_en [0:NUM_BANKS-1],
@@ -46,14 +46,14 @@ module glb_cfg_interconnect (
     output logic [CFG_DATA_WIDTH-1:0]       c2f_cfg_data,
 
     // fbrc cfg west in
-    input  logic                            c2f_cfg_wr_wsti,
-    input  logic [CFG_ADDR_WIDTH-1:0]       c2f_cfg_addr_wsti,
-    input  logic [CFG_DATA_WIDTH-1:0]       c2f_cfg_data_wsti,
+    input  logic                            c2f_cfg_wr_dwsti,
+    input  logic [CFG_ADDR_WIDTH-1:0]       c2f_cfg_addr_dwsti,
+    input  logic [CFG_DATA_WIDTH-1:0]       c2f_cfg_data_dwsti,
 
     // fbrc cfg east out
-    output logic                            c2f_cfg_wr_esto,
-    output logic [CFG_ADDR_WIDTH-1:0]       c2f_cfg_addr_esto,
-    output logic [CFG_DATA_WIDTH-1:0]       c2f_cfg_data_esto
+    output logic                            c2f_cfg_wr_desto,
+    output logic [CFG_ADDR_WIDTH-1:0]       c2f_cfg_addr_desto,
+    output logic [CFG_DATA_WIDTH-1:0]       c2f_cfg_data_desto
 );
 
 //============================================================================//
@@ -155,8 +155,8 @@ logic [GLB_ADDR_WIDTH-1:0]  int_c2b_addr [0:NUM_BANKS-1];
 always_comb begin
     for (int i=0; i<NUM_BANKS; i=i+1) begin
         if (i == 0) begin
-            int_c2b_addr[0] = adgn_switch_sel[0] ? c2b_addr_adgno : c2b_addr_wsti;
-            int_c2b_rd_en[0] = adgn_switch_sel[0] ? c2b_rd_en_adgno : c2b_rd_en_wsti; 
+            int_c2b_addr[0] = adgn_switch_sel[0] ? c2b_addr_adgno : c2b_addr_dwsti;
+            int_c2b_rd_en[0] = adgn_switch_sel[0] ? c2b_rd_en_adgno : c2b_rd_en_dwsti; 
         end
         else begin
             int_c2b_addr[i] = adgn_switch_sel[i] ? c2b_addr_adgno : int_c2b_addr[i-1];
@@ -167,8 +167,8 @@ end
 
 // bypass
 always_comb begin
-    c2b_rd_en_esto = int_c2b_rd_en[NUM_BANKS-1];
-    c2b_addr_esto = int_c2b_addr[NUM_BANKS-1];
+    c2b_rd_en_desto = int_c2b_rd_en[NUM_BANKS-1];
+    c2b_addr_desto = int_c2b_addr[NUM_BANKS-1];
 end
 
 //============================================================================//
@@ -218,8 +218,8 @@ end
 always_comb begin
     for (int i=NUM_BANKS-1; i>=0; i=i-1) begin
         if (i == NUM_BANKS-1) begin
-            int_b2c_rd_data[NUM_BANKS-1] = c2b_rd_en_d2[NUM_BANKS-1] ? b2c_rd_data_d1[NUM_BANKS-1] : b2c_rd_data_esti;
-            int_b2c_rd_data_valid[NUM_BANKS-1] = c2b_rd_en_d2[NUM_BANKS-1] ? b2c_rd_data_valid[NUM_BANKS-1] : b2c_rd_data_valid_esti;
+            int_b2c_rd_data[NUM_BANKS-1] = c2b_rd_en_d2[NUM_BANKS-1] ? b2c_rd_data_d1[NUM_BANKS-1] : b2c_rd_data_desti;
+            int_b2c_rd_data_valid[NUM_BANKS-1] = c2b_rd_en_d2[NUM_BANKS-1] ? b2c_rd_data_valid[NUM_BANKS-1] : b2c_rd_data_valid_desti;
         end
         else begin
             int_b2c_rd_data[i] = c2b_rd_en_d2[i] ? b2c_rd_data_d1[i] : int_b2c_rd_data[i+1];
@@ -243,8 +243,8 @@ end
 
 // read data bypass
 always_comb begin
-    b2c_rd_data_wsto = int_b2c_rd_data[0];
-    b2c_rd_data_valid_wsto = int_b2c_rd_data_valid[0];
+    b2c_rd_data_dwsto = int_b2c_rd_data[0];
+    b2c_rd_data_valid_dwsto = int_b2c_rd_data_valid[0];
 end
 
 //============================================================================//
@@ -253,9 +253,9 @@ end
 // if address generator is turned off, just use the previous cfg from west
 always_comb begin
     if (adgn_switch_sel == {NUM_BANKS{1'b0}}) begin
-        c2f_cfg_wr = c2f_cfg_wr_wsti;
-        c2f_cfg_addr = c2f_cfg_addr_wsti; 
-        c2f_cfg_data = c2f_cfg_data_wsti;
+        c2f_cfg_wr = c2f_cfg_wr_dwsti;
+        c2f_cfg_addr = c2f_cfg_addr_dwsti; 
+        c2f_cfg_data = c2f_cfg_data_dwsti;
     end
     else begin
         c2f_cfg_wr = c2f_cfg_wr_adgno;

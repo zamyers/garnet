@@ -25,15 +25,15 @@ def construct():
   parameters = {
     'construct_path' : __file__,
     'design_name'    : 'global_buffer',
-    'clock_period'   : 20.0,
+    'clock_period'   : 3.0,
     'adk'            : adk_name,
     'adk_view'       : adk_view,
     # Synthesis
     'flatten_effort' : 3,
     'topographical'  : False,
     # Floorplan
-    'core_width'     : 1000.0,
-    'core_height'    : 10000.0,
+    'core_width'     : 3000.0,
+    'core_height'    : 2200.0,
   }
 
   #-----------------------------------------------------------------------
