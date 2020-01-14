@@ -18,10 +18,10 @@ def assign_abutted_pins(primary: Generator, **kwargs):
 
     pin_objs = {'left': [], 'right': [], 'top': [], 'bottom': [], 'other': []}   
  
-    for port in primary.ports():
+    for port in primary.ports:
         if port.owner() in kwargs.values():
             for side, inst in kwargs.items():
-                if inst == port.owner()
+                if inst == port.owner():
                     pinning[side].append(port)
         else:
             pinning['other'] << port
