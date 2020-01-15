@@ -1,23 +1,12 @@
 #=========================================================================
-# floorplan.tcl
+# pin-assignments.tcl
 #=========================================================================
-# This script is called from the Innovus init flow step.
-#
-# Author : Christopher Torng
-# Date   : March 26, 2018
-set core_width $::env(core_width)
-set core_height $::env(core_height)
+# Author : 
+# Date   : 
 
-floorPlan -s $core_width $core_height \
-             $core_margin_l $core_margin_b $core_margin_r $core_margin_t
-#floorPlan -r $core_aspect_ratio $core_density_target \
-#             $core_margin_l $core_margin_b $core_margin_r $core_margin_t
-
-setFlipping s
-
-# Use automatic floorplan synthesis to pack macros (e.g., SRAMs) together
-
-planDesign
+#-------------------------------------------------------------------------
+# Pin Assignments
+#-------------------------------------------------------------------------
 
 # Take all ports and split into halves
 
@@ -104,3 +93,6 @@ editPin -pin [get_property $top hierarchical_name] -start [list 5 $height] -end 
 #set ns_io_offset [expr ($core_width - $ns_io_width) / 2] 
 #set ew_io_offset [expr ($core_height - $ew_io_width) / 2]
 #place_ios $width $height $ns_io_offset $ew_io_offset
+
+
+

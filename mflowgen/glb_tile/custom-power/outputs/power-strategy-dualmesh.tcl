@@ -1,5 +1,5 @@
 #=========================================================================
-# power_strategy_dualmesh.tcl
+# power-strategy-dualmesh.tcl
 #=========================================================================
 # This script implements a dual power mesh, with a fine-grain power mesh
 # on the lower metal layers and a coarse-grain power mesh on the upper
@@ -89,11 +89,12 @@ addStripe -nets {VSS VDD} -layer 3 -direction vertical \
 # Power ring
 #-------------------------------------------------------------------------
 
-# addRing -nets {VDD VSS} -type core_rings -follow core   \
+# addRing -nets {VDD VSS} -type core_rings -follow core \
         -layer [list top  $pmesh_bot bottom $pmesh_bot  \
                      left $pmesh_top right  $pmesh_top] \
-        -width $p_ring_width -spacing $p_ring_spacing   \
-        -offset $p_ring_spacing                         \
+        -width $savedvars(p_ring_width)                 \
+        -spacing $savedvars(p_ring_spacing)             \
+        -offset $savedvars(p_ring_spacing)              \
         -extend_corner {tl tr bl br lt lb rt rb}
 
 #-------------------------------------------------------------------------
