@@ -1,5 +1,5 @@
 #=========================================================================
-# power_strategy_dualmesh.tcl
+# power-strategy-dualmesh.tcl
 #=========================================================================
 # This script implements a dual power mesh, with a fine-grain power mesh
 # on the lower metal layers and a coarse-grain power mesh on the upper
