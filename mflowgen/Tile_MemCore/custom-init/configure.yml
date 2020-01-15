@@ -1,13 +1,15 @@
 #=========================================================================
-# Cadence Innovus Plugins
+# Custom Scripts -- init
 #=========================================================================
 
-name: cadence-innovus-plugins
+name: custom-init
 
 #-------------------------------------------------------------------------
 # Inputs and Outputs
 #-------------------------------------------------------------------------
 
 outputs:
-  - innovus-plugins
+  - add-endcaps-welltaps.tcl
+  - floorplan.tcl
+  - pin-assignments.tcl
 
