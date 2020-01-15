@@ -37,12 +37,6 @@ def construct():
   }
 
   #-----------------------------------------------------------------------
-  # ADK
-  #-----------------------------------------------------------------------
-
-  g.set_adk( adk_name )
-
-  #-----------------------------------------------------------------------
   # Create nodes
   #-----------------------------------------------------------------------
 
@@ -50,22 +44,24 @@ def construct():
 
   # ADK step
 
+  g.set_adk( adk_name )
   adk = g.get_adk_step()
 
   # Custom steps
 
   rtl          = Step( this_dir + '/../common/rtl'           )
   constraints  = Step( this_dir + '/constraints'             )
-  iplugins     = Step( this_dir + '/cadence-innovus-plugins' )
+  custom_init  = Step( this_dir + '/custom-init'             )
+  custom_power = Step( this_dir + '/custom-power'            )
 
   # Default steps
 
   info         = Step( 'info',                          default=True )
   #constraints  = Step( 'constraints',                   default=True )
   dc           = Step( 'synopsys-dc-synthesis',         default=True )
-  iflow        = Step( 'cadence-innovus-flowgen',       default=True )
-  #iplugins     = Step( 'cadence-innovus-plugins',       default=True )
+  iflow        = Step( 'cadence-innovus-flowsetup',     default=True )
   init         = Step( 'cadence-innovus-init',          default=True )
+  power        = Step( 'cadence-innovus-power',         default=True )
   place        = Step( 'cadence-innovus-place',         default=True )
   cts          = Step( 'cadence-innovus-cts',           default=True )
   postcts_hold = Step( 'cadence-innovus-postcts_hold',  default=True )
@@ -84,6 +80,11 @@ def construct():
     'core_height' : 0
     }, allow_new=True )
 
+  # Add extra input edges to innovus steps that need custom tweaks
+
+  init.extend_inputs( custom_init.all_outputs() )
+  power.extend_inputs( custom_power.all_outputs() )
+
   #-----------------------------------------------------------------------
   # Graph -- Add nodes
   #-----------------------------------------------------------------------
@@ -93,8 +94,10 @@ def construct():
   g.add_step( constraints  )
   g.add_step( dc           )
   g.add_step( iflow        )
-  g.add_step( iplugins     )
   g.add_step( init         )
+  g.add_step( custom_init  )
+  g.add_step( power        )
+  g.add_step( custom_power )
   g.add_step( place        )
   g.add_step( cts          )
   g.add_step( postcts_hold )
@@ -115,6 +118,7 @@ def construct():
   g.connect_by_name( adk,      dc           )
   g.connect_by_name( adk,      iflow        )
   g.connect_by_name( adk,      init         )
+  g.connect_by_name( adk,      power        )
   g.connect_by_name( adk,      place        )
   g.connect_by_name( adk,      cts          )
   g.connect_by_name( adk,      postcts_hold )
@@ -130,19 +134,12 @@ def construct():
 
   g.connect_by_name( dc,       iflow        )
   g.connect_by_name( dc,       init         )
+  g.connect_by_name( dc,       power        )
   g.connect_by_name( dc,       place        )
   g.connect_by_name( dc,       cts          )
 
-  g.connect_by_name( iplugins, iflow        )
-  g.connect_by_name( iplugins, init         )
-  g.connect_by_name( iplugins, place        )
-  g.connect_by_name( iplugins, cts          )
-  g.connect_by_name( iplugins, postcts_hold )
-  g.connect_by_name( iplugins, route        )
-  g.connect_by_name( iplugins, postroute    )
-  g.connect_by_name( iplugins, signoff      )
-
   g.connect_by_name( iflow,    init         )
+  g.connect_by_name( iflow,    power        )
   g.connect_by_name( iflow,    place        )
   g.connect_by_name( iflow,    cts          )
   g.connect_by_name( iflow,    postcts_hold )
@@ -150,7 +147,11 @@ def construct():
   g.connect_by_name( iflow,    postroute    )
   g.connect_by_name( iflow,    signoff      )
 
-  g.connect_by_name( init,         place        )
+  g.connect_by_name( custom_init,  init     )
+  g.connect_by_name( custom_power, power    )
+
+  g.connect_by_name( init,         power        )
+  g.connect_by_name( power,        place        )
   g.connect_by_name( place,        cts          )
   g.connect_by_name( cts,          postcts_hold )
   g.connect_by_name( postcts_hold, route        )
@@ -165,7 +166,6 @@ def construct():
   g.connect_by_name( adk,      debugcalibre )
   g.connect_by_name( dc,       debugcalibre )
   g.connect_by_name( iflow,    debugcalibre )
-  g.connect_by_name( iplugins, debugcalibre )
   g.connect_by_name( signoff,  debugcalibre )
   g.connect_by_name( drc,      debugcalibre )
   g.connect_by_name( lvs,      debugcalibre )
