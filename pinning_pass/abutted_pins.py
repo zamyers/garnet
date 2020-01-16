@@ -17,16 +17,18 @@ def assign_abutted_pins(primary: Generator, **kwargs):
             raise Exception('kwarg key must be left, right, top, or bottom')
 
     pin_objs = {'left': [], 'right': [], 'top': [], 'bottom': [], 'other': []}   
- 
+
     for port in primary.ports.values():
-        if port.owner() in kwargs.values():
+        if port._connections[0].owner() in kwargs.values():
+            if len(port._connections) > 1:
+                raise Exception('cannot abut port with fanout connection')
             for side, inst in kwargs.items():
-                if inst == port.owner():
+                if inst == port._connections[0].owner():
                     pin_objs[side].append(port)
         else:
             pin_objs['other'].append(port)
 
-    
+    print(pin_objs) 
     # Make L/R, T/B ordering consistent
 
     # Spit out the pin names for each side 
