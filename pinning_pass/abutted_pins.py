@@ -1,10 +1,6 @@
 import magma
 import warnings
-from gemstone.generator.const import Const
 from gemstone.generator.generator import Generator
-from hwtypes import BitVector
-from collections import defaultdict
-from gemstone.generator.port_reference import PortReferenceBase
 
 # Use kwargs left, right, top, bottom to match other blocks
 # with correct side of primary block
