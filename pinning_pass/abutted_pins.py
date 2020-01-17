@@ -10,13 +10,21 @@ from gemstone.generator.port_reference import PortReferenceBase
 # with correct side of primary block
 # Allowed kwargs : left, right, top, bottom
 
+def get_external_connections(pin):
+    ext_conns = []
+    for conn in pin._connections:
+        if (conn.owner() not in (pin.owner().children())) and (conn.owner() != pin.owner()):
+            ext_conns.append(conn)
+    return ext_conns
+
 def reorder_pins(pin_dict, side_1, side_2):
     s1_pins = pin_dict[side_1]
     s2_pins = pin_dict[side_2]
     s2_pin_names = list(map(lambda pin_obj: pin_obj.qualified_name(), s2_pins))
     for i, pin in enumerate(s1_pins):
-        if pin._connections[0].qualified_name() in s2_pin_names:
-            curr_idx = s2_pin_names.index(pin._connections[0].qualified_name())
+        ext_conns = get_external_connections(pin)
+        if ext_conns[0].qualified_name() in s2_pin_names:
+            curr_idx = s2_pin_names.index(ext_conns[0].qualified_name())
             s2_pin_names.insert(i, s2_pin_names.pop(curr_idx))
             s2_pins.insert(i, s2_pins.pop(curr_idx))
         else:
