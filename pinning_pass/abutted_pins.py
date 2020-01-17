@@ -1,6 +1,7 @@
 import magma
 import warnings
 from gemstone.generator.generator import Generator
+import os
 
 # Use kwargs left, right, top, bottom to match other blocks
 # with correct side of primary block
@@ -56,9 +57,11 @@ def assign_abutted_pins(primary: Generator, **kwargs):
     pin_objs = __reorder_pins(pin_objs, 'top', 'bottom') 
 
     # Spit out the pin names for each side 
-    pin_names = {'left': [], 'right': [], 'top': [], 'bottom': [], 'other': []}
     for side, pin_list in pin_objs.items():
-        for pin in pin_list:
-            pin_names[side].append(pin.qualified_name())
+        filename = f"pinning_results/{side}.txt"
+        os.makedirs(os.path.dirname(filename), exist_ok=True)
+        with open(filename, "w") as f:
+            for pin in pin_list:
+                f.write(f"{pin.qualified_name()}\n")
+        f.close()
 
-    print(pin_names)
