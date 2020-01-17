@@ -33,14 +33,21 @@ def assign_abutted_pins(primary: Generator, **kwargs):
     pin_objs = {'left': [], 'right': [], 'top': [], 'bottom': [], 'other': []}   
 
     for port in primary.ports.values():
-        if port._connections[0].owner() in kwargs.values():
-            if len(port._connections) > 1:
-                raise Exception('cannot abut port with fanout connection')
+        # Remove any internal connections
+        conns = []
+        for conn in port._connections:
+            if conn.owner() in kwargs.values():
+                conns.append(conn)
+        print(len(conns))
+        if len(conns) == 1:
             for side, inst in kwargs.items():
-                if inst == port._connections[0].owner():
+                if conns[0].owner() == inst:
                     pin_objs[side].append(port)
-        else:
+                    break
+        elif len(conns) == 0:
             pin_objs['other'].append(port)
+        else:
+            raise Exception('cannot abut port with fanout connection')
 
     # Make L/R, T/B ordering consistent
     pin_objs = reorder_pins(pin_objs, 'left', 'right') 
