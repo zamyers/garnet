@@ -18,14 +18,7 @@ class SomeFunctionalCell(Generator):
             O=magma.Out(T),
         )
         assert(self.width > 1)
-        not_ = FromMagma(mantle.DefineNegate(self.width-1))
-        #not_2 = FromMagma(mantle.DefineNegate(1))
-        self.wire(self.ports.I[0:(self.width-1)], not_.ports.I[0:(self.width-1)])
-        self.wire(self.ports.O[0:(self.width-1)], not_.ports.O[0:(self.width-1)])
-        self.wire(self.ports.I[self.width-1], self.ports.O[self.width-1])
-        #self.wire(self.ports.I[self.width-1], not_2.ports.I[0])
-        #self.wire(self.ports.O[self.width-1], not_2.ports.O[0])
-        #self.wire(self.ports.I, self.ports.O)
+        self.wire(self.ports.I, self.ports.O)
 
     def name(self):
         return f"Cell{self.width}"
