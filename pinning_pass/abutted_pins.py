@@ -16,7 +16,9 @@ def reorder_pins(pin_dict, side_1, side_2):
     s2_pin_names = list(map(lambda pin_obj: pin_obj.qualified_name(), s2_pins))
     for i, pin in enumerate(s1_pins):
         if pin._connections[0].qualified_name() in s2_pin_names:
-            s2_pins.insert(i, s2_pins.pop(s2_pin_names.index(pin._connections[0].qualified_name())))
+            curr_idx = s2_pin_names.index(pin._connections[0].qualified_name())
+            s2_pin_names.insert(i, s2_pin_names.pop(curr_idx))
+            s2_pins.insert(i, s2_pins.pop(curr_idx))
         else:
             warnings.warn(f"{side_1} side pin {pin.qualified_name()} not found \
                             in {side_2} side connections. Abutment may not \
@@ -38,7 +40,6 @@ def assign_abutted_pins(primary: Generator, **kwargs):
         for conn in port._connections:
             if conn.owner() in kwargs.values():
                 conns.append(conn)
-        print(len(conns))
         if len(conns) == 1:
             for side, inst in kwargs.items():
                 if conns[0].owner() == inst:
