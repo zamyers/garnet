@@ -40,10 +40,7 @@ def assign_abutted_pins(primary: Generator, **kwargs):
 
     for port in primary.ports.values():
         # Remove any internal connections
-        conns = []
-        for conn in port._connections:
-            if conn.owner() in kwargs.values():
-                conns.append(conn)
+        conns = __get_external_connections(port)
         if len(conns) == 1:
             for side, inst in kwargs.items():
                 if conns[0].owner() == inst:
