@@ -1,203 +1,29 @@
 # :: means global namespace / avail inside proc def
+source ../../scripts/sr_funcs.tcl
 
-# Where to find reference/gold db files
-# set ::VTO_GOLD /sim/steveri/garnet/tapeout_16/synth/ref
-# set ::VTO_GOLD /sim/steveri/garnet/tapeout_16/synth/gpf0_gold
-if { [info exists ::env(VTO_GOLD)] } {
-    puts "@file_info: gold ref dir VTO_GOLD=$::env(VTO_GOLD)"
-} else {
-    # set ::env(VTO_GOLD) /sim/steveri/garnet/tapeout_16/synth/gpf7_DRC0_no_optdesign
-    set ::env(VTO_GOLD) /sim/steveri/garnet/tapeout_16/synth/ref
-    puts "@file_info: Env var VTO_GOLD not set"
-    puts "@file_info: Using default gold ref dir VTO_GOLD=$::env(VTO_GOLD)"
-    # FIXME this puts/ls combo below did not work!?
-    # puts -nonewline "@file_info: "
-    # ls -l $::env(VTO_GOLD)
-    # FIXED?
-    if { [catch { exec ls -l $::env(VTO_GOLD) } result] == 0} { 
-        puts "@file_info: $result"
-    } else { 
-        puts "@file_info: oh this looks like trouble :("
-    } 
-}
-# # Want a record of where the reference db files are coming from
-# if { ! [file isdirectory $::env(VTO_GOLD)] } {
-#     puts "@file_info: No ref dir (daring aren't we)" 
-# } else {
-#     puts -nonewline "@file_info: "
-#     ls -l $::env(VTO_GOLD)
-# }
-
-
-# set ::env(VTO_OPTDESIGN) 0
-# # delete this after at least one successful run!
-# if { $::env(VTO_OPTDESIGN) } {
-#      puts "@file_info: VTO_OPTDESIGN=$::env(VTO_OPTDESIGN)"
-# }
-# puts "@file_info: VTO_OPTDESIGN=$::env(VTO_OPTDESIGN)"
-if { [info exists ::env(VTO_OPTDESIGN)] } {
-    puts "@file_info: VTO_OPTDESIGN=$::env(VTO_OPTDESIGN)"
-} else {
-    puts "@file_info: No VTO_OPTDESIGN found (yet)"
-    puts "@file_info: Will default to 1 (do optDesign)"
-    set ::env(VTO_OPTDESIGN) 1
-}
+# env var VTO_GOLD is used by sr_read_db to find "gold" design database snapshots
+sr_funcs_setenv_VTO_GOLD
+puts "@file_info env var VTO_GOLD=$::env(VTO_GOLD)"
 
 
 ##############################################################################
-# Figure out which stages are wanted
-# FIXME/TODO should be a task
-# 
-# Default: do all stages of the flow
-# 
-# Note: previously had best success with stages "route eco" only
-
-if { ! [info exists env(VTO_STAGES)] } {
-  set ::env(VTO_STAGES) "all"
-}
-set vto_stage_list [split $::env(VTO_STAGES) " "]
-puts "@file_info: $vto_stage_list"
-
+# Use env var VTO_STAGES to figure out which stages are wanted
 # To do all stages, unset env var VTO_STAGES and/or set to "all"
 # To do e.g. just floorplan and eco, do 'export VTO_STAGES="floorplan eco"'
-if {[lsearch -exact $vto_stage_list "all"] >= 0} {
-    set ::env(VTO_STAGES) "floorplan place cts fillers route optDesign eco"
-    set vto_stage_list [split $::env(VTO_STAGES) " "]
-    puts "@file_info: $vto_stage_list"
-}
-
-# Turn stages env variable into a useful list
-puts "@file_info: VTO_STAGES='$::env(VTO_STAGES)'"
+set vto_stage_list [sr_funcs_set_stages]
 puts "@file_info: vto_stage_list='$vto_stage_list'"
+
+# Or you can set it manually, e.g.
+#   set vto_stage_list "all"
+#   set vto_stage_list "plan eco"
+#   set vto_stage_list 'floorplan place cts fillers route optDesign eco'
 
 
 ##############################################################################
-# Read gold or local snapshots from previous stages of execution...
-proc sr_read_db_local { db } {
-    if { ! [file isdirectory $db] } {
-        puts "@file_info: Could not find local db $db"
-        return 0
-    } else {
-        puts "@file_info: read_db $db"
-        read_db $db
-        return 1
-    }
-}
-proc sr_read_db_gold { db } {
-    set db $::env(VTO_GOLD)/$db
-    if { ! [file isdirectory $db] } {
-        puts "@file_info: Could not find gold db $db"
-        return 0
-    } else {
-        puts "@file_info: read_db $db"
-        read_db $db
-        return 1
-    }
-}
-proc sr_find_and_read_db { db } {
-    if   { [ sr_read_db_local $db ] } { return 1 } \
-    else {   sr_read_db_gold  $db   }
-}
-
-# sr_info "Begin stage 'floorplan'"
-# => "@file_info 11:45 Begin stage 'floorplan'"
-proc sr_info { msg } {
-  set time [ clock format [ clock seconds ] -format "%H:%M" ]
-  puts "@file_info $time $msg"
-} 
-
-
-# proc sr_verify_syn_results {} {
-#     # ERROR: (TCLCMD-989): cannot open SDC file
-#     # 'results_syn/syn_out._default_constraint_mode_.sdc' for mode 'functional'
-#     if { ! [file isdirectory results_syn] } {
-#         # set db $::env(VTO_GOLD)/$db
-#         ln -s $::env(VTO_GOLD)/results_syn
-#     }
-# }
-
-# Apparently everyone needs this?
-# @file_info 11:53 Begin stage 'floorplan'
-# **ERROR: (IMPIMEX-10):	Specified file cannot be found: results_syn/syn_out.v.
-if { ! [file isdirectory results_syn] } {
-    puts "@file_info WARNING Looks like there is no results_syn directory"
-    puts "@file_info WARNING It should have been created by something like"
-    puts "@file_info WARNING implementation/synthesis/full_chip_flow.sh"
-    puts "@file_info WARNING I will try and find it."
-
-    # If everything is were canonical, we would be here:
-    # aha-arm-soc-june-2019/components/cgra/garnet/tapeout_16/synth/GarnetSOC_pad_frame
-    # and results_syn would be here:
-    # aha-arm-soc-june-2019/implementation/synthesis/synth/GarnetSOC_pad_frame/results_syn
-    set top ../../../../../..
-    set synth implementation/synthesis/synth/GarnetSOC_pad_frame
-    if { [file isdirectory $top/$synth/results_syn] } {
-        puts "@file_info Found '$top/$synth'"
-        puts "ln -s $top/$synth/results_syn"
-        ln -s $top/$synth/results_syn
-    } else {
-        # So this exists:
-        #  /sim/ajcars/aha-arm-soc-june-2019/components/cgra/garnet/tapeout_16/
-        #  final_synth/GarnetSOC_pad_frame/results_syn
-        # And maybe someday this:
-        #   /sim/steveri/aha-arm-soc-june-2019/implementation/synthesis/
-        #   synth/GarnetSOC_pad_frame/results_syn
-        puts "@file_info WARNING could not find '$top/$synth/results_syn'"
-        puts "@file_info WARNING will use cached version (I hope)"
-        set cached_version /sim/ajcars/aha-arm-soc-june-2019
-        set cached_version $cached_version/components/cgra/garnet/tapeout_16/
-        set cached_version $cached_version/final_synth/GarnetSOC_pad_frame
-        puts "ln -s $cached_version/results_syn"
-        ls $cached_version/results_syn
-        ln -s $cached_version/results_syn
-    }
-}
-
-# what a mess
-# if { ! [file isdirectory results_syn] } {
-#     # ERROR: (TCLCMD-989): cannot open SDC file
-#     # 'results_syn/syn_out._default_constraint_mode_.sdc' for mode 'functional'
-#     # set db $::env(VTO_GOLD)/$db
-#     puts "ln -s $::env(VTO_GOLD)/results_syn"
-# 
-#     # oops this doesn't really exist, it's a pointer to a symlink :(
-#     # oops now it's a hard link to alex dir oh well FIXME someday I guess
-#     # ln -s $::env(VTO_GOLD)/results_syn
-#     ln -s /sim/ajcars/aha-arm-soc-june-2019/implementation/synthesis/synth/GarnetSOC_pad_frame/results_syn
-#     ls /sim/ajcars/aha-arm-soc-june-2019/implementation/synthesis/synth/GarnetSOC_pad_frame/results_syn
-# 
-#     puts "ls -l results_syn/*.sdc"
-#     ls -l results_syn/*.sdc
-#     puts "a-ok"
-# }
-
-# Okay well the results_syn I was using went away (duh)
-# But what do we need from results_syn? Maybe just the constraints file
-# results_syn/syn_out._default_constraint_mode_.sdc
-# (see further below)
-# 
-# results_syn dir should have been created during full chip synthesis i.e.
-# In /aha-arm-soc-june-2019/implementation/synthesis/
-# 
-# full_chip_flow.sh does this:
-#   ./run_synthesis.csh GarnetSOC_pad_frame 1 1
-# 
-# run_synthesis.csh does this:
-#     setenv DESIGN $1
-#     cp ../../dummy.v .
-#     /cad/cadence/GENUS17.21.000.lnx86/bin/genus -legacy_ui
-#     -f ../../scripts/synthesize_chip.tcl
-# 
-# synthesize_chip.tcl does this:
-#     regsub {_unq\d*} $::env(DESIGN) {} base_design
-#     source -verbose "../../scripts/constraints_${base_design}.tcl"
-#     synthesize_chip.tcl:write_design -innovus -basename results_syn/syn_out
-# 
-# e.g. constraints_GarnetSOC_pad_frame.tcl presumably sets the constraints I guess
-
-
-
-
+# Where is results_syn? Which one should we use?
+# If local results_syn exists, use it. Otherwise, link to a gold copy.
+sr_funcs_find_or_create_results_syn
+puts -nonewline "@file_info: "; ls -ltd results_syn
 
 
 ##############################################################################
@@ -267,17 +93,47 @@ if {[lsearch -exact $vto_stage_list "place"] >= 0} {
   }
 
   #Fixes for ICOVL DRCs
-  create_route_blockage -all {route cut} -rects {{2332 2684 2414 2733}{2331 3505 2414 3561}}       
+  # - steveri 1912 omg what is this hack!!?? appears to be putting
+  # - extra-large blockage areas around just two of the 42 icovl blocks
+  # - but the area appears to be hard-wired and we've changed th icovl block    
+  # - placement so who knows where they were supposed to be and why
+  # - as of now the blockage appears around blocks 1,0 and 1,13 of the 2x21
+  # - array of center icovl blocks, where LL block is (0,0)
+  # - also note the blockage goes in *after* e.g. M1 stripes were built
+  # - so hella drc errors where they now overlap :(
+  # - i will file an issue
+  # create_route_blockage -all {route cut} -rects {{2332 2684 2414 2733}{2331 3505 2414 3561}}       
   set_db [get_db insts ifid_icovl*] .route_halo_size 4
   set_db [get_db insts ifid_icovl*] .route_halo_bottom_layer M1
   set_db [get_db insts ifid_icovl*] .route_halo_top_layer AP
 
+
+  # Huh looks like this got sourced twice (see above)
   source ../../scripts/timing_workaround.tcl
 
   # This is where seg fault happens if didn't reread floorplan db
   eval_legacy {source ../../scripts/place.tcl}
+
+    # Weird corner_ur problem [sr 1912]
+    if { [ get_db insts corner_ur] != "" } { 
+        puts "@file_info ----------------------------------------------------------------"
+        puts "@file_info CORNER_UR PROBLEMS"
+        puts "@file_info OMG corner_ur is back like a zombie only this time it's on top of corner_ll"
+        puts "@file_info See github issue #<TBD> for details"
+        puts "@file_info"
+        puts "@file_info     corner_ur.place_status: [ get_db inst:GarnetSOC_pad_frame/corner_ur .place_status ]"
+        puts "@file_info     corner_ur.bbox: [ get_db inst:GarnetSOC_pad_frame/corner_ur .bbox ]"
+        puts "@file_info     corner_ll.bbox: [ get_db inst:GarnetSOC_pad_frame/corner_ll .bbox ]"
+        puts "@file_info"
+        puts "@file_info Deleting corner_ur (again): 'delete_inst -inst corner_ur'"
+        delete_inst -inst corner_ur*
+        puts "@file_info ----------------------------------------------------------------"
+    }
+
   sr_info "write_db placed.db"
   write_db placed.db -def -sdc -verilog
+
+  sr_info "End stage 'placement'"
 }
 
 ##############################################################################
@@ -290,7 +146,11 @@ if {[lsearch -exact $vto_stage_list "cts"] >= 0} {
   # Run 23 started here ish I think
 
   # New/different in run 23? (Run 23 successfully completed optDesign)
-  update_constraint_mode -name functional -sdc_files results_syn/syn_out._default_constraint_mode_.sdc
+  update_constraint_mode -name functional \
+    -sdc_files results_syn/syn_out._default_constraint_mode_.sdc
+  # Sometimes results_syn/ is a symlink to /sim/ajcars... (golden snapshot).
+  # Does/did update_constraint_mode (above) modify it???
+  # No: timestamp is still months ago.
 
   set_interactive_constraint_modes [all_constraint_modes]
   eval_legacy {setAnalysisMode -cppr both}
@@ -326,6 +186,7 @@ if {[lsearch $vto_stage_list "fill*"] >= 0} {
   eval_legacy { source ../../scripts/fillers.tcl}
   sr_info "write_db filled.db"
   write_db filled.db -def -sdc -verilog
+    sr_info "End stage 'fill'"
 }
 
 ##############################################################################
@@ -338,28 +199,41 @@ if {[lsearch -exact $vto_stage_list "route"] >= 0} {
     # 
     # eval_legacy { source ../../scripts/route.tcl} # INLINED BELOW
     # INLINING route.tcl to elminate failing optDesign step
-    eval_legacy {
-      # OMG really? Scoping?
-      proc sr_info { msg } {
-        set time [ clock format [ clock seconds ] -format "%H:%M" ]
-        puts "@file_info $time $msg"
-      } 
-      # FIXME SHORT TERM HACK
-      # ? What's the hack?? Don't need to source tool_settings? Or what??
-      source ../../scripts/tool_settings.tcl
-      ##No need to route bump to pad nets (routed during fplan step)
-      setMultiCpuUsage -localCpu 8
-      foreach_in_collection x [get_nets pad_*] {set cmd "setAttribute -net [get_property $x full_name] -skip_routing true"; puts $cmd; eval_legacy $cmd}
 
-      ##### Route Design
-      sr_info "routeDesign"
-      routeDesign
-      setAnalysisMode -aocv true
-      sr_info "saveDesign init_route.enc"
-      # write_db init_route.enc.dat
-      saveDesign init_route.enc -def -tcon -verilog
-  }
-  sr_info "route.tcl DONE"
+    # FIXME SHORT TERM HACK
+    # ? What's the hack?? Don't need to source tool_settings? Or what??
+    eval_legacy { source ../../scripts/tool_settings.tcl }
+    set_multi_cpu_usage -local_cpu 8
+
+    # No need to route bumps to pad nets (routed during floorplan step)
+    foreach_in_collection x [get_nets pad_*] {
+        set cmd "setAttribute -net [get_property $x full_name] -skip_routing true"
+        puts $cmd; 
+        eval_legacy $cmd
+    }
+    ##### Route Design
+    # [sr 1912] Looks like it's going through at least 75 rounds of opt
+    #   At the end there are still 33 violations.
+    #   First twenty iterations suffice to go from 1056 down to 50 violations
+    #   {1,5,10,15,20} iterations => {1056,71,62,50,50} violations
+    #   May as well limit iterations to twenty.
+    #   I guess ECO is supposed to cleanup the remaining violations
+    #   Takes about two hours to do 75 iterations. What happens if we limit to 20?
+    #   setNanoRouteMode -drouteEndIteration 20
+    sr_info "routeDesign"
+    eval_legacy {
+        setNanoRouteMode -drouteEndIteration 20
+        routeDesign
+        # FIXME [sr1912] What is this (below) and why is it here? Isn't it too late?
+        setAnalysisMode -aocv true
+    }
+
+    # write_db init_route.enc.dat
+    sr_info "saveDesign init_route.enc"
+    eval_legacy { saveDesign init_route.enc -def -tcon -verilog }
+
+    sr_info "route.tcl DONE"
+    sr_info "End stage 'route'"
 }
 
 ##############################################################################
@@ -369,14 +243,14 @@ if {[lsearch -exact $vto_stage_list "route"] >= 0} {
 if {[lsearch $vto_stage_list "opt*"] >= 0} {
     sr_info "Begin stage 'optdesign'"
     sr_find_and_read_db init_route.enc.dat
+
+
     eval_legacy {
       # OMG really? Scoping?
       proc sr_info { msg } {
         set time [ clock format [ clock seconds ] -format "%H:%M" ]
         puts "@file_info $time $msg"
       } 
-      sr_info "VTO_OPTDESIGN=$::env(VTO_OPTDESIGN)"
-      if { $::env(VTO_OPTDESIGN) } {
           # sr_info "optDesign -postRoute -hold -setup"
           # optDesign -postRoute -hold -setup
 
@@ -430,7 +304,6 @@ if {[lsearch $vto_stage_list "opt*"] >= 0} {
       sr_info "write_db routed.db"
       write_db routed.db -def -sdc -verilog
 
-    }
     sr_info "optdesign DONE"
 }
 
@@ -469,9 +342,19 @@ if {[lsearch -exact $vto_stage_list "eco"] >= 0} {
 
     sr_info "eco done"
 
-    # Fix pad ring?
+    # Fix pad ring? Also: installs seal ring
     sr_info "Fix pad ring?"
     source ../../scripts/chip_finishing.tcl
+
+    # Final error count. Note: deletes and reinstalls seal ring
+    # Also: calls sr_finalfix.tcl
+    source ../../scripts/sr_count_errors.tcl
+
+    # FIXME/TODO 2001 Chris says seal ring should be added *after* streamout
+    # Add seal ring (used to be in chip_finishing.tcl)
+    eval_legacy {
+        addInst -cell N16_SR_B_1KX1K_DPO_DOD_FFC_5x5 -inst sealring -physical -loc {-52.344 -53.7}
+    }
 
     sr_info "write_db final.db"
     write_db final.db -def -sdc -verilog
@@ -510,34 +393,3 @@ if {[lsearch -exact $vto_stage_list "eco"] >= 0} {
 sr_info "DONE!"
 
 exit
-
-
-
-
-
-# OLD
-    # eval_legacy { source ../../scripts/save_netlist.tcl}
-    # eval_legacy { source ../../scripts/stream_out.tcl}
-
-
-    # SR 09/2019
-    # This (below) was already done in "chip_finishing", above
-    # Errs if you do it twice
-    # But, uh, why is ESD and POC commented out???
-    # 
-    # # from final-tapeout run 27:
-    # create_net -name RTE_DIG
-    # foreach x [get_property [get_cells {*IOPAD*ext_clk_async* *IOPAD_bottom* *IOPAD_left* *IOPAD_right*}] full_name] {
-    #   #connect_global_net ESD_0 -netlist_override -pin ESD -inst $x
-    #   #connect_global_net POC_0 -pin POCCTRL -inst $x
-    #   connect_pin -net RTE_DIG -pin RTE -inst $x
-    # }
-    # eval_legacy {
-    #     sr_info "source scripts/save_netlist.tcl"
-    #     source ../../scripts/save_netlist.tcl
-    # }
-    # write_db final_final.db/
-    # write_db final_updated_netlist.db
-    # echo "redirect pnr.clocks {report_clocks}" >> $wrapper
-    # echo "exit" >> $wrapper
-

@@ -15,6 +15,29 @@ connect_global_net VSS -type tielo
 connect_global_net VDD -type pgpin -pin VPP -inst *
 connect_global_net VSS -type pgpin -pin VBB -inst *
 
+########################################################################
+# ??? sr 1912 iphy pins are tied low by the above command
+#   "connect_global_net VSS -type tielo"
+# b/c they have this property .constant==0 for some reason
+# Keeping them tied low is causing problems later so I'm disconnecting them:
+set iphy_tielo_pins [ \
+  get_db pins -if { .constant != no_constant && .name == *iphy* }
+]
+puts "@file_info # "
+puts "@file_info # Disconnect iphy pins from tielo"
+puts "@file_info: BEFORE (should say net=VSS)"
+foreach p $iphy_tielo_pins {
+    # pin_name "iphy/foo" => "foo"
+    set pin_name [ get_db $p .name ]
+    set pin_name [ string range $pin_name 5 end ]
+    puts "@file_info:     net=[ get_db $p .net ] $p"
+    disconnect_pin -inst iphy -pin $pin_name -net VSS
+}
+puts "@file_info: AFTER (should say net={} )"
+foreach p $iphy_tielo_pins {
+    puts "@file_info:     net=[ get_db $p .net ] $p"
+}
+
 ###Initialize the floorplan
 create_floorplan -core_margins_by die -die_size_by_io_height max -site core -die_size 4900.0 4900.0 100 100 100 100
 
@@ -24,14 +47,30 @@ create_floorplan -core_margins_by die -die_size_by_io_height max -site core -die
 # ...and io_file should be here:
 #   aha-arm-soc-june-2019/components/pad_frame/io_file
 set if1 ../../../../../pad_frame/io_file
-set if2 /sim/ajcars/aha-arm-soc-june-2019/components/pad_frame/io_file
+# Note ../../../../.. will not exist in buildkite; want to instead look for...?
+# set if2 /sim/ajcars/aha-arm-soc-june-2019/components/pad_frame/io_file
+# This one is better :)
+set if2 /sim/steveri/soc/components/pad_frame/io_file
+########################################################################
+puts "@file_info # "
+puts "@file_info # ALERT FIXME TERRIBLE HACK AHEAD"
+puts "@file_info # sr 1912 existing io_file places two pads on top of each other (!!!)."
+puts "@file_info # See github issue tht I plan to file shortly."
+puts "@file_info # In the meantime, this new io_file manually moves to rte pad off to"
+puts "@file_info # the right a bit so that it does not sit under a VDD pad :("
+puts "@file_info # "
+# set if1 ../../examples/io_file_hacked
+########################################################################
 if { [file exists $if1] } {
   puts "Found io_file $if1"
-  # read_io_file $if1 -no_die_size_adjust 
+  read_io_file $if1 -no_die_size_adjust 
+    # FIXME
+    # **WARN: (IMPFP-53):     Failed to find instance 'IOPAD_left_POC_DIG'.
+    # **WARN: (IMPFP-53):     Failed to find instance 'IOPAD_right_POC_DIG'.
 } elseif { [file exists $if2] } {
   puts "@file_info: WARNING Could not find io_file '$if1'"
-  puts "@file_info: WARNING Using  cached  io_file '$if2'"
-  # read_io_file $if2 -no_die_size_adjust 
+  puts "@file_info: WARNING Using pre-built io_file '$if2'"
+  read_io_file $if2 -no_die_size_adjust 
 } else {
   puts stderr "ERROR: Cannot find $if1"
   puts stderr "ERROR: And also cannot find $if2"
@@ -39,33 +78,15 @@ if { [file exists $if1] } {
 }
 set_multi_cpu_usage -local_cpu 8
 snap_floorplan_io
+# "check_floorplan" at this point should give 0 warnings, 0 errors
 
-##############################################################################
-# At the end of this floorplan script, proc "done_fp" calls "check_florrplan",
-# which throws these errors, one for each IOPAD/ANAIOPAD:
-#   ERROR (IMPFP-7250): IOPAD_bottom_tlx_rev_tdata_hi_p_i_27 's
-#   orientation (R270) is not fit to it's cell's symmetry definition in LEF.
-# 
-# We prevent the errors by changing IOPAD symmetry to "any" as shown below.
-# 
-# Can check symmetry by doing e.g.
-#   i  = "inst:GarnetSOC_pad_frame/IOPAD_left_VDDPST_0"
-#   bc = [ get_db $i .base_cell ] = "base_cell:PVDD1CDGM_V"
-#   puts "Before: [ get_db $bc .symmetry ]"
-# 
-puts "@file_info: Change IOPAD symmetry to 'any' instead of 'xy'"
-foreach i  [ get_db insts *IOPAD* ] {
-  # Change default "xy" symmetry to "any"
-  set base_cell [ get_db $i .base_cell ]
-  set_db $base_cell .symmetry "any"
-}
-
-# check_floorplan at this point yields 0 warnings, 0 errors
 
 # Add iphy (butterphy) instance, pwr/gnd stripes, and blockages
 source ../../scripts/phy_placement.tcl
 
 # snap separations to grid
+# Note "tile_separation_x" is defined in "init_design_multi_vt.tcl"
+# which is sourced in "top_garnet_staged.tcl"
 set tile_separation_x [snap_to_grid $tile_separation_x $tile_x_grid 0]
 set tile_separation_y [snap_to_grid $tile_separation_y $tile_y_grid 0]
 
@@ -87,6 +108,7 @@ set min_row 99999
 set min_col 99999
 
 # put all of the tiles into a 2D array so we know their relative locations in grid
+# NOTE if cannot find Tile_PE instances you probably read a bad results_syn directory
 foreach_in_collection tile [get_cells -hier -filter "ref_name=~Tile_PE* || ref_name=~Tile_MemCore*"] {
   set tile_name [get_property $tile full_name]
   regexp {X(\S*)_} $tile_name -> col
@@ -242,21 +264,22 @@ set tile_halo_margin [snap_to_grid $target_tile_margin 0.09 0]
 create_place_halo -cell Tile_PE -halo_deltas 3 3 3 3
 create_place_halo -cell Tile_MemCore -halo_deltas 3 3 3 3
 
-# FIXME this is my hack for eliminating some grid errors
+# Need to snap all corners when placing guides, else
+# check_floorplan will give ERROR(s) later
 set saved_SnapAllCorners_preference [ get_preference SnapAllCorners ]
 puts "@file_info SnapAllCorners hack"
 puts "saved_SnapAllCorners_preference=$saved_SnapAllCorners_preference"
 set_preference SnapAllCorners 1
 
-
 #Create guide for all cgra related cells around tile grid
 # set cgra_subsys [get_cells -hier cgra_subsystem] # oopsie no
-set cgra_subsys [get_cells -hier core_cgra_subsystem]
+  set cgra_subsys [get_cells -hier core_cgra_subsystem]
 set name [get_property $cgra_subsys hierarchical_name]
 set margin 200
 puts "create_guide -area [expr $grid_llx - $margin] $core_to_edge [expr $grid_urx + $margin] [expr $grid_ury + $margin] -name $name"
 # create_guide -area 403.99 99.99 3545.562 1883.887 -name core_cgra_subsystem
 create_guide -area [expr $grid_llx - $margin] $core_to_edge [expr $grid_urx + $margin] [expr $grid_ury + $margin] -name $name
+# Without snap_all_corners, get this warning here and ERRORs later
 # **WARN: (IMPFP-7400): Module core_cgra_subsystems vertexes
 #   (404.0100000000 , 1883.8810000000) (3545.5820000000 ,
 #   1883.8810000000) (3545.5820000000 , 99.9840000000) are NOT on
@@ -266,7 +289,6 @@ create_guide -area [expr $grid_llx - $margin] $core_to_edge [expr $grid_urx + $m
 #   SnapAllCorners 1(0) control if all vertexes need snap to grid.
 # create_guide -area 403.99 99.99 3545.562 1883.887 -name core_cgra_subsystem
 # create_guide -area 400 100 3545 1883 -name core_cgra_subsystem
-
 
 # Create placement region for global controller
 set gc [get_cells -hier *GlobalController*]
@@ -289,12 +311,12 @@ set glbuf_llx 100
 set glbuf_urx 4900
 create_guide -area $glbuf_llx $grid_ury $glbuf_urx $glbuf_sram_start_y -name $glbuf_name
 
-
 #Create guide for processor subsystem
 set ps [get_cells -hier *proc_tlx*]
 set ps_name [get_property $ps hierarchical_name]
 create_guide -area [expr $grid_urx - 100] [expr $ps_sram_start_y - 100] 4900 [expr $ps_sram_start_y * 3 + 100] -name $ps_name
 
+# Without SnapAllCorners, check_floorplan below will give ERROR
 puts "restoring SnapAllCorners_preference=$saved_SnapAllCorners_preference"
 set_preference SnapAllCorners $saved_SnapAllCorners_preference
 check_floorplan
@@ -302,6 +324,7 @@ check_floorplan
 source ../../scripts/vlsi/flow/scripts/gen_floorplan.tcl
 set_multi_cpu_usage -local_cpu 8
 
+# FIXME I do a thing once...why do it again? (steveri 1912)
 set_multi_cpu_usage -local_cpu 8
 
 eval_legacy {editPowerVia -area {1090 1090 3840 3840} -delete_vias true}
@@ -321,11 +344,46 @@ set_db route_design_fix_top_layer_antenna true
 
 # Add ICOVL alignment cells to center/core of chip
 set_proc_verbose add_core_fiducials; add_core_fiducials
+
 write_db placed_macros.db
+
 gen_power
 
-# M7-M9 power straps
-# vertical
+########################################################################
+# sr 2001 I think this is preventing endcap generation, so I'm moving it
+# from before to after gen_power...
+# FIXME/TODO Also I think this is (at least partially) redundant with
+# code in gen_floorplan.tcl, search for "bigblock"
+# ----
+# sr 1912 Add new bigblocks
+# icovl halos apparently not sufficient to keep routes out of
+# blank space surrounding icovl center array cells. So we add (yet
+# another) set of route blockages.
+# 
+# Add new bigblocks
+# Big route blockage around each central icovl cell
+# Otherwise weird spacing problems when routing later
+# But not too big else adjacency shorts :(
+# foreach inst [get_db insts ifid_icovl_cc_33] {
+foreach inst [get_db insts ifid_icovl_cc_*] {
+    set name [get_db $inst .name]_bigblockfp
+    set rect [get_db $inst .place_halo_bbox]
+    # puts [get_db $inst .bbox]
+    set llx [expr [get_db $inst .bbox.ll.x] - 14 ]
+    set lly [expr [get_db $inst .bbox.ll.y] - 14 ]
+    set urx [expr [get_db $inst .bbox.ur.x] + 14 ]
+    set ury [expr [get_db $inst .bbox.ur.y] + 14 ]
+    set rect "$llx $lly $urx $ury"
+    # echo $llx $lly $urx $ury; echo $rect; 
+    # echo create_route_blockage -name $name -rect $rect -layers {M1 M2 M3 M4 M5 M6 M7 M8 M9}
+    create_route_blockage -name $name -rects $rect -layers {M1 M2 M3 M4 M5 M6 M7 M8 M9}
+}
+########################################################################
+
+
+
+# M7-M9 power straps. vertical. very fast (< 10m)
+# 0715-
 foreach layer {M7 M8 M9} {
     add_stripes \
         -nets {VDD VSS} \
@@ -338,25 +396,43 @@ foreach layer {M7 M8 M9} {
     eval_legacy {editPowerVia -delete_vias true}
 }
 
+# This seems to take some time, particularly between layers 7 and ?1?...maybe 15m in all
 eval_legacy {editPowerVia -delete_vias true}
-
 eval_legacy {editPowerVia -add_vias true -orthogonal_only true -top_layer 9 -bottom_layer 8}
 eval_legacy {editPowerVia -add_vias true -orthogonal_only true -top_layer 8 -bottom_layer 7}
 eval_legacy {editPowerVia -add_vias true -orthogonal_only true -top_layer 7 -bottom_layer 1}
+
 write_db gen_power.db
 
-# Note: proc gen_bumpsis defined in gen_floorplan.tcl
+# Note: proc gen_bumps is defined in gen_floorplan.tcl
 gen_bumps
 snap_floorplan -all
 
-# FIXME it says "too many bumps are selected" (below). Plus it takes awhile.
-# Maybe should use area restrictions etc. to only do a few bumps at a time.
-set_proc_verbose gen_route_bumps; gen_route_bumps
+# gen_route_bumps
+# FIXED bump routing sr 12/2019
+# Old proc "gen_route_bumps" warned "too many bumps are selected"
+# and it took a long time and a lot of bumps didn't get routed.
+# New routine getn_route_bumps_sr below uses area restrictions
+# etc. to only do a few bumps at a time.
+# 
+# New route_bumps routine "gen_route_bumps_sr" has
+# - incremental bump routing instead of all at once
+# - better check for routed vs. unrouted bumps
+source ../../scripts/gen_route_bumps_sr.tcl
+set_proc_verbose gen_route_bumps_sr; # For debugging
+gen_route_bumps_sr
 
+# Skip retry because
+# 1 should happen in gen_route_bumps
+# 2 gen_route_bumps_sr gets all routable bumps
+# 
 # Try again to get any missed bumps/pads
-route_flip_chip -eco -target connect_bump_to_pad
-# Everything should be connected now
+# route_flip_chip -eco -target connect_bump_to_pad
+
+# Everything should be connected now (note this only checks signal pads)
 check_connectivity -nets pad*
+
+
 
 # after routing bumps, insert io fillers
 # "done_fp" is defined in vlsi/flow/scripts/gen_floorplan.tcl

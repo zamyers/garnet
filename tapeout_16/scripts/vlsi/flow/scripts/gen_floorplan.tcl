@@ -63,6 +63,10 @@ proc done_fp {} {
 
     # [stevo]: connect corner cells to RTE
     # delete and recreate cell to set "is_physical" attribute to false (can't connect net to pin of physical-only cell)
+    # FIXME steveri 1912 - "get_db insts pads/corner*" does nothing. Did you mean to say "get_db insts corner*"?
+    foreach inst [get_db insts pads/corner*] {
+        puts "this line is never reached :("
+    }
     foreach inst [get_db insts pads/corner*] {
       set loc [get_db $inst .location]
       set ori [get_db $inst .orient]
@@ -76,6 +80,16 @@ proc done_fp {} {
     set_db [get_db nets esd] .skip_routing true
     set_db [get_db nets esd] .dont_touch true
 
+    # [sr 1912] Re-create (but don't place) corner_ur that was deleted just above
+    # This prevents missing-cell error when/if read results_syn again, e.g.
+    # 
+    # **ERROR: (TCLCMD-917): Cannot find 'cells' that match 'corner_ur'
+    # (File /sim/steveri/garnet/tapeout_16/synth/GarnetSOC_pad_frame/
+    # powerplanned.db/libs/mmmc/syn_out._default_constraint_mode_.sdc,
+    # Line 105657): "set_dont_touch [get_cells corner_ur]"
+    create_inst -inst corner_ur -cell PCORNER
+
+    # Done!
     snap_floorplan -all
     check_floorplan
 }
@@ -169,10 +183,10 @@ proc gen_bumps {} {
 #    assign_signal_to_bump -selected -net AVDD1 
 
     # Select all VSS bumps
-    # sr 1911: Gives warning "**WARN: (IMPSIP-7355):  PG net 'VSS' is dangling."
-    # Even though/if do "eval_legacy { globalNetConnect VSS -pin VSS }"
-    # Dangling net doesn't seem to harm/help anything tho
-
+    #   sr 1911: Below code gives warning
+    #   "**WARN: (IMPSIP-7355):  PG net 'VSS' is dangling"
+    #   even though/if do "eval_legacy { globalNetConnect VSS -pin VSS }" first.
+    #   Dangling net doesn't seem to harm/help anything tho
     deselect_bumps
     select_bumps -bumps [bumps_of_type $bump_types "g"]
     assign_signal_to_bump -selected -net VSS 
@@ -387,7 +401,7 @@ proc bumps_of_type {bump_array type} {
 
 proc gen_route_bumps {} {
 
-  # sr 1912 These blockages are cousing a *lot* of problems
+  # sr 1912 These blockages are causing a *lot* of problems
   # They render many/most bumps unroutable, see me for details (steveri)
   # gen_rdl_blockages
 
@@ -410,7 +424,8 @@ proc gen_route_bumps {} {
   set_db flip_chip_bottom_layer AP
   set_db flip_chip_top_layer AP
   set_db flip_chip_route_style manhattan 
-  set_db flip_chip_connect_power_cell_to_bump true 
+  set_db flip_chip_connect_power_cell_to_bump true
+
   puts -nonewline "@file_info: Before rfc: Time now "; date +%H:%M
   puts "@file_info gen_floorplan.tcl/gen_route_bumps: route_flip_chip"
   route_flip_chip -incremental -target connect_bump_to_pad -verbose \
@@ -455,16 +470,25 @@ proc add_boundary_fiducials {} {
   select_obj [get_db insts ifid*ul*]
   snap_floorplan -selected
   deselect_obj -all
+
   delete_inst -inst ifid*ur*
   gen_fiducial_set 2500.0 4824.00 ur false
   select_obj [get_db insts ifid*ur*]
   snap_floorplan -selected
   deselect_obj -all
+
   delete_inst -inst ifid*ll*
-  gen_fiducial_set 100.0 58.70 ll false
+  ################################################################
+  # sr 2001 - scooch them over another 400u ish so IOPAD can strap across
+  # see github issue ???
+  # gen_fiducial_set 100.0 58.70 ll false
+  # gen_fiducial_set 400.0 58.70 ll false
+  gen_fiducial_set 440.0 58.70 ll false
+  ################################################################
   select_obj [get_db insts ifid*ll*]
   snap_floorplan -selected
   deselect_obj -all
+
   delete_inst -inst ifid*lr*
   gen_fiducial_set 2500.0 58.70 lr false
   select_obj [get_db insts ifid*lr*]
@@ -696,7 +720,54 @@ proc gen_fiducial_set {pos_x pos_y {id ul} grid {cols 8}} {
         -halo_deltas $halo_margin $halo_margin $halo_margin $halo_margin -snap_to_site
       if {$grid == "true"} {
         create_route_blockage -name $fid_name -inst $fid_name -cover -layers {M1 M2 M3 M4 M5 M6 M7 M8 M9} -spacing $halo_margin
-        create_route_blockage -name $fid_name -inst $fid_name -cover -layers {VIA1 VIA2 VIA3 VIA4 VIA5 VIA6 VIA7 VIA8} -spacing [expr $halo_margin + 2]
+
+        # sr 1912 FIXME: why via spacing 2u bigger than metal spacing?
+        # sr 1912 FIXME: why halo instead of blockage?
+        # sr 1912 FIXME: why it gotta be so big anyways?
+        # 
+        # sr 2001 got some partial answers maybe
+        # - M1 stripes go up to edge of halo and stop
+        # - endcap for stripes will not place next to blockage
+        # - thus need a bit of halo or no endcaps
+        # - trial and error shows that .05u halo might be enough to get endcaps
+        # - later maybe I'll find out why original blockage has bigger halos
+        #
+        # create_route_blockage -name $fid_name -inst $fid_name -cover -layers {VIA1 VIA2 VIA3 VIA4 VIA5 VIA6 VIA7 VIA8} -spacing [expr $halo_margin + 2]
+        create_route_blockage -name $fid_name -inst $fid_name -cover -layers {VIA1 VIA2 VIA3 VIA4 VIA5 VIA6 VIA7 VIA8} -spacing $halo_margin
+
+          # steveri 1912 - HALO NOT GOOD ENOUGH! Router happily installs wires inside the halo :(
+          # Then we get hella DRC errors around the icovl cells.
+          # Solution: need blockages instead and/or as well, nanoroute seems to understand those...
+          # Also need a bit of halo, see comment above about endcaps
+          set inst [get_db insts $fid_name]
+          set name [get_db $inst .name]_bigblockgf
+          set rect [get_db $inst .place_halo_bbox]
+
+          # Instead of (actually in addition to, for now, but overrides prev)
+          # small blockage with big halo (above), build big blockage w/ tiny halo
+          # Actually new blockage goes ON TOP OF (and overrides) prev for now,
+          # although probably shouldnt :(
+          set halo_metal $halo_margin
+          set new_halo 0.20
+          set llx_metal [expr [get_db $inst .bbox.ll.x] - $halo_metal + $new_halo ]
+          set lly_metal [expr [get_db $inst .bbox.ll.y] - $halo_metal + $new_halo ]
+          set urx_metal [expr [get_db $inst .bbox.ur.x] + $halo_metal - $new_halo ]
+          set ury_metal [expr [get_db $inst .bbox.ur.y] + $halo_metal - $new_halo ]
+          set rect "$llx_metal $lly_metal $urx_metal $ury_metal"
+          create_route_blockage -name $name -rects $rect \
+            -layers {M1 M2 M3 M4 M5 M6 M7 M8 M9} -spacing $new_halo
+
+          # Originally via halo was bigger than metal halo. but why tho?
+          # set halo_via [expr $halo_margin + 2]
+          set halo_via $halo_margin
+          set llx_via [expr [get_db $inst .bbox.ll.x] - $halo_via + $new_halo ]
+          set lly_via [expr [get_db $inst .bbox.ll.y] - $halo_via + $new_halo ]
+          set urx_via [expr [get_db $inst .bbox.ur.x] + $halo_via - $new_halo ]
+          set ury_via [expr [get_db $inst .bbox.ur.y] + $halo_via - $new_halo ]
+          set rect "$llx_via $lly_via $urx_via $ury_via"
+          create_route_blockage -name $name -rects $rect \
+            -layers {VIA1 VIA2 VIA3 VIA4 VIA5 VIA6 VIA7 VIA8} -spacing $new_halo
+
       } else {
         create_route_blockage -name $fid_name -inst $fid_name -cover -layers {M1 M2 M3 M4 M5 M6 M7 M8 M9} -spacing 2.5
       }
@@ -888,10 +959,9 @@ proc gen_power {} {
     puts "@file_info: trying new hack that should shorten the 7 hours significantly"
     puts "@file_info: turning off DRC during M1 stripe generation ONLY"
     set orig_asid_value [ get_db add_stripes_ignore_drc ]
-    puts "@file_info: BEFORE: add_stripes_ignore_drc=$orig_asid_value"
     set_db add_stripes_ignore_drc true
     set t [ get_db add_stripes_ignore_drc ]
-    puts "@file_info: NOW: add_stripes_ignore_drc=$t"
+    puts "@file_info: add_stripes_ignore_drc=$orig_asid_value => add_stripes_ignore_drc=$t"
     
     # standard cell rails in M1
     # [stevo]: no vias

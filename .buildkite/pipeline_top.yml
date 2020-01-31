@@ -50,8 +50,17 @@ steps:
   command: .buildkite/TOP.sh -q eco
   agents: { jobsize: "hours" }
 
+# Final error summary
+- wait ###########################################################
+
+- label: 'ERR'
+  command: .buildkite/ERR.sh
 
 
+
+########################################################################
+########################################################################
+########################################################################
 # - label: 'DISABLED!'
 #   command: exit 13
 #   # Note exit doesn't take effect until next "wait" barrier
