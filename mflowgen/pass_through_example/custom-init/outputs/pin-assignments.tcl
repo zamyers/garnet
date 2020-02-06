@@ -1,15 +1,13 @@
 #=========================================================================
-# Custom Scripts -- init
+# pin-assignments.tcl
 #=========================================================================
-
-name: custom-init
+# Author : 
+# Date   : 
 
 #-------------------------------------------------------------------------
-# Inputs and Outputs
+# Pin Assignments
 #-------------------------------------------------------------------------
 
-outputs:
-  - add-endcaps-welltaps.tcl
-  - floorplan.tcl
-  - pin-assignments.tcl
 
+editPin -layer M5 -pin [dbGet top.terms.name *_in*] -side TOP -spreadType SIDE
+editPin -layer M5 -pin [dbGet top.terms.name *_out*] -side BOTTOM -spreadType SIDE
