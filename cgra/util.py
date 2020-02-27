@@ -5,14 +5,15 @@ from canal.util import IOSide, get_array_size, create_uniform_interconnect, \
     SwitchBoxType
 from canal.interconnect import Interconnect
 from power_domain.pd_pass import add_power_domain, add_aon_read_config_data
-from lassen.sim import gen_pe
+from lassen.sim import arch_closure
+from lassen.arch import read_arch
 from io_core.io_core_magma import IOCore
 from memory_core.memory_core_magma import MemCore
 from peak_core.peak_core import PeakCore
 from typing import Tuple, Dict, List, Tuple
 from tile_id_pass.tile_id_pass import tile_id_physical
 from clk_pass.clk_pass import clk_physical
-
+import magma as m
 
 def get_actual_size(width: int, height: int, io_sides: IOSide):
     if io_sides & IOSide.North:
@@ -44,7 +45,8 @@ def create_cgra(width: int, height: int, io_sides: IOSide,
                 num_parallel_config: int = 0,
                 port_conn_override: Dict[str,
                                          List[Tuple[SwitchBoxSide,
-                                                    SwitchBoxIO]]] = None):
+                                                    SwitchBoxIO]]] = None,
+                pe_arch: str = ""):
     # currently only add 16bit io cores
     bit_widths = [1, 16]
     track_length = 1
@@ -78,9 +80,12 @@ def create_cgra(width: int, height: int, io_sides: IOSide,
                     or y in range(y_max + 1, height):
                 core = IOCore()
             else:
-                core = MemCore(16, 16, 512, 2, use_sram_stub) if \
-                    ((x - x_min) % tile_max >= mem_tile_ratio) else \
-                    PeakCore(gen_pe)
+                if ((x - x_min) % tile_max >= mem_tile_ratio):
+                    core = MemCore(16, 16, 512, 2, use_sram_stub)
+                else:
+                    arch = read_arch(pe_arch)
+                    PE_fc = arch_closure(arch)
+                    core = PeakCore(PE_fc)
 
             cores[(x, y)] = core
 
