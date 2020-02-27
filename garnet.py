@@ -14,8 +14,9 @@ from global_buffer.global_buffer_wire_signal import glb_glc_wiring, \
 from global_buffer.soc_data_type import SoCDataType
 from global_controller.axi4_type import AXI4SlaveType
 from canal.global_signal import GlobalSignalWiring
-from mini_mapper import map_app, has_rom
+#from mini_mapper import map_app, has_rom
 from cgra import create_cgra
+import sys
 import json
 import math
 import archipelago
@@ -26,7 +27,7 @@ set_debug_mode(False)
 
 class Garnet(Generator):
     def __init__(self, width, height, add_pd, interconnect_only: bool = False,
-                 use_sram_stub: bool = True, standalone: bool = False):
+            use_sram_stub: bool = True, standalone: bool = False, pe_arch: str = ""):
         super().__init__()
 
         # Check consistency of @standalone and @interconnect_only parameters. If
@@ -91,7 +92,8 @@ class Garnet(Generator):
                                    global_signal_wiring=wiring,
                                    num_parallel_config=num_parallel_cfg,
                                    mem_ratio=(1, 4),
-                                   standalone=standalone)
+                                   standalone=standalone,
+                                   pe_arch=pe_arch)
 
         self.interconnect = interconnect
 
@@ -210,26 +212,26 @@ class Garnet(Generator):
         return input_interface, output_interface,\
                (reset_port_name, valid_port_name, en_port_name)
 
-    def compile(self, halide_src):
-        id_to_name, instance_to_instr, netlist, bus = self.map(halide_src)
-        fixed_io = place_io_blk(id_to_name, self.width)
-        placement, routing = archipelago.pnr(self.interconnect, (netlist, bus),
-                                             cwd="temp",
-                                             id_to_name=id_to_name,
-                                             fixed_pos=fixed_io)
-        bitstream = []
-        bitstream += self.interconnect.get_route_bitstream(routing)
-        bitstream += self.get_placement_bitstream(placement, id_to_name,
-                                                  instance_to_instr)
-        inputs, outputs = self.get_input_output(netlist)
-        input_interface, output_interface,\
-            (reset, valid, en) = self.get_io_interface(inputs,
-                                                       outputs,
-                                                       placement,
-                                                       id_to_name)
-        delay = 1 if has_rom(id_to_name) else 0
-        return bitstream, (input_interface, output_interface, reset, valid, en,
-                           delay)
+#    def compile(self, halide_src):
+#        id_to_name, instance_to_instr, netlist, bus = self.map(halide_src)
+#        fixed_io = place_io_blk(id_to_name, self.width)
+#        placement, routing = archipelago.pnr(self.interconnect, (netlist, bus),
+#                                             cwd="temp",
+#                                             id_to_name=id_to_name,
+#                                             fixed_pos=fixed_io)
+#        bitstream = []
+#        bitstream += self.interconnect.get_route_bitstream(routing)
+#        bitstream += self.get_placement_bitstream(placement, id_to_name,
+#                                                  instance_to_instr)
+#        inputs, outputs = self.get_input_output(netlist)
+#        input_interface, output_interface,\
+#            (reset, valid, en) = self.get_io_interface(inputs,
+#                                                       outputs,
+#                                                       placement,
+#                                                       id_to_name)
+#        delay = 1 if has_rom(id_to_name) else 0
+#        return bitstream, (input_interface, output_interface, reset, valid, en,
+#                           delay)
 
     def create_stub(self):
         result = """
@@ -272,6 +274,7 @@ def main():
     parser.add_argument("--interconnect-only", action="store_true")
     parser.add_argument("--no-sram-stub", action="store_true")
     parser.add_argument("--standalone", action="store_true")
+    parser.add_argument("--pe-design", type=str, default="")
     args = parser.parse_args()
 
     if not args.interconnect_only:
@@ -283,44 +286,46 @@ def main():
                     add_pd=not args.no_pd,
                     interconnect_only=args.interconnect_only,
                     use_sram_stub=not args.no_sram_stub,
-                    standalone=args.standalone)
+                    standalone=args.standalone,
+                    pe_arch=args.pe_design)
+
 
     if args.verilog:
         garnet_circ = garnet.circuit()
         magma.compile("garnet", garnet_circ, output="coreir-verilog",
                       coreir_libs={"float_DW"})
         garnet.create_stub()
-    if len(args.app) > 0 and len(args.input) > 0 and len(args.gold) > 0 \
-            and len(args.output) > 0:
-        # do PnR and produce bitstream
-        bitstream, (inputs, outputs, reset, valid, \
-            en, delay) = garnet.compile(args.app)
-        # write out the config file
-        if len(inputs) > 1:
-            if reset in inputs:
-                inputs.remove(reset)
-            for en_port in en:
-                if en_port in inputs:
-                    inputs.remove(en_port)
-        if len(outputs) > 1:
-            outputs.remove(valid)
-        config = {
-            "input_filename": args.input,
-            "bitstream": args.output,
-            "gold_filename": args.gold,
-            "output_port_name": outputs,
-            "input_port_name": inputs,
-            "valid_port_name": valid,
-            "reset_port_name": reset,
-            "en_port_name": en,
-            "delay": delay
-        }
-        with open(f"{args.output}.json", "w+") as f:
-            json.dump(config, f)
-        with open(args.output, "w+") as f:
-            bs = ["{0:08X} {1:08X}".format(entry[0], entry[1]) for entry
-                  in bitstream]
-            f.write("\n".join(bs))
+#    if len(args.app) > 0 and len(args.input) > 0 and len(args.gold) > 0 \
+#            and len(args.output) > 0:
+#        # do PnR and produce bitstream
+#        bitstream, (inputs, outputs, reset, valid, \
+#            en, delay) = garnet.compile(args.app)
+#        # write out the config file
+#        if len(inputs) > 1:
+#            if reset in inputs:
+#                inputs.remove(reset)
+#            for en_port in en:
+#                if en_port in inputs:
+#                    inputs.remove(en_port)
+#        if len(outputs) > 1:
+#            outputs.remove(valid)
+#        config = {
+#            "input_filename": args.input,
+#            "bitstream": args.output,
+#            "gold_filename": args.gold,
+#            "output_port_name": outputs,
+#            "input_port_name": inputs,
+#            "valid_port_name": valid,
+#            "reset_port_name": reset,
+#            "en_port_name": en,
+#            "delay": delay
+#        }
+#        with open(f"{args.output}.json", "w+") as f:
+#            json.dump(config, f)
+#        with open(args.output, "w+") as f:
+#            bs = ["{0:08X} {1:08X}".format(entry[0], entry[1]) for entry
+#                  in bitstream]
+#            f.write("\n".join(bs))
 
 
 if __name__ == "__main__":
