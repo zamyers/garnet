@@ -21,7 +21,6 @@ def _convert_type(typ):
         return magma.Bits[1]
     return magma.Bits[typ.size]
 
-
 class _PeakWrapperMeta(type):
     _cache = {}
 
@@ -129,17 +128,34 @@ class PeakCore(ConfigurableCore):
         # Add input/output ports and wire them.
         inputs = self.wrapper.inputs()
         outputs = self.wrapper.outputs()
+        self.tuple_io = {}
         for ports, dir_ in ((inputs, magma.In), (outputs, magma.Out),):
             for i, (name, typ) in enumerate(ports.items()):
                 if name in self.ignored_ports:
                     continue
-                magma_type = _convert_type(typ)
-                self.add_port(name, dir_(magma_type))
-                my_port = self.ports[name]
-                if magma_type is magma.Bits[1]:
-                    my_port = my_port[0]
-                magma_name = name if dir_ is magma.In else f"O{i}"
-                self.wire(my_port, self.peak_circuit.ports[magma_name])
+
+                # If it is a tuple, go through each entry
+                if isinstance(typ, hwtypes.adt_meta.TupleMeta):
+                    j = 0;  
+                    for t in typ:
+                        magma_type = _convert_type(t)
+                        i_name = f"{name}{j}"
+                        self.add_port(i_name, dir_(magma_type))
+                        my_port = self.ports[i_name]
+                        if magma_type is magma.Bits[1]:
+                            my_port = my_port[0]
+                        magma_name = name if dir_ is magma.In else f"O{i}"
+                        self.wire(my_port, self.peak_circuit.ports[magma_name][j])
+                        j += 1
+                    self.tuple_io[name] = j
+                else:
+                    magma_type = _convert_type(typ)
+                    self.add_port(name, dir_(magma_type))
+                    my_port = self.ports[name]
+                    if magma_type is magma.Bits[1]:
+                        my_port = my_port[0]
+                    magma_name = name if dir_ is magma.In else f"O{i}"
+                    self.wire(my_port, self.peak_circuit.ports[magma_name])
 
         self.add_ports(
             config=magma.In(ConfigurationType(8, 32)),
@@ -216,12 +232,30 @@ class PeakCore(ConfigurableCore):
         return self.wrapper.instruction_type()
 
     def inputs(self):
-        return [self.ports[name] for name in self.wrapper.inputs()
-                if name not in self.ignored_ports]
+        inputs = []
+        for name in self.wrapper.inputs():
+            if name not in self.ignored_ports:
+                if name not in self.tuple_io:
+                    inputs.append(self.ports[name])
+                else:
+                    for i in range(self.tuple_io[name]):
+                        inputs.append(self.ports[f"{name}{i}"])
+        return inputs
+#        return [self.ports[name] for name in self.wrapper.inputs()
+#                if name not in self.ignored_ports]
 
     def outputs(self):
-        return [self.ports[name] for name in self.wrapper.outputs()
-                if name not in self.ignored_ports]
+        outputs = []
+        for name in self.wrapper.outputs():
+            if name not in self.ignored_ports:
+                if name not in self.tuple_io:
+                    outputs.append(self.ports[name])
+                else:
+                    for i in range(self.tuple_io[name]):
+                        outputs.append(self.ports[f"{name}{i}"])
+        return outputs 
+#        return [self.ports[name] for name in self.wrapper.outputs()
+#                if name not in self.ignored_ports]
 
     def pnr_info(self):
         # PE has highest priority
