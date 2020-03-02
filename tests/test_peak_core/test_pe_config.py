@@ -1,7 +1,7 @@
 from gemstone.common.testers import BasicTester
 from peak_core.peak_core import PeakCore
-from lassen.sim import gen_pe
-from lassen.asm import add, Mode, lut_and, inst, ALU
+from lassen.lassen.sim import gen_pe
+from lassen.lassen.asm import add, Mode, lut_and, inst, ALU
 import shutil
 import tempfile
 import os
