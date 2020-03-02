@@ -58,9 +58,9 @@ set pass_through_outputs [get_ports {config_out* stall_out* reset_out* clk_pass_
 
 reset_path -from $pass_through_inputs -to $pass_through_outputs
 
-set pass_through_max_delay 0.21
+set pass_through_max_delay 0.12
 set_max_delay -from $pass_through_inputs -to $pass_through_outputs [expr $pass_through_max_delay + $input_delay + $output_delay]
-set pass_through_min_delay 0.15
+set pass_through_min_delay 0.1
 set_min_delay -from $pass_through_inputs -to $pass_through_outputs [expr $pass_through_min_delay + $input_delay + $output_delay]
 
 if $::env(PWR_AWARE) {
