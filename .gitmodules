@@ -1,0 +1,3 @@
+[submodule "lassen"]
+	path = lassen
+	url = git@github.com:StanfordAHA/lassen.git
