@@ -18,6 +18,23 @@ create_clock -name ${clock_name} \
              -period ${dc_clock_period} \
              [get_ports ${clock_net}]
 
+set pt_clock_net  clk_pass_through
+set pt_clock_name ideal_clock_pt
+
+create_clock -name ${pt_clock_name} \
+             -period ${dc_clock_period} \
+             [get_ports ${pt_clock_net}]
+
+create_generated_clock -name clk_out \
+                       -source [get_ports ${pt_clock_net}] \
+                       -multiply_by 1 \
+                       [get_ports clk_out]
+
+create_generated_clock -name pt_clk_out \
+                       -source [get_ports ${pt_clock_net}] \
+                       -multiply_by 1 \
+                       [get_ports clk_pass_through_out]
+
 # This constraint sets the load capacitance in picofarads of the
 # output pins of your design.
 
@@ -52,16 +69,19 @@ set_max_transition $max_trans_time $dc_design_name
 set_input_transition $max_trans_time [all_inputs]
 
 # Set min/max delay for feedthrough signals
-set pass_through_inputs [get_ports {config_config* config_read* config_write* clk_pass_through reset stall}]
-set pass_through_outputs [get_ports {config_out* stall_out* reset_out* clk_pass_through_out clk_out}]
-
+set pass_through_inputs [get_ports {config_config* config_read* config_write* reset stall}]
+set pass_through_outputs [get_ports {config_out* stall_out* reset_out*}]
+set pass_through_clock_inputs [get_ports clk_pass_through]
+set pass_through_clock_outputs [get_ports {clk_out clk_pass_through_out}]
 
 reset_path -from $pass_through_inputs -to $pass_through_outputs
 
 set pass_through_max_delay 0.12
 set_max_delay -from $pass_through_inputs -to $pass_through_outputs [expr $pass_through_max_delay + $input_delay + $output_delay]
+set_max_delay -from $pass_through_clock_inputs -to $pass_through_clock_outputs [expr $pass_through_max_delay]
 set pass_through_min_delay 0.1
 set_min_delay -from $pass_through_inputs -to $pass_through_outputs [expr $pass_through_min_delay + $input_delay + $output_delay]
+set_min_delay -from $pass_through_clock_inputs -to $pass_through_clock_outputs [expr $pass_through_min_delay]
 
 if $::env(PWR_AWARE) {
     source inputs/dc-dont-use-constraints.tcl
