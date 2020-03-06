@@ -57,6 +57,8 @@ def construct():
   Tile_PE      = Step( this_dir + '/Tile_PE'                             )
   constraints  = Step( this_dir + '/constraints'                         )
   custom_init  = Step( this_dir + '/custom-init'                         )
+  custom_cts   = Step( this_dir + '/custom-cts-overrides'                )
+  custom_lvs   = Step( this_dir + '/custom-lvs-rules'                    )
   custom_power = Step( this_dir + '/../common/custom-power-hierarchical' )
   custom_lvs   = Step( this_dir + '/custom-lvs-rules'                    )
   gls_args     = Step( this_dir + '/gls_args'                            )
@@ -125,6 +127,7 @@ def construct():
   # Add extra input edges to innovus steps that need custom tweaks
 
   init.extend_inputs( custom_init.all_outputs() )
+  cts.extend_inputs( custom_cts.all_outputs() )
   power.extend_inputs( custom_power.all_outputs() )
 
   #-----------------------------------------------------------------------
@@ -144,6 +147,7 @@ def construct():
   g.add_step( custom_power )
   g.add_step( place        )
   g.add_step( cts          )
+  g.add_step( custom_cts   )
   g.add_step( postcts_hold )
   g.add_step( route        )
   g.add_step( postroute    )
@@ -240,6 +244,8 @@ def construct():
   g.connect_by_name( iflow,    signoff      )
 
   g.connect_by_name( custom_init,  init     )
+  g.connect_by_name( custom_cts,   cts      )
+  g.connect_by_name( custom_lvs,   lvs      )
   g.connect_by_name( custom_power, power    )
 
   g.connect_by_name( init,         power        )
@@ -297,6 +303,13 @@ def construct():
   # Add dont-touch before reporting
   order.insert ( reporting_idx, 'dont-touch.tcl' )
   init.update_params( { 'order': order } )
+
+  # We are overriding certain pin types for CTS, so we need to
+  # add the script that does that to the CTS order
+  order = cts.get_param('order')
+  main_idx = order.index( 'main.tcl' )
+  order.insert( main_idx, 'cts-overrides.tcl' )
+  cts.update_params( { 'order': order } )
 
   return g
 
