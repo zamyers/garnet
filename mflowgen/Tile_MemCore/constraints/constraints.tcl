@@ -18,6 +18,23 @@ create_clock -name ${clock_name} \
              -period ${dc_clock_period} \
              [get_ports ${clock_net}]
 
+set pt_clock_net  clk_pass_through
+set pt_clock_name ideal_clock_pt
+
+create_clock -name ${pt_clock_name} \
+             -period ${dc_clock_period} \
+             [get_ports ${pt_clock_net}]
+
+create_generated_clock -name clk_out \
+                       -source [get_ports ${pt_clock_net}] \
+                       -multiply_by 1 \
+                       [get_ports clk_out]
+
+create_generated_clock -name pt_clk_out \
+                       -source [get_ports ${pt_clock_net}] \
+                       -multiply_by 1 \
+                       [get_ports clk_pass_through_out]
+
 # This constraint sets the load capacitance in picofarads of the
 # output pins of your design.
 
@@ -29,29 +46,42 @@ set_load -pin_load $ADK_TYPICAL_ON_CHIP_LOAD [all_outputs]
 # which is reasonable if another block of on-chip logic is driving
 # your inputs.
 
-set_driving_cell -no_design_rule \
+#set_driving_cell -no_design_rule \
   -lib_cell $ADK_DRIVING_CELL [all_inputs]
 
 # set_input_delay constraints for input ports
 #
 # - make this non-zero to avoid hold buffers on input-registered designs
-
-set_input_delay -clock ${clock_name} [expr ${dc_clock_period}/2.0] [all_inputs]
+set input_delay [expr ${dc_clock_period}/2.0]
+set_input_delay -clock ${clock_name} $input_delay [all_inputs]
 
 # set_output_delay constraints for output ports
-
-set_output_delay -clock ${clock_name} 0 [all_outputs]
+set output_delay 0
+set_output_delay -clock ${clock_name} $output_delay [all_outputs]
 
 # Make all signals limit their fanout
 
 set_max_fanout 20 $dc_design_name
 
 # Make all signals meet good slew
+set max_trans_time 0.1
+set_max_transition $max_trans_time $dc_design_name
+set_input_transition $max_trans_time [all_inputs]
 
-set_max_transition [expr 0.25*${dc_clock_period}] $dc_design_name
+# Set min/max delay for feedthrough signals
+set pass_through_inputs [get_ports {config_config* config_read* config_write* reset stall}]
+set pass_through_outputs [get_ports {config_out* stall_out* reset_out*}]
+set pass_through_clock_inputs [get_ports clk_pass_through]
+set pass_through_clock_outputs [get_ports {clk_out clk_pass_through_out}]
 
-#set_input_transition 1 [all_inputs]
-#set_max_transition 10 [all_outputs]
+reset_path -from $pass_through_inputs -to $pass_through_outputs
+
+set pass_through_max_delay 0.17
+set_max_delay -from $pass_through_inputs -to $pass_through_outputs [expr $pass_through_max_delay + $input_delay + $output_delay]
+set_max_delay -from $pass_through_clock_inputs -to $pass_through_clock_outputs [expr $pass_through_max_delay + $input_delay + $output_delay]
+set pass_through_min_delay 0.1
+set_min_delay -from $pass_through_inputs -to $pass_through_outputs [expr $pass_through_min_delay + $input_delay + $output_delay]
+set_min_delay -from $pass_through_clock_inputs -to $pass_through_clock_outputs [expr $pass_through_min_delay]
 
 if $::env(PWR_AWARE) {
     source inputs/dc-dont-use-constraints.tcl
