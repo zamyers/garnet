@@ -76,9 +76,9 @@ set pass_through_clock_outputs [get_ports {clk_out clk_pass_through_out}]
 
 reset_path -from $pass_through_inputs -to $pass_through_outputs
 
-set pass_through_max_delay 0.12
+set pass_through_max_delay 0.17
 set_max_delay -from $pass_through_inputs -to $pass_through_outputs [expr $pass_through_max_delay + $input_delay + $output_delay]
-set_max_delay -from $pass_through_clock_inputs -to $pass_through_clock_outputs [expr $pass_through_max_delay]
+set_max_delay -from $pass_through_clock_inputs -to $pass_through_clock_outputs [expr $pass_through_max_delay + $input_delay + $output_delay]
 set pass_through_min_delay 0.1
 set_min_delay -from $pass_through_inputs -to $pass_through_outputs [expr $pass_through_min_delay + $input_delay + $output_delay]
 set_min_delay -from $pass_through_clock_inputs -to $pass_through_clock_outputs [expr $pass_through_min_delay]
