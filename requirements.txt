@@ -7,8 +7,8 @@
 -e git+git://github.com/pyhdi/pyverilog.git#egg=pyverilog
 ordered_set
 coreir>=2.0.50
-magma-lang>=2.0.0
-mantle>=2.0.0
+magma-lang==2.0.8
+mantle==2.0.1
 cosa
 -e git://github.com/leonardt/fault.git#egg=fault
 hwtypes
