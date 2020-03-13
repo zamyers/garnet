@@ -29,7 +29,7 @@ set savedvars(p_ring_spacing) [expr 24 * $M1_min_spacing]; # Arbitrary!
 
 set vert_pitch [dbGet top.fPlan.coreSite.size_y]
 set height [expr $core_height * $vert_pitch]
-
+set savedvars(height) $height
 # Now begin width calculation
 # Get the combined area of all cells in the design
 set cell_areas [get_property [get_cells *] area]
@@ -57,3 +57,28 @@ floorPlan -s $width $height \
 
 setFlipping s
 
+
+# create always on domain region
+if $::env(PWR_AWARE) {
+   ##AON Region Bounding Box
+   puts "##AON Region Bounding Box"
+   set offset 4.5 
+   set aon_width 14
+   if [regexp Tile_PE  $::env(DESIGN)] {
+     set aon_height 14 
+   } else {
+     set aon_height 11 
+   }
+   # Get all tech vars
+   source inputs/adk/params.tcl
+   set aon_height_snap [expr ceil($aon_height/$polypitch_y)*$polypitch_y]
+   if [regexp Tile_PE  $::env(DESIGN)] {
+     set aon_lx [expr $width/2 - $aon_width/2 + $offset -10]
+   } else {
+     set aon_lx [expr $width/2 - $aon_width/2 + $offset]
+   }
+   set aon_lx_snap [expr ceil($aon_lx/$polypitch_x)*$polypitch_x]
+   set aon_ux [expr $width/2 + $aon_width/2 + $offset - 3]
+   set aon_ux_snap [expr ceil($aon_ux/$polypitch_x)*$polypitch_x]
+   modifyPowerDomainAttr AON -box $aon_lx_snap  [expr $height - $aon_height_snap - 10*$polypitch_y] $aon_ux_snap [expr $height - 10*$polypitch_y]  -minGaps $polypitch_y $polypitch_y [expr $polypitch_x*6] [expr $polypitch_x*6]
+}
