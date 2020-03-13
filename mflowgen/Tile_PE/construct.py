@@ -52,6 +52,7 @@ def construct():
 
   rtl                  = Step( this_dir + '/../common/rtl'                         )
   constraints          = Step( this_dir + '/constraints'                           )
+  upf                  = Step( this_dir + '/upf'                                   )
   custom_init          = Step( this_dir + '/custom-init'                           )
   custom_power         = Step( this_dir + '/../common/custom-power-leaf'           )
   genlibdb_constraints = Step( this_dir + '/../common/custom-genlibdb-constraints' )
@@ -82,6 +83,7 @@ def construct():
   init.extend_inputs( custom_init.all_outputs() )
   power.extend_inputs( custom_power.all_outputs() )
   genlibdb.extend_inputs( genlibdb_constraints.all_outputs() )
+  dc.extend_inputs( upf.all_outputs() )
 
   #-----------------------------------------------------------------------
   # Graph -- Add nodes
@@ -90,6 +92,7 @@ def construct():
   g.add_step( info                     )
   g.add_step( rtl                      )
   g.add_step( constraints              )
+  g.add_step( upf                      )
   g.add_step( dc                       )
   g.add_step( iflow                    )
   g.add_step( init                     )
@@ -132,6 +135,7 @@ def construct():
 
   g.connect_by_name( rtl,         dc        )
   g.connect_by_name( constraints, dc        )
+  g.connect_by_name( upf,         dc        )
 
   g.connect_by_name( dc,       iflow        )
   g.connect_by_name( dc,       init         )
@@ -183,6 +187,13 @@ def construct():
   #-----------------------------------------------------------------------
 
   g.update_params( parameters )
+
+  # We want to add the PWR_AWARE param to these nodes because they have
+  # pieces of code that should only be executed when we are adding
+  # power domains to the tile
+  pwr_aware_steps = [dc, init, power]
+  for step in pwr_aware_steps:
+      step.update_params( {'PWR_AWARE': parameters['PWR_AWARE']}, True )
 
   # Since we are adding an additional input script to the generic Innovus
   # steps, we modify the order parameter for that node which determines
