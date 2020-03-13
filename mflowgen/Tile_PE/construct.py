@@ -32,7 +32,9 @@ def construct():
     'flatten_effort'    : 3,
     'topographical'     : False,
     # RTL Generation
-    'interconnect_only' : True
+    'interconnect_only' : True,
+    # Power Domains
+    'PWR_AWARE'         : True
   }
 
   #-----------------------------------------------------------------------
