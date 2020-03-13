@@ -49,3 +49,22 @@ set_max_fanout 20 $dc_design_name
 # Make all signals meet good slew
 
 set_max_transition [expr 0.25*${dc_clock_period}] $dc_design_name
+
+# Constraints needed for power domains
+if {$::env(PWR_AWARE)} {
+   # TODO (ankita): convert to DC
+   load_upf inputs/upf.tcl
+   save_upf upf_${dc_design_name}.upf
+
+#   set_attribute preserve size_ok [find / -inst *u_mux_logic*]
+#   set_dont_touch [find [find / -inst *u_mux_logic*            ] -net *I* ]
+#   set_dont_touch [find [find / -inst *mux_aoi*                ] -net *I* ]
+#   set_dont_touch [find [find / -inst *CB_data*                ] -net *I* ]
+#   set_dont_touch [find [find / -inst *CB_bit*                 ] -net *I* ]
+#   set_dont_touch [find [find / -inst *MUX_SB_T*               ] -net *I* ]
+#   set_dont_touch [find [find / -inst *RMUX_T*                 ] -net *I* ]
+#   set_dont_touch [find [find / -inst SB_ID0_5TRACKS_B1_PE     ] -net *SB*]
+#   set_dont_touch [find [find / -inst SB_ID0_5TRACKS_B16_PE    ] -net *SB*]
+#   set_dont_touch [find [find / -inst *WIRE_SB*                ] -net *I* ]
+#   set_dont_touch [get_nets -of_objects [get_ports *SB*]]
+}
