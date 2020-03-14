@@ -34,7 +34,7 @@ def construct():
     # RTL Generation
     'interconnect_only' : True,
     # Power Domains
-    'PWR_AWARE'         : True
+    'PWR_AWARE'         : True 
   }
 
   #-----------------------------------------------------------------------

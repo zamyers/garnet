@@ -39,8 +39,8 @@ create_power_switch SD_sw \
 -on_state {ON_STATE in !SD_sd}
 
 #### Create Power State Table ##################
-add_port_state VDD -state {HighVoltage 0.7}
-add_port_state SD_sw/out -state {HighVoltage 0.7} -state {SD_OFF off}
+add_port_state VDD -state {HighVoltage 0.8}
+add_port_state SD_sw/out -state {HighVoltage 0.8} -state {SD_OFF off}
 create_pst lvds_system_pst -supplies {VDD VDD_SW}
 add_pst_state LOGIC_ON -pst lvds_system_pst -state {HighVoltage SD_OFF}
 add_pst_state ALL_ON -pst lvds_system_pst -state {HighVoltage HighVoltage}

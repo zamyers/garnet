@@ -53,7 +53,13 @@ set_max_transition [expr 0.25*${dc_clock_period}] $dc_design_name
 # Constraints needed for power domains
 if {$::env(PWR_AWARE)} {
    # TODO (ankita): convert to DC
+   set voltage_vdd 0.8
+   set voltage_gnd 0
+   set upf_create_implicit_supply_sets false
+   set_design_attributes -elements {.} -attribute enable_state_propagation_in_add_power_state TRUE   
    load_upf inputs/upf.tcl
+   set_voltage ${voltage_vdd} -object_list {VDD VDD_SW}
+   set_voltage ${voltage_gnd} -object_list {VSS}
    save_upf upf_${dc_design_name}.upf
 
 #   set_attribute preserve size_ok [find / -inst *u_mux_logic*]
