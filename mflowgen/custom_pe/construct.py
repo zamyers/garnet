@@ -34,7 +34,11 @@ def construct():
     'flatten_effort'    : 3,
     'topographical'     : False,
     # RTL Generation
-    'interconnect_only' : True
+    'interconnect_only' : True,
+    'pe_design'         : 'lassen/examples/test_json.json',
+
+    'testbench_name'    : 'GcdUnitTb',
+    'strip_path'        : 'GcdUnitTb/GcdUnit_inst'
   }
 
   #-----------------------------------------------------------------------
@@ -50,11 +54,22 @@ def construct():
 
   # Custom steps
 
-  rtl                  = Step( this_dir + '/../common/rtl'                         )
+  rtl                  = Step( this_dir + '/rtl'                         )
   constraints          = Step( this_dir + '/constraints'                           )
   custom_init          = Step( this_dir + '/custom-init'                           )
   custom_power         = Step( this_dir + '/../common/custom-power-leaf'           )
   genlibdb_constraints = Step( this_dir + '/../common/custom-genlibdb-constraints' )
+  testbench            = Step( this_dir + '/testbench'     )
+
+  vcs_sim              = Step( this_dir + '/synopsys-vcs-sim')
+  rtl_sim              = vcs_sim.clone()
+  rtl_sim.set_name( 'rtl-sim' )
+  #gl_sim               = vcs_sim.clone()
+  #gl_sim.set_name( 'gl-sim' )
+
+
+
+  
 
   # Default steps
 
