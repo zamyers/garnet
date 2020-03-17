@@ -11,7 +11,7 @@ def main():
     fields = raw.readline().split(",")
     
     def get_hex (x, l):
-      return str(binascii.hexlify(struct.pack('>I', x)))[10-l:10] # I is for unsigned int -- 32 bits
+      return str(binascii.hexlify(struct.pack('>H', x)))[2:2+l] # H is for unsigned short -- 16 bits
 
     while True:
         line = raw.readline().strip()
@@ -31,15 +31,24 @@ def main():
             elif 'read_config_data_in' == fields[i]:
                 width = 32
 
-            hex_num = get_hex(num, int(width/4))
-            if width == 32:
-                hex_num = hex_num[0:4] + "_" + hex_num[4:8]
-            to_write = to_write + "_" + hex_num
+            hex_num = get_hex(num, int(math.log(width, 2)))
+            if len(hex_num) == 8:
+                hex_num = hex_num[7:4] + "_" + hex_num[0:3]
+            to_write = hex_num + "_" + to_write
 
             i += 1
-        f.write(to_write[1:])
-        f.write("\n")
+        f.write(to_write[:-1])
+        print(i)
+        print(len(to_write.replace("_", "")))
+        return
     
+#    while (i < num_vectors):
+#      a = np.uint16(math.floor(random() * (2**16 - 1)))
+#      b = np.uint16(math.floor(random() * (2**16 - 1)))
+#      if (a != 0) and (b != 0):
+#        c = math.gcd(a, b)
+#        f.write(str(get_hex(c)) + '_' + str(get_hex(a)) + '_' + str(get_hex(b)) + '\n') 
+#        i = i + 1
     f.close()
     raw.close()
 

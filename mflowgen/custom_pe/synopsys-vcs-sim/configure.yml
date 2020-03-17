@@ -28,7 +28,7 @@ name: synopsys-vcs-sim
 
 inputs:
   - adk
-  - design.vcs.v
+  - design.v
   - testbench.sv
   - design.sdf
   - design.args

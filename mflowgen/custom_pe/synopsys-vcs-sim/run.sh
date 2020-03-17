@@ -33,6 +33,9 @@ if [ -f "inputs/design.args" ]; then
   ARGS="$ARGS -file inputs/design.args"
 fi
 
+# Link DesignWare
+ARGS="$ARGS +incdir+/cad/synopsys/icc/M-2016.12-SP2/dw/sim_ver/"
+
 # Run VCS and print out the command
 (
   set -x;
