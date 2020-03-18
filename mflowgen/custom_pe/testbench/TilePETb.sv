@@ -1,6 +1,6 @@
 `define CLK_PERIOD 10
 `define ASSIGNMENT_DELAY 0.5
-`define FINISH_TIME 8000000
+`define FINISH_TIME 60000000
 `define NUM_TEST_VECTORS 8508
 
 `define T0_EAST_B16 15:0
@@ -272,9 +272,7 @@ module TilePETb;
     initial begin
       $readmemh("test_vectors.txt", test_vectors);
       clk <= 0;
-      reset <= 1;
       test_vec_addr <= 0;
-      #(10*`CLK_PERIOD) reset <= 0;
     end
   
     always @ (posedge clk) begin
@@ -286,11 +284,9 @@ module TilePETb;
     initial begin
       $vcdplusfile("dump.vcd");
       $vcdplusmemon();
-      $vcdpluson(0, GcdUnitTb);
+      $vcdpluson(0, TilePETb);
       #(`FINISH_TIME);
       $finish(2);
     end
-
-
 
 endmodule 
