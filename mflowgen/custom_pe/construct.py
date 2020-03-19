@@ -66,9 +66,9 @@ def construct():
   vcs_sim              = Step( this_dir + '/synopsys-vcs-sim'                      )
   rtl_sim              = vcs_sim.clone()
   rtl_sim.set_name( 'rtl-sim' )
-  pt_power_rtl  = Step( this_dir + '/synopsys-ptpx-rtl')
-  #gl_sim               = vcs_sim.clone()
-  #gl_sim.set_name( 'gl-sim' )
+  pt_power_rtl         = Step( this_dir + '/synopsys-ptpx-rtl'                     )
+  gl_sim               = vcs_sim.clone()
+  gl_sim.set_name( 'gl-sim' )
 
   # Default steps
 
@@ -91,11 +91,13 @@ def construct():
   lvs          = Step( 'mentor-calibre-lvs',            default=True )
   debugcalibre = Step( 'cadence-innovus-debug-calibre', default=True )
   gen_saif     = Step( 'synopsys-vcd2saif-convert',     default=True )
+  # RTL
   gen_saif_rtl = gen_saif.clone()
   gen_saif_rtl.set_name( 'gen-saif-rtl' )
-  #gen_saif_gl  = gen_saif.clone()
-  #gen_saif_gl.set_name( 'gen-saif-gl' )
-  #pt_power_gl  = Step( 'synopsys-ptpx-gl',              default=True )
+  # Gate-level
+  gen_saif_gl  = gen_saif.clone()
+  gen_saif_gl.set_name( 'gen-saif-gl' )
+  pt_power_gl  = Step( 'synopsys-ptpx-gl',              default=True )
  
 
   # Add extra input edges to innovus steps that need custom tweaks
@@ -134,14 +136,17 @@ def construct():
   g.add_step( debugcalibre             )
   g.add_step( gen_saif_rtl             )
   g.add_step( pt_power_rtl             )
-  #g.add_step( gl_sim                   )
-  #g.add_step( gen_saif_gl              )
-  #g.add_step( pt_power_gl              )
+  g.add_step( gl_sim                   )
+  g.add_step( gen_saif_gl              )
+  g.add_step( pt_power_gl              )
 
 
   #-----------------------------------------------------------------------
   # Graph -- Add edges
   #-----------------------------------------------------------------------
+
+  # Dynamically add edges
+  rtl_sim.extend_inputs(['design.v'])
 
   # Connect by name
 
@@ -160,7 +165,7 @@ def construct():
   g.connect_by_name( adk,      lvs          )
   g.connect_by_name( adk,      rtl_sim      )
   g.connect_by_name( adk,      pt_power_rtl )
-  #g.connect_by_name( adk,      pt_power_gl  )
+  g.connect_by_name( adk,      pt_power_gl  )
 
   g.connect_by_name( rtl,         dc        )
   g.connect_by_name( constraints, dc        )
@@ -170,14 +175,13 @@ def construct():
   g.connect_by_name( rtl,          rtl_sim      ) # design.v
   g.connect_by_name( testbench,    rtl_sim      ) # testbench.sv
   g.connect_by_name( rtl_sim,      gen_saif_rtl ) # run.vcd
-  #g.connect_by_name( pt_signoff,   rtl_sim      ) # design.sdf
 
   g.connect_by_name( dc,       iflow        )
   g.connect_by_name( dc,       init         )
   g.connect_by_name( dc,       power        )
   g.connect_by_name( dc,       place        )
   g.connect_by_name( dc,       cts          )
-  g.connect_by_name( dc,       pt_power_rtl ) # design.namemap, design.sdc, design.v
+  g.connect_by_name( dc,       pt_power_rtl ) # design.namemap
 
   g.connect_by_name( iflow,    init         )
   g.connect_by_name( iflow,    power        )
@@ -211,16 +215,16 @@ def construct():
   g.connect_by_name( adk,          pt_signoff   )
   g.connect_by_name( signoff,      pt_signoff   )
 
-  g.connect_by_name( signoff,      pt_power_rtl )
+  g.connect_by_name( signoff,      pt_power_rtl ) # design.vcs.v, design.spef.gz, design.pt.sdc
   g.connect_by_name( gen_saif_rtl, pt_power_rtl ) # run.saif
-  #g.connect_by_name( signoff,      pt_power_gl  )
-  #g.connect_by_name( gen_saif_gl,  pt_power_gl  ) # run.saif
+  g.connect_by_name( signoff,      pt_power_gl  )
+  g.connect_by_name( gen_saif_gl,  pt_power_gl  ) # run.saif
 
-  #g.connect_by_name( adk,          gl_sim       )
-  #g.connect_by_name( signoff,      gl_sim       ) # design.vcs.v
-  #g.connect_by_name( pt_signoff,   gl_sim       ) # design.sdf
-  #g.connect_by_name( testbench,    gl_sim       ) # testbench.sv
-  #g.connect_by_name( gl_sim,       gen_saif_gl  ) # run.vcd
+  g.connect_by_name( adk,          gl_sim       )
+  g.connect_by_name( signoff,      gl_sim       ) # design.vcs.v, design.spef.gz, design.pt.sdc
+  g.connect_by_name( pt_signoff,   gl_sim       ) # design.sdf
+  g.connect_by_name( testbench,    gl_sim       ) # testbench.sv
+  g.connect_by_name( gl_sim,       gen_saif_gl  ) # run.saif
 
   g.connect_by_name( adk,      debugcalibre )
   g.connect_by_name( dc,       debugcalibre )
