@@ -211,7 +211,7 @@ def construct():
   g.connect_by_name( adk,          pt_signoff   )
   g.connect_by_name( signoff,      pt_signoff   )
 
-#  g.connect_by_name( signoff,      pt_power_rtl )
+  g.connect_by_name( signoff,      pt_power_rtl )
   g.connect_by_name( gen_saif_rtl, pt_power_rtl ) # run.saif
   #g.connect_by_name( signoff,      pt_power_gl  )
   #g.connect_by_name( gen_saif_gl,  pt_power_gl  ) # run.saif

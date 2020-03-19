@@ -22,7 +22,7 @@ set_app_var target_library "* ${pt_search_path}/${pt_target_libraries}"
 set_app_var link_library "* ${pt_search_path}/${pt_target_libraries} "
 set_app_var power_enable_analysis true 
 
-read_verilog inputs/design.v
+read_verilog inputs/design.vcs.v
 
 current_design ${pt_design_name}
 file mkdir ${pt_reports}
@@ -32,7 +32,7 @@ source inputs/design.namemap > ${pt_reports}/${pt_design_name}.map.rpt
 
 read_saif inputs/run.saif -strip_path ${pt_uut}
 #read_parasitics -format spef inputs/design.spef.gz
-read_sdc inputs/design.sdc > ${pt_reports}/${pt_design_name}.sdc.rpt
+read_sdc inputs/design.pt.sdc > ${pt_reports}/${pt_design_name}.sdc.rpt
 
 update_power > ${pt_reports}/${pt_design_name}.update.rpt
 report_switching_activity > ${pt_reports}/${pt_design_name}.sw.rpt 
