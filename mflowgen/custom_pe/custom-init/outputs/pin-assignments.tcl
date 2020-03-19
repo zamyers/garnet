@@ -53,14 +53,14 @@ set height [dbGet top.fPlan.box_ury]
 editPin -pin [get_property $south hierarchical_name] -start { 5 0 } -end [list [expr {$width - 5}] 0] -side BOTTOM -spreadType RANGE -spreadDirection counterclockwise -layer M5
 editPin -pin [get_property $north hierarchical_name] -start [list 5 $height] -end [list [expr {$width - 5}] $height] -side TOP -spreadType RANGE -spreadDirection clockwise -layer M5
 
-editPin -pin [get_property $west hierarchical_name] -start { 0 5 } -end [list 0 [expr {$height - 15}]] -side LEFT -spreadType RANGE -spreadDirection clockwise -layer M6
-editPin -pin [get_property $east hierarchical_name] -start [list $width  5] -end [list $width [expr {$height - 15}]] -side RIGHT -spreadType RANGE -spreadDirection counterclockwise -layer M6
+editPin -pin [get_property $west hierarchical_name] -start { 0 5 } -end [list 0 [expr {$height - 16}]] -side LEFT -spreadType RANGE -spreadDirection clockwise -layer M6
+editPin -pin [get_property $east hierarchical_name] -start [list $width  5] -end [list $width [expr {$height - 16}]] -side RIGHT -spreadType RANGE -spreadDirection counterclockwise -layer M6
 
 # These lists will be ordered from msb to lsb.
 set tile_id [get_property [get_ports tile_id] hierarchical_name]
 set hi [get_property [get_ports hi] hierarchical_name]
 set lo [get_property [get_ports lo] hierarchical_name]
-set tile_id_layer M6
+set tile_id_layer M5
 
 set id_ports [lindex $hi 0]
 for {set i 0} {$i < [llength $tile_id]} {incr i} {
@@ -72,7 +72,7 @@ for {set i 0} {$i < [llength $tile_id]} {incr i} {
   }
 }
 
-editPin -pin $id_ports -start [list 0 [expr {$height - 14}]] -end [list 0 [expr {$height - 5}]] -side LEFT -spreadType RANGE -spreadDirection clockwise -layer $tile_id_layer
+editPin -pin $id_ports -start [list 0 [expr {$height - 15}]] -end [list 0 [expr {$height - 5}]] -side LEFT -spreadType RANGE -spreadDirection clockwise -layer $tile_id_layer
 
 
 # Add blockage in area near tile_id pins so we can route these at the top level

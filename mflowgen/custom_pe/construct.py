@@ -161,11 +161,13 @@ def construct():
 
   g.connect_by_name( rtl,         dc        )
   g.connect_by_name( constraints, dc        )
-  g.connect_by_name( gen_saif_rtl, dc       ) # run.saif
+  # No longer using DC to report power
+  #g.connect_by_name( gen_saif_rtl, dc       ) # run.saif
  
   g.connect_by_name( rtl,          rtl_sim      ) # design.v
   g.connect_by_name( testbench,    rtl_sim      ) # testbench.sv
   g.connect_by_name( rtl_sim,      gen_saif_rtl ) # run.vcd
+  g.connect_by_name( pt_signoff,   rtl_sim      ) # design.sdf
 
   g.connect_by_name( dc,       iflow        )
   g.connect_by_name( dc,       init         )
