@@ -30,7 +30,7 @@ inputs:
   - adk
   - design.v
   - testbench.sv
-  - design.sdf
+    #- design.sdf
   - design.args
   - test_vectors.txt
 

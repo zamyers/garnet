@@ -37,8 +37,10 @@ def construct():
     'interconnect_only' : True,
     'pe_design'         : 'lassen/examples/test_json.json',
 
+    'saif_instance'     : 'TilePETb/Tile_PE_inst',
+
     'testbench_name'    : 'TilePETb',
-    'strip_path'        : 'TIlePETb/Tile_PE_inst'
+    'strip_path'        : 'TilePETb/Tile_PE_inst'
   }
 
   #-----------------------------------------------------------------------
@@ -54,14 +56,14 @@ def construct():
 
   # Custom steps
 
-  rtl                  = Step( this_dir + '/rtl'                         )
+  rtl                  = Step( this_dir + '/rtl'                                   )
   constraints          = Step( this_dir + '/constraints'                           )
   custom_init          = Step( this_dir + '/custom-init'                           )
+  #dc                   = Step( this_dir + '/synopsys-dc-synthesis'                 )
   custom_power         = Step( this_dir + '/../common/custom-power-leaf'           )
   genlibdb_constraints = Step( this_dir + '/../common/custom-genlibdb-constraints' )
-  testbench            = Step( this_dir + '/testbench'     )
-
-  vcs_sim              = Step( this_dir + '/synopsys-vcs-sim')
+  testbench            = Step( this_dir + '/testbench'                             )
+  vcs_sim              = Step( this_dir + '/synopsys-vcs-sim'                      )
   rtl_sim              = vcs_sim.clone()
   rtl_sim.set_name( 'rtl-sim' )
   pt_power_rtl  = Step( this_dir + '/synopsys-ptpx-rtl')
@@ -156,25 +158,26 @@ def construct():
   g.connect_by_name( adk,      gdsmerge     )
   g.connect_by_name( adk,      drc          )
   g.connect_by_name( adk,      lvs          )
-  g.connect_by_name( adk,       pt_power_rtl )
+  g.connect_by_name( adk,      rtl_sim      )
+  g.connect_by_name( adk,      pt_power_rtl )
   #g.connect_by_name( adk,      pt_power_gl  )
 
   g.connect_by_name( rtl,         dc        )
   g.connect_by_name( constraints, dc        )
-  # No longer using DC to report power
-  #g.connect_by_name( gen_saif_rtl, dc       ) # run.saif
+  # To generate namemap
+  g.connect_by_name( gen_saif_rtl, dc       ) # run.saif
  
   g.connect_by_name( rtl,          rtl_sim      ) # design.v
   g.connect_by_name( testbench,    rtl_sim      ) # testbench.sv
   g.connect_by_name( rtl_sim,      gen_saif_rtl ) # run.vcd
-  g.connect_by_name( pt_signoff,   rtl_sim      ) # design.sdf
+  #g.connect_by_name( pt_signoff,   rtl_sim      ) # design.sdf
 
   g.connect_by_name( dc,       iflow        )
   g.connect_by_name( dc,       init         )
   g.connect_by_name( dc,       power        )
   g.connect_by_name( dc,       place        )
   g.connect_by_name( dc,       cts          )
-  g.connect_by_name( dc,       pt_power_rtl ) # design.namemap
+  g.connect_by_name( dc,       pt_power_rtl ) # design.namemap, design.sdc, design.v
 
   g.connect_by_name( iflow,    init         )
   g.connect_by_name( iflow,    power        )
@@ -208,7 +211,7 @@ def construct():
   g.connect_by_name( adk,          pt_signoff   )
   g.connect_by_name( signoff,      pt_signoff   )
 
-  g.connect_by_name( signoff,      pt_power_rtl )
+#  g.connect_by_name( signoff,      pt_power_rtl )
   g.connect_by_name( gen_saif_rtl, pt_power_rtl ) # run.saif
   #g.connect_by_name( signoff,      pt_power_gl  )
   #g.connect_by_name( gen_saif_gl,  pt_power_gl  ) # run.saif

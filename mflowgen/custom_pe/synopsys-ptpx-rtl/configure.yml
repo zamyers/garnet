@@ -10,9 +10,9 @@ name: synopsys-ptpx-rtl
 
 inputs:
   - adk
-  - design.vcs.v
-  - design.spef.gz
-  - design.pt.sdc
+  - design.v
+    #- design.spef.gz
+  - design.sdc
   - run.saif
   - design.namemap
 
