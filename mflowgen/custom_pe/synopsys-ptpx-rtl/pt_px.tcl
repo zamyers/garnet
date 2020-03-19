@@ -30,6 +30,9 @@ link_design > ${pt_reports}/${pt_design_name}.link.rpt
 create_clock ${pt_clk} -name ideal_clock1 -period ${pt_clk_period}
 source inputs/design.namemap > ${pt_reports}/${pt_design_name}.map.rpt
 
+report_activity_file_check inputs/run.saif -strip_path TilePETb/Tile_PE_inst \
+  > reports/Tile_PE.activity.pre.rpt
+
 read_saif inputs/run.saif -strip_path ${pt_uut}
 #read_parasitics -format spef inputs/design.spef.gz
 read_sdc inputs/design.pt.sdc > ${pt_reports}/${pt_design_name}.sdc.rpt
@@ -38,4 +41,5 @@ update_power > ${pt_reports}/${pt_design_name}.update.rpt
 report_switching_activity > ${pt_reports}/${pt_design_name}.sw.rpt 
 report_power -nosplit  -verbose > ${pt_reports}/signoff.pwr.rpt
 report_power -nosplit -hierarchy -verbose > ${pt_reports}/${pt_design_name}.pwr.hier.rpt
+
 exit
