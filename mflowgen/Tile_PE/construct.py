@@ -19,9 +19,11 @@ def construct():
   # Parameters
   #-----------------------------------------------------------------------
 
-  adk_name = 'tsmc16'
-  adk_view = 'stdview'
-  pwr_aware = True
+  pwr_aware = True 
+#     adk_name = 'tsmc16'
+#     adk_view = 'stdview'
+  adk_name = 'freepdk-45nm'
+  adk_view = 'view-standard'
 
   parameters = {
     'construct_path'    : __file__,
@@ -35,9 +37,13 @@ def construct():
     # RTL Generation
     'interconnect_only' : True,
     # Power Domains
-    'PWR_AWARE'         : pwr_aware
-  
-}
+    'PWR_AWARE'         : pwr_aware,
+
+    'saif_instance'     : 'TilePETb/Tile_PE_inst',
+
+    'testbench_name'    : 'TilePETb',
+    'strip_path'        : 'TilePETb/Tile_PE_inst'
+  }
 
   #-----------------------------------------------------------------------
   # Create nodes
@@ -52,11 +58,19 @@ def construct():
 
   # Custom steps
 
-  rtl                  = Step( this_dir + '/../common/rtl'                         )
+  rtl                  = Step( this_dir + '/rtl'                                   )
   constraints          = Step( this_dir + '/constraints'                           )
   custom_init          = Step( this_dir + '/custom-init'                           )
+  #dc                   = Step( this_dir + '/synopsys-dc-synthesis'                 )
   custom_power         = Step( this_dir + '/../common/custom-power-leaf'           )
   genlibdb_constraints = Step( this_dir + '/../common/custom-genlibdb-constraints' )
+  testbench            = Step( this_dir + '/testbench'                             )
+  vcs_sim              = Step( this_dir + '/synopsys-vcs-sim'                      )
+  rtl_sim              = vcs_sim.clone()
+  rtl_sim.set_name( 'rtl-sim' )
+  pt_power_rtl         = Step( this_dir + '/synopsys-ptpx-rtl'                     )
+  gl_sim               = vcs_sim.clone()
+  gl_sim.set_name( 'gl-sim' )
 
   # Power aware setup
   if pwr_aware: 
@@ -82,6 +96,15 @@ def construct():
   drc          = Step( 'mentor-calibre-drc',            default=True )
   lvs          = Step( 'mentor-calibre-lvs',            default=True )
   debugcalibre = Step( 'cadence-innovus-debug-calibre', default=True )
+  gen_saif     = Step( 'synopsys-vcd2saif-convert',     default=True )
+  # RTL
+  gen_saif_rtl = gen_saif.clone()
+  gen_saif_rtl.set_name( 'gen-saif-rtl' )
+  # Gate-level
+  gen_saif_gl  = gen_saif.clone()
+  gen_saif_gl.set_name( 'gen-saif-gl' )
+  pt_power_gl  = Step( 'synopsys-ptpx-gl',              default=True )
+ 
 
   # Add extra input edges to innovus steps that need custom tweaks
 
@@ -110,6 +133,8 @@ def construct():
 
   g.add_step( info                     )
   g.add_step( rtl                      )
+  g.add_step( testbench                )
+  g.add_step( rtl_sim                  )
   g.add_step( constraints              )
   g.add_step( dc                       )
   g.add_step( iflow                    )
@@ -123,13 +148,19 @@ def construct():
   g.add_step( route                    )
   g.add_step( postroute                )
   g.add_step( signoff                  )
-  g.add_step( pt_signoff   )
+  g.add_step( pt_signoff               )
   g.add_step( genlibdb_constraints     )
   g.add_step( genlibdb                 )
   g.add_step( gdsmerge                 )
   g.add_step( drc                      )
   g.add_step( lvs                      )
   g.add_step( debugcalibre             )
+  g.add_step( gen_saif_rtl             )
+  g.add_step( pt_power_rtl             )
+  g.add_step( gl_sim                   )
+  g.add_step( gen_saif_gl              )
+  g.add_step( pt_power_gl              )
+
 
   # Power aware step
   if pwr_aware:
@@ -138,6 +169,9 @@ def construct():
   #-----------------------------------------------------------------------
   # Graph -- Add edges
   #-----------------------------------------------------------------------
+
+  # Dynamically add edges
+  rtl_sim.extend_inputs(['design.v'])
 
   # Connect by name
 
@@ -154,15 +188,25 @@ def construct():
   g.connect_by_name( adk,      gdsmerge     )
   g.connect_by_name( adk,      drc          )
   g.connect_by_name( adk,      lvs          )
+  g.connect_by_name( adk,      rtl_sim      )
+  g.connect_by_name( adk,      pt_power_rtl )
+  g.connect_by_name( adk,      pt_power_gl  )
 
   g.connect_by_name( rtl,         dc        )
   g.connect_by_name( constraints, dc        )
+  # To generate namemap
+  g.connect_by_name( gen_saif_rtl, dc       ) # run.saif
+ 
+  g.connect_by_name( rtl,          rtl_sim      ) # design.v
+  g.connect_by_name( testbench,    rtl_sim      ) # testbench.sv
+  g.connect_by_name( rtl_sim,      gen_saif_rtl ) # run.vcd
 
   g.connect_by_name( dc,       iflow        )
   g.connect_by_name( dc,       init         )
   g.connect_by_name( dc,       power        )
   g.connect_by_name( dc,       place        )
   g.connect_by_name( dc,       cts          )
+  g.connect_by_name( dc,       pt_power_rtl ) # design.namemap
 
   g.connect_by_name( iflow,    init         )
   g.connect_by_name( iflow,    power        )
@@ -195,6 +239,17 @@ def construct():
 
   g.connect_by_name( adk,          pt_signoff   )
   g.connect_by_name( signoff,      pt_signoff   )
+
+  g.connect_by_name( signoff,      pt_power_rtl ) # design.vcs.v, design.spef.gz, design.pt.sdc
+  g.connect_by_name( gen_saif_rtl, pt_power_rtl ) # run.saif
+  g.connect_by_name( signoff,      pt_power_gl  )
+  g.connect_by_name( gen_saif_gl,  pt_power_gl  ) # run.saif
+
+  g.connect_by_name( adk,          gl_sim       )
+  g.connect_by_name( signoff,      gl_sim       ) # design.vcs.v, design.spef.gz, design.pt.sdc
+  g.connect_by_name( pt_signoff,   gl_sim       ) # design.sdf
+  g.connect_by_name( testbench,    gl_sim       ) # testbench.sv
+  g.connect_by_name( gl_sim,       gen_saif_gl  ) # run.saif
 
   g.connect_by_name( adk,      debugcalibre )
   g.connect_by_name( dc,       debugcalibre )

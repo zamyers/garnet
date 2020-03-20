@@ -1,0 +1,15 @@
+name: rtl
+
+commands:
+  - bash gen_rtl.sh
+
+inputs:
+  - include
+
+outputs:
+  - design.v
+
+parameters:
+  array_width: 4
+  array_height: 2
+  interconnect_only: false
