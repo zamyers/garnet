@@ -12,11 +12,14 @@ if [ $interconnect_only == True ]; then
 fi
 
 eval $cmd
-#cp cg_dg_garnet.v garnet.v
 
 # Add DW IP blocks as includes
 cat $current_dir/include garnet.v > garnet.modified
 mv garnet.modified garnet.v
+
+# Add proper clock gating
+python clock_gate.py
+mv garnet.clock_gate garnet.v
 
 # If there are any genesis files, we need to cat those
 # with the magma generated garnet.v

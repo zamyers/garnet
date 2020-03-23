@@ -61,7 +61,6 @@ def construct():
   rtl                  = Step( this_dir + '/rtl'                                   )
   constraints          = Step( this_dir + '/constraints'                           )
   custom_init          = Step( this_dir + '/custom-init'                           )
-  #dc                   = Step( this_dir + '/synopsys-dc-synthesis'                 )
   custom_power         = Step( this_dir + '/../common/custom-power-leaf'           )
   genlibdb_constraints = Step( this_dir + '/../common/custom-genlibdb-constraints' )
   testbench            = Step( this_dir + '/testbench'                             )
