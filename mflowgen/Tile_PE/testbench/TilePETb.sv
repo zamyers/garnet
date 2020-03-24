@@ -283,10 +283,14 @@ module TilePETb;
     end
   
     initial begin
-      $vcdplusfile("dump.vcd");
-      $vcdplusmemon();
-      $vcdpluson(0, TilePETb);
+      //$vcdplusfile("dump.vcd");
+      //$vcdplusmemon();
+      //$vcdpluson(0, TilePETb);
+      $set_toggle_region(TilePETb);
+      $toggle_start();
       #(`FINISH_TIME);
+      $toggle_stop();
+      $toggle_report("outputs/run.saif", 10e-9, TilePETb);
       $finish(2);
     end
 

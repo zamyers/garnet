@@ -40,6 +40,7 @@ inputs:
 outputs:
   - run.vcd
   - run.vpd
+  - run.saif
 
 #-------------------------------------------------------------------------
 # Commands
@@ -48,7 +49,7 @@ outputs:
 commands:
   - cat inputs/test_vectors.txt > test_vectors.txt
   - ./run.sh
-  - vcd2vpd outputs/run.vcd outputs/run.vpd
+    #- vcd2vpd outputs/run.vcd outputs/run.vpd
 
 #-------------------------------------------------------------------------
 # Parameters
