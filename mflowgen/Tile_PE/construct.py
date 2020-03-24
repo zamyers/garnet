@@ -56,6 +56,9 @@ def construct():
   g.set_adk( adk_name )
   adk = g.get_adk_step()
 
+  # RTL power estimation
+  rtl_power = False;
+
   # Custom steps
 
   rtl                  = Step( this_dir + '/rtl'                                   )
@@ -65,9 +68,10 @@ def construct():
   genlibdb_constraints = Step( this_dir + '/../common/custom-genlibdb-constraints' )
   testbench            = Step( this_dir + '/testbench'                             )
   vcs_sim              = Step( this_dir + '/synopsys-vcs-sim'                      )
-  rtl_sim              = vcs_sim.clone()
-  rtl_sim.set_name( 'rtl-sim' )
-  pt_power_rtl         = Step( this_dir + '/synopsys-ptpx-rtl'                     )
+  if rtl_power:
+    rtl_sim              = vcs_sim.clone()
+    rtl_sim.set_name( 'rtl-sim' )
+    pt_power_rtl         = Step( this_dir + '/synopsys-ptpx-rtl'                     )
   gl_sim               = vcs_sim.clone()
   gl_sim.set_name( 'gl-sim' )
 
@@ -126,7 +130,9 @@ def construct():
   g.add_step( info                     )
   g.add_step( rtl                      )
   g.add_step( testbench                )
-  g.add_step( rtl_sim                  )
+  if rtl_power:
+    g.add_step( rtl_sim                )
+    g.add_step( pt_power_rtl           )
   g.add_step( constraints              )
   g.add_step( dc                       )
   g.add_step( iflow                    )
@@ -147,7 +153,6 @@ def construct():
   g.add_step( drc                      )
   g.add_step( lvs                      )
   g.add_step( debugcalibre             )
-  g.add_step( pt_power_rtl             )
   g.add_step( gl_sim                   )
   g.add_step( pt_power_gl              )
 
@@ -161,7 +166,6 @@ def construct():
   #-----------------------------------------------------------------------
 
   # Dynamically add edges
-  rtl_sim.extend_inputs(['design.v'])
 
   # Connect by name
 
@@ -178,24 +182,28 @@ def construct():
   g.connect_by_name( adk,      gdsmerge     )
   g.connect_by_name( adk,      drc          )
   g.connect_by_name( adk,      lvs          )
-  g.connect_by_name( adk,      rtl_sim      )
-  g.connect_by_name( adk,      pt_power_rtl )
   g.connect_by_name( adk,      pt_power_gl  )
+
+  if rtl_power:
+    rtl_sim.extend_inputs(['design.v'])
+    g.connect_by_name( adk,      rtl_sim      )
+    g.connect_by_name( adk,      pt_power_rtl )
+    # To generate namemap
+    g.connect_by_name( rtl_sim,     dc       ) # run.saif
+    g.connect_by_name( rtl,          rtl_sim      ) # design.v
+    g.connect_by_name( testbench,    rtl_sim      ) # testbench.sv
+    g.connect_by_name( dc,       pt_power_rtl ) # design.namemap
+    g.connect_by_name( signoff,      pt_power_rtl ) # design.vcs.v, design.spef.gz, design.pt.sdc
+    g.connect_by_name( rtl_sim,      pt_power_rtl ) # run.saif
 
   g.connect_by_name( rtl,         dc        )
   g.connect_by_name( constraints, dc        )
-  # To generate namemap
-  g.connect_by_name( rtl_sim,     dc       ) # run.saif
- 
-  g.connect_by_name( rtl,          rtl_sim      ) # design.v
-  g.connect_by_name( testbench,    rtl_sim      ) # testbench.sv
 
   g.connect_by_name( dc,       iflow        )
   g.connect_by_name( dc,       init         )
   g.connect_by_name( dc,       power        )
   g.connect_by_name( dc,       place        )
   g.connect_by_name( dc,       cts          )
-  g.connect_by_name( dc,       pt_power_rtl ) # design.namemap
 
   g.connect_by_name( iflow,    init         )
   g.connect_by_name( iflow,    power        )
@@ -229,8 +237,6 @@ def construct():
   g.connect_by_name( adk,          pt_signoff   )
   g.connect_by_name( signoff,      pt_signoff   )
 
-  g.connect_by_name( signoff,      pt_power_rtl ) # design.vcs.v, design.spef.gz, design.pt.sdc
-  g.connect_by_name( rtl_sim,      pt_power_rtl ) # run.saif
   g.connect_by_name( signoff,      pt_power_gl  )
   g.connect_by_name( gl_sim,       pt_power_gl  ) # run.saif
 
