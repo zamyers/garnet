@@ -67,14 +67,14 @@ def construct():
   custom_power         = Step( this_dir + '/../common/custom-power-leaf'           )
   genlibdb_constraints = Step( this_dir + '/../common/custom-genlibdb-constraints' )
   testbench            = Step( this_dir + '/testbench'                             )
-  vcs_sim              = Step( this_dir + '/synopsys-vcs-sim'                      )
+  vcs_sim              = Step( this_dir + '/../common/synopsys-vcs-sim'            )
   if rtl_power:
     rtl_sim              = vcs_sim.clone()
     rtl_sim.set_name( 'rtl-sim' )
-    pt_power_rtl         = Step( this_dir + '/synopsys-ptpx-rtl'                     )
+    pt_power_rtl         = Step( this_dir + '/../common/synopsys-ptpx-rtl'         )
   gl_sim               = vcs_sim.clone()
   gl_sim.set_name( 'gl-sim' )
-  pt_power_gl          = Step( this_dir + '/synopsys-ptpx-gl'                      )
+  pt_power_gl          = Step( this_dir + '/../common/synopsys-ptpx-gl'            )
   parse_power_gl       = Step( this_dir + '/parse-power-gl'                        )
 
   # Power aware setup

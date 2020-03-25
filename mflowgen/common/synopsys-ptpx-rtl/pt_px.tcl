@@ -30,8 +30,8 @@ link_design > ${pt_reports}/${pt_design_name}.link.rpt
 create_clock ${pt_clk} -name ideal_clock1 -period ${pt_clk_period}
 source inputs/design.namemap > ${pt_reports}/${pt_design_name}.map.rpt
 
-report_activity_file_check inputs/run.saif -strip_path TilePETb/Tile_PE_inst \
-  > reports/Tile_PE.activity.pre.rpt
+report_activity_file_check inputs/run.saif -strip_path ${pt_uut} \
+  > ${pt_reports}/${pt_design_name}.activity.pre.rpt
 
 read_saif inputs/run.saif -strip_path ${pt_uut}
 read_parasitics -format spef inputs/design.spef.gz
