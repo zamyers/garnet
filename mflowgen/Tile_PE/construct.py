@@ -130,9 +130,6 @@ def construct():
   g.add_step( info                     )
   g.add_step( rtl                      )
   g.add_step( testbench                )
-  if rtl_power:
-    g.add_step( rtl_sim                )
-    g.add_step( pt_power_rtl           )
   g.add_step( constraints              )
   g.add_step( dc                       )
   g.add_step( iflow                    )
@@ -153,6 +150,10 @@ def construct():
   g.add_step( drc                      )
   g.add_step( lvs                      )
   g.add_step( debugcalibre             )
+
+  if rtl_power:
+    g.add_step( rtl_sim                )
+    g.add_step( pt_power_rtl           )
   g.add_step( gl_sim                   )
   g.add_step( pt_power_gl              )
   g.add_step( parse_power_gl           )

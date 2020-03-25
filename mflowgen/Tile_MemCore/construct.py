@@ -43,6 +43,10 @@ def construct():
     # Power Domains
     'PWR_AWARE'         : pwr_aware
 
+    'saif_instance'     : 'TileMemCoreTb/Tile_MemCore_inst',
+
+    'testbench_name'    : 'TileMemCoreTb',
+    'strip_path'        : 'TileMemCoreTb/Tile_MemCore_inst'
   }
 
   #-----------------------------------------------------------------------
@@ -55,6 +59,9 @@ def construct():
 
   g.set_adk( adk_name )
   adk = g.get_adk_step()
+
+    # RTL power estimation
+  rtl_power = False;
 
   # Custom steps
 
@@ -69,6 +76,18 @@ def construct():
   # Power aware setup
   if pwr_aware:
       power_domains = Step( this_dir + '/../common/power-domains' )
+
+  testbench            = Step( this_dir + '/testbench'                             )
+  vcs_sim              = Step( this_dir + '/../common/synopsys-vcs-sim'            )
+  if rtl_power:
+    rtl_sim              = vcs_sim.clone()
+    rtl_sim.set_name( 'rtl-sim' )
+    pt_power_rtl         = Step( this_dir + '/../common/synopsys-ptpx-rtl'         )
+  gl_sim               = vcs_sim.clone()
+  gl_sim.set_name( 'gl-sim' )
+  pt_power_gl          = Step( this_dir + '/../common/synopsys-ptpx-gl'            )
+  # TODO: add parsing node
+  #parse_power_gl       = Step( this_dir + '/parse-power-gl'                        )
 
   # Default steps
 
@@ -167,6 +186,14 @@ def construct():
   if pwr_aware:
       g.add_step( power_domains            )
 
+  g.add_step( testbench                )
+  if rtl_power:
+    g.add_step( rtl_sim                )
+    g.add_step( pt_power_rtl           )
+  g.add_step( gl_sim                   )
+  g.add_step( pt_power_gl              )
+  # TODO: add parsing node
+  #g.add_step( parse_power_gl           )
 
   #-----------------------------------------------------------------------
   # Graph -- Add edges
@@ -187,6 +214,19 @@ def construct():
   g.connect_by_name( adk,      gdsmerge     )
   g.connect_by_name( adk,      drc          )
   g.connect_by_name( adk,      lvs          )
+  g.connect_by_name( adk,      pt_power_gl  )
+
+  if rtl_power:
+    rtl_sim.extend_inputs(['design.v'])
+    g.connect_by_name( adk,      rtl_sim      )
+    g.connect_by_name( adk,      pt_power_rtl )
+    # To generate namemap
+    g.connect_by_name( rtl_sim,     dc       ) # run.saif
+    g.connect_by_name( rtl,          rtl_sim      ) # design.v
+    g.connect_by_name( testbench,    rtl_sim      ) # testbench.sv
+    g.connect_by_name( dc,       pt_power_rtl ) # design.namemap
+    g.connect_by_name( signoff,      pt_power_rtl ) # design.vcs.v, design.spef.gz, design.pt.sdc
+    g.connect_by_name( rtl_sim,      pt_power_rtl ) # run.saif
 
   g.connect_by_name( gen_sram,      dc           )
   g.connect_by_name( gen_sram,      iflow        )
@@ -245,6 +285,16 @@ def construct():
 
   g.connect_by_name( adk,          pt_signoff   )
   g.connect_by_name( signoff,      pt_signoff   )
+
+  g.connect_by_name( signoff,      pt_power_gl  )
+  g.connect_by_name( gl_sim,       pt_power_gl  ) # run.saif
+
+  g.connect_by_name( adk,          gl_sim       )
+  g.connect_by_name( signoff,      gl_sim       ) # design.vcs.v, design.spef.gz, design.pt.sdc
+  g.connect_by_name( pt_signoff,   gl_sim       ) # design.sdf
+  g.connect_by_name( testbench,    gl_sim       ) # testbench.sv
+  # TODO: adding parsing node
+  #g.connect_by_name( pt_power_gl,  parse_power_gl ) # power.hier
 
   g.connect_by_name( adk,      debugcalibre )
   g.connect_by_name( dc,       debugcalibre )
