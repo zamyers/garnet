@@ -74,6 +74,8 @@ def construct():
     pt_power_rtl         = Step( this_dir + '/synopsys-ptpx-rtl'                     )
   gl_sim               = vcs_sim.clone()
   gl_sim.set_name( 'gl-sim' )
+  pt_power_gl          = Step( this_dir + '/synopsys-ptpx-gl'                      )
+  parse_power_gl       = Step( this_dir + '/parse-power-gl'                        )
 
   # Power aware setup
   if pwr_aware: 
@@ -99,8 +101,6 @@ def construct():
   drc          = Step( 'mentor-calibre-drc',            default=True )
   lvs          = Step( 'mentor-calibre-lvs',            default=True )
   debugcalibre = Step( 'cadence-innovus-debug-calibre', default=True )
-  pt_power_gl  = Step( 'synopsys-ptpx-gl',              default=True )
- 
 
   # Add extra input edges to innovus steps that need custom tweaks
 
@@ -155,7 +155,7 @@ def construct():
   g.add_step( debugcalibre             )
   g.add_step( gl_sim                   )
   g.add_step( pt_power_gl              )
-
+  g.add_step( parse_power_gl           )
 
   # Power aware step
   if pwr_aware:
@@ -244,6 +244,7 @@ def construct():
   g.connect_by_name( signoff,      gl_sim       ) # design.vcs.v, design.spef.gz, design.pt.sdc
   g.connect_by_name( pt_signoff,   gl_sim       ) # design.sdf
   g.connect_by_name( testbench,    gl_sim       ) # testbench.sv
+  g.connect_by_name( pt_power_gl,  parse_power_gl ) # power.hier
 
   g.connect_by_name( adk,      debugcalibre )
   g.connect_by_name( dc,       debugcalibre )

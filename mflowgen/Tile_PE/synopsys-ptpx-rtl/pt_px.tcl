@@ -34,7 +34,7 @@ report_activity_file_check inputs/run.saif -strip_path TilePETb/Tile_PE_inst \
   > reports/Tile_PE.activity.pre.rpt
 
 read_saif inputs/run.saif -strip_path ${pt_uut}
-#read_parasitics -format spef inputs/design.spef.gz
+read_parasitics -format spef inputs/design.spef.gz
 read_sdc inputs/design.pt.sdc > ${pt_reports}/${pt_design_name}.sdc.rpt
 
 update_power > ${pt_reports}/${pt_design_name}.update.rpt
