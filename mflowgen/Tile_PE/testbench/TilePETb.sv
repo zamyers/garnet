@@ -1,7 +1,6 @@
 `define CLK_PERIOD 10
 `define ASSIGNMENT_DELAY 0.5
-//`define FINISH_TIME 850800000
-`define FINISH_TIME 60000000
+`define FINISH_TIME 425400
 `define NUM_TEST_VECTORS 8508
 
 `define T0_EAST_B16 15:0
@@ -61,6 +60,7 @@ module TilePETb;
     reg [ADDR_WIDTH - 1 : 0] test_vec_addr;
  
     reg [815 : 0] test_vectors [`NUM_TEST_VECTORS - 1 : 0];
+    reg [815 : 0] test_vector;
    
     wire  [15:0] SB_T0_EAST_SB_IN_B16_0 = test_vectors[test_vec_addr][`T0_EAST_B16];
     wire  [0:0]  SB_T0_EAST_SB_IN_B1_0 = test_vectors[test_vec_addr][`T0_EAST_B1];
@@ -277,15 +277,16 @@ module TilePETb;
     end
   
     always @ (posedge clk) begin
-      if (!reset) begin
+      //if (!reset) begin
         test_vec_addr <= # `ASSIGNMENT_DELAY (test_vec_addr + 1); // Don't change the inputs right after the clock edge because that will cause problems in gate level simulation
-      end
+        test_vector <= test_vectors[test_vec_addr];
+      //end
     end
   
     initial begin
-      //$vcdplusfile("dump.vcd");
-      //$vcdplusmemon();
-      //$vcdpluson(0, TilePETb);
+      $vcdplusfile("dump.vcd");
+      $vcdplusmemon();
+      $vcdpluson(0, TilePETb);
       $set_toggle_region(TilePETb);
       $toggle_start();
       #(`FINISH_TIME);

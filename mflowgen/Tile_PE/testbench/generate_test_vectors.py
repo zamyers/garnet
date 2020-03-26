@@ -34,7 +34,7 @@ def main():
             hex_num = get_hex(num, int(width/4))
             if width == 32:
                 hex_num = hex_num[0:4] + "_" + hex_num[4:8]
-            to_write = to_write + "_" + hex_num
+            to_write = "_" + hex_num + to_write
 
             i += 1
         f.write(to_write[1:])
