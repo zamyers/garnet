@@ -102,7 +102,7 @@ def main():
                 module_breakdown = fields['module'][1:-1].split('_')
 
                 lib = module_breakdown[0] 
-                op_libs = {'corebit', 'coreir', 'fp'}
+                op_libs = {'corebit', 'coreir', 'float'}
                 # if it is not an operation, then it is other
                 if lib not in op_libs:
                     alu_breakdown['other'] += component_power
@@ -110,7 +110,9 @@ def main():
 
                 op = module_breakdown[1]
                 bit_width = module_breakdown[2]
-                op_id = f"{lib}_{op}_{bit_width}"
+                op_id = fields['module'][1:-1]
+                if lib == 'coreir':
+                    op_id = f"{lib}_{op}_{bit_width}"
                 if lib == 'corebit':
                     op_id = f"{lib}_{op}"
 
