@@ -20,10 +20,13 @@ def construct():
   #-----------------------------------------------------------------------
 
   pwr_aware = True 
-#     adk_name = 'tsmc16'
-#     adk_view = 'stdview'
-  adk_name = 'freepdk-45nm'
-  adk_view = 'view-standard'
+
+  if os.environ.get('TECH_LIB') == '16'
+    adk_name = 'tsmc16'
+    adk_view = 'stdview'
+  else:
+    adk_name = 'freepdk-45nm'
+    adk_view = 'view-standard'
 
   parameters = {
     'construct_path'    : __file__,
