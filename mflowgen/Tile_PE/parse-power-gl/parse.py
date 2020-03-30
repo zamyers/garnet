@@ -138,7 +138,7 @@ def main():
     data = []
     for k,_ in sorted(power_breakdown.items(), key=lambda kv: (-kv[1], kv[0])):
         data.append([k, f"{power_breakdown[k]*clk_period:.3e}", f"{power_percentage[k]:.2f}"])
-    power_summary.write(tabulate(data, headers=headers,tablefmt='orgtbl'))
+    power_summary.write(tabulate(data, headers=headers,tablefmt='plain'))
     power_summary.write(f'\n\nTotal: {total_power*clk_period:.3e} J')
 
     # print alu power numbers
@@ -151,7 +151,7 @@ def main():
     data = []
     for k,_ in sorted(alu_breakdown.items(), key=lambda kv: (-kv[1], kv[0])):
         data.append([k, f"{alu_breakdown[k]*clk_period:.3e}", f"{alu_percentage[k]:.2f}"])
-    alu_summary.write(tabulate(data, headers=headers,tablefmt='orgtbl'))
+    alu_summary.write(tabulate(data, headers=headers,tablefmt='plain'))
     alu_summary.write(f'\n\nTotal: {alu_power*clk_period:.3e} J ({alu_power/total_power*100:.2f}% of total power)')
 
     p.close()
