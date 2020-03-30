@@ -21,7 +21,7 @@ def construct():
 
   pwr_aware = True 
 
-  if os.environ.get('TECH_LIB') == '16'
+  if os.environ.get('TECH_LIB') == '16':
     adk_name = 'tsmc16'
     adk_view = 'stdview'
   else:

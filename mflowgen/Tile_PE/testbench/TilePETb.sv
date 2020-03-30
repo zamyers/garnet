@@ -1,7 +1,3 @@
-`define CLK_PERIOD 10
-`define ASSIGNMENT_DELAY 0.5
-`define FINISH_TIME 425400
-`define NUM_TEST_VECTORS 8508
 
 `define T0_EAST_B16 15:0
 `define T0_EAST_B1 16

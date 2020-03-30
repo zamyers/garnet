@@ -1,5 +1,3 @@
-# TODO: Set number of vectors parameter in python file and testbench from yml
-
 name: testbench
 
 outputs:
@@ -8,6 +6,13 @@ outputs:
   - design.args
 
 commands:
-  - cp TilePETb.sv outputs/testbench.sv
   - python3 generate_test_vectors.py
+  - cat defines.v TilePETb.sv > outputs/testbench.sv
   - cp test_vectors.txt outputs/test_vectors.txt
+
+#-------------------------------------------------------------------------
+# Parameters
+#-------------------------------------------------------------------------
+
+parameters:
+  clock_period: 1.0
