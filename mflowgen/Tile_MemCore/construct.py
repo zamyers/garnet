@@ -19,9 +19,19 @@ def construct():
   # Parameters
   #-----------------------------------------------------------------------
 
-  adk_name = 'tsmc16'
-  adk_view = 'stdview'
   pwr_aware = True
+
+  if os.environ.get('TECH_LIB') == '16':
+    adk_name = 'tsmc16'
+    adk_view = 'stdview'
+  else:
+    adk_name = 'freepdk-45nm'
+    adk_view = 'view-standard'
+
+  flatten = 0
+  os_flatten = os.environ.get('FLATTEN');
+  if os_flatten:
+      flatten = os_flatten
 
   parameters = {
     'construct_path'    : __file__,
@@ -30,8 +40,8 @@ def construct():
     'adk'               : adk_name,
     'adk_view'          : adk_view,
     # Synthesis
-    'flatten_effort'    : 3,
-    'topographical'     : True,
+    'flatten_effort'    : flatten,
+    'topographical'     : False,
     # SRAM macros
     'num_words'         : 512,
     'word_size'         : 16,
@@ -41,7 +51,7 @@ def construct():
     # RTL Generation
     'interconnect_only' : True,
     # Power Domains
-    'PWR_AWARE'         : pwr_aware
+    'PWR_AWARE'         : pwr_aware,
 
     'saif_instance'     : 'TileMemCoreTb/Tile_MemCore_inst',
 

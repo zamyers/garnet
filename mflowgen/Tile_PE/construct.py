@@ -28,6 +28,11 @@ def construct():
     adk_name = 'freepdk-45nm'
     adk_view = 'view-standard'
 
+  flatten = 0
+  os_flatten = os.environ.get('FLATTEN')
+  if os_flatten:
+      flatten = os_flatten
+
   parameters = {
     'construct_path'    : __file__,
     'design_name'       : 'Tile_PE',
@@ -35,8 +40,8 @@ def construct():
     'adk'               : adk_name,
     'adk_view'          : adk_view,
     # Synthesis
-    'flatten_effort'    : 3,
-    'topographical'     : True,
+    'flatten_effort'    : flatten,
+    'topographical'     : False,
     # RTL Generation
     'interconnect_only' : True,
     # Power Domains
