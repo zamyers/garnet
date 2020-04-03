@@ -70,7 +70,7 @@ def construct():
   g.set_adk( adk_name )
   adk = g.get_adk_step()
 
-    # RTL power estimation
+  # RTL power estimation
   rtl_power = False;
 
   # Custom steps
@@ -96,8 +96,7 @@ def construct():
   gl_sim               = vcs_sim.clone()
   gl_sim.set_name( 'gl-sim' )
   pt_power_gl          = Step( this_dir + '/../common/synopsys-ptpx-gl'            )
-  # TODO: add parsing node
-  #parse_power_gl       = Step( this_dir + '/parse-power-gl'                        )
+  parse_power_gl       = Step( this_dir + '/parse-power-gl'                        )
 
   # Default steps
 
@@ -202,8 +201,7 @@ def construct():
     g.add_step( pt_power_rtl           )
   g.add_step( gl_sim                   )
   g.add_step( pt_power_gl              )
-  # TODO: add parsing node
-  #g.add_step( parse_power_gl           )
+  g.add_step( parse_power_gl           )
 
   #-----------------------------------------------------------------------
   # Graph -- Add edges
@@ -303,8 +301,7 @@ def construct():
   g.connect_by_name( signoff,      gl_sim       ) # design.vcs.v, design.spef.gz, design.pt.sdc
   g.connect_by_name( pt_signoff,   gl_sim       ) # design.sdf
   g.connect_by_name( testbench,    gl_sim       ) # testbench.sv
-  # TODO: adding parsing node
-  #g.connect_by_name( pt_power_gl,  parse_power_gl ) # power.hier
+  g.connect_by_name( pt_power_gl,  parse_power_gl ) # power.hier
 
   g.connect_by_name( adk,      debugcalibre )
   g.connect_by_name( dc,       debugcalibre )
