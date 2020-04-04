@@ -72,6 +72,8 @@ def construct():
 
   # RTL power estimation
   rtl_power = False;
+  if os.environ.get('RTL_POWER') == 'True':
+      rtl_power = True;
 
   # Custom steps
 
