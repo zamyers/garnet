@@ -12,6 +12,7 @@ inputs:
   - power.hier 
 
 outputs:
+  - overall.summary
   - power.summary
   - alu.summary
 
@@ -20,6 +21,7 @@ outputs:
 #-------------------------------------------------------------------------
 
 commands:
+  - cp inputs/power.hier outputs/overall.summary
   - python parse.py inputs/power.hier
 
 #-------------------------------------------------------------------------
@@ -27,4 +29,5 @@ commands:
 #-------------------------------------------------------------------------
 
 parameters:
+  flatten_effort: 0
   clock_period: 1.0

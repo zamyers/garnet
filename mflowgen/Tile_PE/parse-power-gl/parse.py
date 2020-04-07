@@ -38,6 +38,10 @@ def peek_line(p):
     return line
 
 def main():
+    flatten = int(os.getenv('flatten_effort'))
+    if flatten > 0:
+        return
+
     p = open(sys.argv[1], 'r')
 
     while True:

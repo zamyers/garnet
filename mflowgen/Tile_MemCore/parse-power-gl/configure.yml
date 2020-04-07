@@ -12,6 +12,7 @@ inputs:
   - power.hier 
 
 outputs:
+  - overall.summary
   - power.summary
   - alu.summary
 
@@ -21,7 +22,7 @@ outputs:
 
 commands:
     #- python parse.py inputs/power.hier
-  - cp inputs/power.hier outputs/power.summary
+  - cp inputs/power.hier outputs/overall.summary
 
 #-------------------------------------------------------------------------
 # Parameters
