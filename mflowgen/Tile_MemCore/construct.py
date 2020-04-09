@@ -126,6 +126,7 @@ def construct():
   dc.extend_inputs( ['sram_tt.db'] )
   pt_signoff.extend_inputs( ['sram_tt.db'] )
   genlibdb.extend_inputs( ['sram_tt.db'] )
+  pt_power_gl.extend_inputs( ['sram_tt.db'] )
 
   # These steps need timing and lef info for srams
 
@@ -260,6 +261,7 @@ def construct():
   g.connect_by_name( gen_sram,      drc          )
   g.connect_by_name( gen_sram,      lvs          )
   g.connect_by_name( gen_sram,      gl_sim       )
+  g.connect_by_name( gen_sram,      pt_power_gl  )
 
   g.connect_by_name( rtl,         dc        )
   g.connect_by_name( constraints, dc        )
