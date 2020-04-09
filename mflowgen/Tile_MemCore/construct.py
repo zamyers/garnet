@@ -142,6 +142,11 @@ def construct():
   
   lvs.extend_inputs( ['sram.spi'] )
 
+  # Need SRAM verilog for sim
+  if rtl_power:
+      rtl_sim.extend_inputs( ['sram.v'] )
+  gl_sim.extend_inputs( ['sram.v'] )
+
   # Add extra input edges to innovus steps that need custom tweaks
 
   init.extend_inputs( custom_init.all_outputs() )
@@ -234,6 +239,7 @@ def construct():
     g.connect_by_name( rtl_sim,     dc       ) # run.saif
     g.connect_by_name( rtl,          rtl_sim      ) # design.v
     g.connect_by_name( testbench,    rtl_sim      ) # testbench.sv
+    g.connect_by_name( gen_sram,    rtl_sim      ) # testbench.sv
     g.connect_by_name( dc,       pt_power_rtl ) # design.namemap
     g.connect_by_name( signoff,      pt_power_rtl ) # design.vcs.v, design.spef.gz, design.pt.sdc
     g.connect_by_name( rtl_sim,      pt_power_rtl ) # run.saif
@@ -253,6 +259,7 @@ def construct():
   g.connect_by_name( gen_sram,      gdsmerge     )
   g.connect_by_name( gen_sram,      drc          )
   g.connect_by_name( gen_sram,      lvs          )
+  g.connect_by_name( gen_sram,      gl_sim       )
 
   g.connect_by_name( rtl,         dc        )
   g.connect_by_name( constraints, dc        )
