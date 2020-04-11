@@ -280,7 +280,7 @@ module TilePETb;
     end
   
     initial begin
-      $vcdplusfile("dump.vcd");
+      $vcdplusfile("dump.vpd");
       $vcdplusmemon();
       $vcdpluson(0, TilePETb);
       $set_toggle_region(TilePETb);

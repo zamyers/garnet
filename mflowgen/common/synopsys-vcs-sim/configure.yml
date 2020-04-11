@@ -49,7 +49,7 @@ outputs:
 commands:
   - cat inputs/test_vectors.txt > test_vectors.txt
   - ./run.sh
-    #- vcd2vpd outputs/run.vcd outputs/run.vpd
+  - cp dump.vpd outputs/run.vpd
 
 #-------------------------------------------------------------------------
 # Parameters
