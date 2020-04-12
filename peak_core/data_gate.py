@@ -82,7 +82,6 @@ def _data_gate_inst(inst, make_gate=None):
 
 
 def data_gate(pe):
-
     # NOTE(rsetaluri): This is hardcoded!
     def _make_bits_16_mul_gate(defn):
         op = defn.alu
