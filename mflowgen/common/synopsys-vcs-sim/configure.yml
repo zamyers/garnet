@@ -47,7 +47,7 @@ outputs:
 #-------------------------------------------------------------------------
 
 commands:
-  - cat inputs/test_vectors.txt > test_vectors.txt
+  - cp inputs/*.txt .
   - ./run.sh
   - cp dump.vpd outputs/run.vpd
 

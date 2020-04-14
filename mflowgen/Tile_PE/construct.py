@@ -82,8 +82,10 @@ def construct():
     rtl_sim              = vcs_sim.clone()
     rtl_sim.set_name( 'rtl-sim' )
     pt_power_rtl         = Step( this_dir + '/../common/synopsys-ptpx-rtl'         )
+    rtl_sim.extend_inputs( testbench.all_outputs() )
   gl_sim               = vcs_sim.clone()
   gl_sim.set_name( 'gl-sim' )
+  gl_sim.extend_inputs( testbench.all_outputs() )
   pt_power_gl          = Step( this_dir + '/../common/synopsys-ptpx-gl'            )
   parse_power_gl       = Step( this_dir + '/parse-power-gl'                        )
 
