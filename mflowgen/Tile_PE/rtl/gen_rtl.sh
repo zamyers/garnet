@@ -17,10 +17,6 @@ eval $cmd
 cat $current_dir/include garnet.v > garnet.modified
 mv garnet.modified garnet.v
 
-# Add proper clock gating
-python clock_gate.py
-mv garnet.clock_gate garnet.v
-
 # If there are any genesis files, we need to cat those
 # with the magma generated garnet.v
 if [ -d "genesis_verif" ]; then
