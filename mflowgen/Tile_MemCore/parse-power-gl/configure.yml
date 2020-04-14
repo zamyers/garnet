@@ -21,7 +21,6 @@ outputs:
 #-------------------------------------------------------------------------
 
 commands:
-    #- python parse.py inputs/power.hier
   - cp inputs/power.hier outputs/overall.summary
 
 #-------------------------------------------------------------------------
