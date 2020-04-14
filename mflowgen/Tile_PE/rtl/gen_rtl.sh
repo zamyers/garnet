@@ -13,10 +13,6 @@ fi
 
 eval $cmd
 
-# Add DW IP blocks as includes
-cat $current_dir/include garnet.v > garnet.modified
-mv garnet.modified garnet.v
-
 # If there are any genesis files, we need to cat those
 # with the magma generated garnet.v
 if [ -d "genesis_verif" ]; then

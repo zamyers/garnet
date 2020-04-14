@@ -1,5 +1,8 @@
 #!/bin/sh
 
+# Add DW IP blocks as includes
+cp include inputs/include.v
+
 # Default arguments
 ARGS="-R -sverilog -timescale=1ns/1ps"
 ARGS="$ARGS -hsopt"
