@@ -89,7 +89,7 @@ def main():
                 power_breakdown['other'] += component_power
 
         # ALU breakdown
-        if '(ALU_comb)' == fields['module']:
+        if '(alu)' == fields['module']:
             alu_power = float(fields['total_power'])
             next_line = peek_line(p)
             next_level, _ = process_line(next_line)
