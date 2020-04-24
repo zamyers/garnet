@@ -11,7 +11,7 @@
 #-------------------------------------------------------------------------
 
 # Density target: width will be adjusted to meet this cell density
-set core_density_target 0.70; # Placement density of 70% is reasonable
+set core_density_target 0.60; # Placement density of 70% is reasonable
 # Core height : number of vertical pitches in height of core area
 # We fix this value because the height of the memory and PE tiles
 # must be the same to allow for abutment at the top level
@@ -56,4 +56,34 @@ floorPlan -s $width $height \
              $core_margin_l $core_margin_b $core_margin_r $core_margin_t
 
 setFlipping s
+
+# create always on domain region
+if $::env(PWR_AWARE) {
+   #TODO: Move this to globalconnect file
+   set init_pwr_net VDD
+   set init_gnd_net VSS
+   read_power_intent -1801 /home/ankitan/upf_Tile_PE.tcl
+   commit_power_intent
+   write_power_intent -1801 upf.out
+   globalNetConnect VDD_SW -type tiehi -powerdomain TOP
+   globalNetConnect VDD    -type tiehi -powerdomain AON
+   globalNetConnect VSS -type tielo
+   globalNetConnect VDD -type pgpin -pin VPP -inst *
+   globalNetConnect VSS -type pgpin -pin VBB -inst *
+   ##AON Region Bounding Box
+   puts "##AON Region Bounding Box"
+   set offset 4.7
+   #4.1
+   set aon_width 14
+   set aon_height 14
+   # Get all tech vars
+   #source inputs/adk/params.tcl
+   source /home/ankitan/params.tcl
+   set aon_height_snap [expr ceil($aon_height/$polypitch_y)*$polypitch_y]
+   set aon_lx [expr $width/2 - $aon_width/2 + $offset -10 - 0.18]
+   set aon_lx_snap [expr ceil($aon_lx/$polypitch_x)*$polypitch_x]
+   set aon_ux [expr $width/2 + $aon_width/2 + $offset - 3]
+   set aon_ux_snap [expr ceil($aon_ux/$polypitch_x)*$polypitch_x]
+   modifyPowerDomainAttr AON -box $aon_lx_snap  [expr $height - $aon_height_snap - 10*$polypitch_y] $aon_ux_snap [expr $height - 10*$polypitch_y]  -minGaps $polypitch_y $polypitch_y [expr $polypitch_x*6] [expr $polypitch_x*6]
+}
 
