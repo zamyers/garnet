@@ -58,7 +58,7 @@ def main():
                        'switch_box': 0.0,
                        'connection_box': 0.0,
                        'pe_core': 0.0,
-                       'other': 0.0
+                       'other': total_power 
                       }
     alu_breakdown = {'other': 0.0}
     alu_power = 0.0
@@ -77,16 +77,20 @@ def main():
             component_power = float(fields['total_power'])
             # switch box
             if 'SB' in fields['name']:
-                power_breakdown['switch_box'] += component_power
+                module = 'switch_box'
             # connection box
             elif 'CB' in fields['name']:
-                power_breakdown['connection_box'] += component_power
-            # pe core
+                module = 'connection_box'
+            # core
             elif '(PE_unq1)' == fields['module']:
-                power_breakdown['pe_core'] += component_power
+                module = 'pe_core'
             # other things
             else:
-                power_breakdown['other'] += component_power
+                module = 'other'
+
+            if module != 'other':
+                power_breakdown[module] += component_power
+                power_breakdown['other'] -= component_power
 
         # ALU breakdown
         if '(ALU_comb)' == fields['module']:
@@ -130,7 +134,7 @@ def main():
                 if next_level is None:
                     break
 
-    clk_period = float(os.getenv('clock_period')) * 10e-9
+    clk_period = float(os.getenv('clock_period')) * 1e-9
 
     # print power numbers
     power_percentage = {}
