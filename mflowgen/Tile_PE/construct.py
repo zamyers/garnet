@@ -29,10 +29,13 @@ def construct():
     'adk'               : adk_name,
     'adk_view'          : adk_view,
     # Synthesis
-    'flatten_effort'    : 3,
+    'flatten_effort'    : 0,
     'topographical'     : False,
     # RTL Generation
-    'interconnect_only' : True
+    'interconnect_only' : True,
+    # Power Domains
+    'PWR_AWARE'         : True 
+ 
   }
 
   #-----------------------------------------------------------------------

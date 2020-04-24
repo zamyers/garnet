@@ -49,3 +49,19 @@ set_max_fanout 20 $dc_design_name
 # Make all signals meet good slew
 
 set_max_transition [expr 0.25*${dc_clock_period}] $dc_design_name
+
+#TODO: for experiment
+set_dont_use [get_lib_cells {*/*XNR4D0BWP16P90* */*MUX2D1BWP16P90* */*XOR4D0BWP16P90* */*MUX2D0P75BWP16P90* */*CKLNQOPTBBD1BWP16P90* */*CKMUX2D4BWP16P90*}]
+
+
+# Constraints needed for power domains
+if {$::env(PWR_AWARE)} {
+set voltage_vdd 0.8
+set voltage_gnd 0
+set upf_create_implicit_supply_sets false
+set_design_attributes -elements {.} -attribute enable_state_propagation_in_add_power_state TRUE
+load_upf /home/ankitan/upf_Tile_PE.tcl 
+set_voltage ${voltage_vdd} -object_list {VDD VDD_SW}
+set_voltage ${voltage_gnd} -object_list {VSS}
+save_upf upf_${dc_design_name}.upf
+}

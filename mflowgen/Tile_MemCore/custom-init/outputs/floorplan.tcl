@@ -58,6 +58,38 @@ floorPlan -s $width $height \
 
 setFlipping s
 
+# create always on domain region
+if $::env(PWR_AWARE) {
+   #TODO: Move this to globalconnect file
+   set init_pwr_net VDD
+   set init_gnd_net VSS
+   read_power_intent -1801 /home/ankitan/upf_Tile_Mem.tcl
+   commit_power_intent
+   write_power_intent -1801 upf.out
+   globalNetConnect VDD_SW -type tiehi -powerdomain TOP
+   globalNetConnect VDD    -type tiehi -powerdomain AON
+   globalNetConnect VSS -type tielo
+   globalNetConnect VDD -type pgpin -pin VPP -inst *
+   globalNetConnect VSS -type pgpin -pin VBB -inst *
+   ##AON Region Bounding Box
+   puts "##AON Region Bounding Box"
+   set offset 7.1
+   #4.5
+   set aon_width 14
+   set aon_height 11
+   # Get all tech vars
+   #source inputs/adk/params.tcl
+   source /home/ankitan/params.tcl
+   set aon_height_snap [expr ceil($aon_height/$polypitch_y)*$polypitch_y]
+   set aon_lx [expr $width/2 - $aon_width/2 + $offset - 0.18]
+   set aon_lx_snap [expr ceil($aon_lx/$polypitch_x)*$polypitch_x]
+   set aon_ux [expr $width/2 + $aon_width/2 + $offset - 3]
+   set aon_ux_snap [expr ceil($aon_ux/$polypitch_x)*$polypitch_x]
+   modifyPowerDomainAttr AON -box $aon_lx_snap  [expr $height - $aon_height_snap - 10*$polypitch_y] $aon_ux_snap [expr $height - 10*$polypitch_y]  -minGaps $polypitch_y $polypitch_y [expr $polypitch_x*6] [expr $polypitch_x*6]
+}
+
+
+
 proc snap_to_grid {input granularity} {
    set new_value [expr ceil($input / $granularity) * $granularity]
    return $new_value
@@ -66,7 +98,12 @@ proc snap_to_grid {input granularity} {
 # Place SRAMS
 set horiz_pitch [dbGet top.fPlan.coreSite.size_x]
 set vert_pitch [dbGet top.fPlan.coreSite.size_y]
-set srams [get_cells -hier *mem_inst*]
+
+#TODO: ankita: Hierarchical DC does not find the srams
+# when placeInstance is run
+#set srams [get_cells -hier *mem_inst*]
+set srams [get_cells * -hierarchical -filter "ref_name=~TS1N*"]
+
 set sram_width [dbGet [dbGet -p top.insts.name *mem_inst* -i 0].cell.size_x]
 set sram_height [dbGet [dbGet -p top.insts.name *mem_inst* -i 0].cell.size_y]
 
@@ -77,7 +114,10 @@ set sram_spacing_y 0
 set sram_spacing_x_odd 0
 # Set spacing between pinned sides of SRAMs to some 
 # reasonable number of pitches
-set sram_spacing_x_even [expr 200 * $horiz_pitch]
+
+# TODO: ankita: changed sram spacing from 200 to 600
+# set sram_spacing_x_even [expr 200 * $horiz_pitch]
+set sram_spacing_x_even [expr 600 * $horiz_pitch]
 # Parameter for how many SRAMs to stack vertically
 set bank_height 1
 

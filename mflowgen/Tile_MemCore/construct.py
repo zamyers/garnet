@@ -29,7 +29,7 @@ def construct():
     'adk'               : adk_name,
     'adk_view'          : adk_view,
     # Synthesis
-    'flatten_effort'    : 3,
+    'flatten_effort'    : 0,
     'topographical'     : False,
     # SRAM macros
     'num_words'         : 512,
@@ -38,7 +38,10 @@ def construct():
     'corner'            : "tt0p8v25c",
     'partial_write'     : False,
     # RTL Generation
-    'interconnect_only' : True
+    'interconnect_only' : True,
+    # Power Domains
+    'PWR_AWARE'         : True
+
   }
 
   #-----------------------------------------------------------------------
