@@ -3,12 +3,14 @@ name: testbench
 outputs:
   - testbench.sv
   - test_vectors.txt
+  - test_outputs.txt
   - design.args
 
 commands:
   - python3 generate_test_vectors.py
   - cat defines.v TileMemCoreTb.sv > outputs/testbench.sv
   - cp test_vectors.txt outputs/test_vectors.txt
+  - cp test_outputs.txt outputs/test_outputs.txt
 
 #-------------------------------------------------------------------------
 # Parameters

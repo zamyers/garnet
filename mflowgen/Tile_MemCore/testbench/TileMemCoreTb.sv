@@ -58,6 +58,9 @@ module TileMemCoreTb;
     reg [815 : 0] test_vectors [`NUM_TEST_VECTORS - 1 : 0];
     reg [815 : 0] test_vector;
    
+    reg [799 : 0] test_outputs [`NUM_TEST_VECTORS - 1 : 0];
+    reg [799 : 0] test_output;
+
     wire  [15:0] SB_T0_EAST_SB_IN_B16 = test_vectors[test_vec_addr][`T0_EAST_B16];
     wire  [0:0]  SB_T0_EAST_SB_IN_B1 = test_vectors[test_vec_addr][`T0_EAST_B1];
     wire [0:0]  SB_T0_EAST_SB_OUT_B1;
@@ -268,15 +271,157 @@ module TileMemCoreTb;
     
     initial begin
       $readmemh("test_vectors.txt", test_vectors);
+      $readmemh("test_outputs.txt", test_outputs);
       clk <= 0;
       test_vec_addr <= 0;
     end
   
     always @ (posedge clk) begin
-      //if (!reset) begin
         test_vec_addr <= # `ASSIGNMENT_DELAY (test_vec_addr + 1); // Don't change the inputs right after the clock edge because that will cause problems in gate level simulation
         test_vector <= test_vectors[test_vec_addr];
-      //end
+        test_output <= test_outputs[test_vec_addr];
+        
+        if (SB_T0_EAST_SB_OUT_B16 != test_outputs[test_vec_addr][`T0_EAST_B16] || $isunknown(SB_T0_EAST_SB_OUT_B16)) begin
+            $display("SB_TO_EAST_SB_OUT_B16: got %x, expected %x", SB_T0_EAST_SB_OUT_B16, test_outputs[test_vec_addr][`T0_EAST_B16]);
+        end
+        if (SB_T0_EAST_SB_OUT_B1 != test_outputs[test_vec_addr][`T0_EAST_B1] || $isunknown(SB_T0_EAST_SB_OUT_B1)) begin
+            $display("SB_T0_EAST_SB_OUT_B1: got %x, expected %x", SB_T0_EAST_SB_OUT_B1, test_outputs[test_vec_addr][`T0_EAST_B1]);
+        end
+        if (SB_T0_NORTH_SB_OUT_B16 != test_outputs[test_vec_addr][`T0_NORTH_B16] || $isunknown(SB_T0_NORTH_SB_OUT_B16)) begin
+            $display("SB_T0_NORTH_SB_OUT_B16: got %x, expected %x", SB_T0_NORTH_SB_OUT_B16, test_outputs[test_vec_addr][`T0_NORTH_B16]);
+        end
+        if (SB_T0_NORTH_SB_OUT_B1 != test_outputs[test_vec_addr][`T0_NORTH_B1] || $isunknown(SB_T0_NORTH_SB_OUT_B1)) begin
+            $display("SB_T0_NORTH_SB_OUT_B1: got %x, expected %x", SB_T0_NORTH_SB_OUT_B1, test_outputs[test_vec_addr][`T0_NORTH_B1]);
+        end
+        if (SB_T0_SOUTH_SB_OUT_B16 != test_outputs[test_vec_addr][`T0_SOUTH_B16] || $isunknown(SB_T0_SOUTH_SB_OUT_B16)) begin
+            $display("SB_T0_SOUTH_SB_OUT_B16: got %x, expected %x", SB_T0_SOUTH_SB_OUT_B16, test_outputs[test_vec_addr][`T0_SOUTH_B16]);
+        end
+        if (SB_T0_SOUTH_SB_OUT_B1 != test_outputs[test_vec_addr][`T0_SOUTH_B1] || $isunknown(SB_T0_SOUTH_SB_OUT_B1)) begin
+            $display("SB_T0_SOUTH_SB_OUT_B1: got %x, expected %x", SB_T0_SOUTH_SB_OUT_B1, test_outputs[test_vec_addr][`T0_SOUTH_B1]);
+        end
+        if (SB_T0_WEST_SB_OUT_B16 != test_outputs[test_vec_addr][`T0_WEST_B16] || $isunknown(SB_T0_WEST_SB_OUT_B16)) begin
+            $display("SB_T0_WEST_SB_OUT_B16: got %x, expected %x", SB_T0_WEST_SB_OUT_B16, test_outputs[test_vec_addr][`T0_WEST_B16]);
+        end
+        if (SB_T0_WEST_SB_OUT_B1 != test_outputs[test_vec_addr][`T0_WEST_B1] || $isunknown(SB_T0_WEST_SB_OUT_B1)) begin
+            $display("SB_T0_WEST_SB_OUT_B1: got %x, expected %x", SB_T0_WEST_SB_OUT_B1, test_outputs[test_vec_addr][`T0_WEST_B1]);
+        end
+        if (SB_T1_EAST_SB_OUT_B16 != test_outputs[test_vec_addr][`T1_EAST_B16] || $isunknown(SB_T1_EAST_SB_OUT_B16)) begin
+            $display("SB_T1_EAST_SB_OUT_B16: got %x, expected %x", SB_T1_EAST_SB_OUT_B16, test_outputs[test_vec_addr][`T1_EAST_B16]);
+        end
+        if (SB_T1_EAST_SB_OUT_B1 != test_outputs[test_vec_addr][`T1_EAST_B1] || $isunknown(SB_T1_EAST_SB_OUT_B1)) begin
+            $display("SB_T1_EAST_SB_OUT_B1: got %x, expected %x", SB_T1_EAST_SB_OUT_B1, test_outputs[test_vec_addr][`T1_EAST_B1]);
+        end
+        if (SB_T1_NORTH_SB_OUT_B16 != test_outputs[test_vec_addr][`T1_NORTH_B16] || $isunknown(SB_T1_NORTH_SB_OUT_B16)) begin
+            $display("SB_T1_NORTH_SB_OUT_B16: got %x, expected %x", SB_T1_NORTH_SB_OUT_B16, test_outputs[test_vec_addr][`T1_NORTH_B16]);
+        end
+        if (SB_T1_NORTH_SB_OUT_B1 != test_outputs[test_vec_addr][`T1_NORTH_B1] || $isunknown(SB_T1_NORTH_SB_OUT_B1)) begin
+            $display("SB_T1_NORTH_SB_OUT_B1: got %x, expected %x", SB_T1_NORTH_SB_OUT_B1, test_outputs[test_vec_addr][`T1_NORTH_B1]);
+        end
+        if (SB_T1_SOUTH_SB_OUT_B16 != test_outputs[test_vec_addr][`T1_SOUTH_B16] || $isunknown(SB_T1_SOUTH_SB_OUT_B16)) begin
+            $display("SB_T1_SOUTH_SB_OUT_B16: got %x, expected %x", SB_T1_SOUTH_SB_OUT_B16, test_outputs[test_vec_addr][`T1_SOUTH_B16]);
+        end
+        if (SB_T1_SOUTH_SB_OUT_B1 != test_outputs[test_vec_addr][`T1_SOUTH_B1] || $isunknown(SB_T1_SOUTH_SB_OUT_B1)) begin
+            $display("SB_T1_SOUTH_SB_OUT_B1: got %x, expected %x", SB_T1_SOUTH_SB_OUT_B1, test_outputs[test_vec_addr][`T1_SOUTH_B1]);
+        end
+        if (SB_T1_WEST_SB_OUT_B16 != test_outputs[test_vec_addr][`T1_WEST_B16] || $isunknown(SB_T1_WEST_SB_OUT_B16)) begin
+            $display("SB_T1_WEST_SB_OUT_B16: got %x, expected %x", SB_T1_WEST_SB_OUT_B16, test_outputs[test_vec_addr][`T1_WEST_B16]);
+        end
+        if (SB_T1_WEST_SB_OUT_B1 != test_outputs[test_vec_addr][`T1_WEST_B1] || $isunknown(SB_T1_WEST_SB_OUT_B1)) begin
+            $display("SB_T1_WEST_SB_OUT_B1: got %x, expected %x", SB_T1_WEST_SB_OUT_B1, test_outputs[test_vec_addr][`T1_WEST_B1]);
+        end
+        if (SB_T2_EAST_SB_OUT_B16 != test_outputs[test_vec_addr][`T2_EAST_B16] || $isunknown(SB_T2_EAST_SB_OUT_B16)) begin
+            $display("SB_T2_EAST_SB_OUT_B16: got %x, expected %x", SB_T2_EAST_SB_OUT_B16, test_outputs[test_vec_addr][`T2_EAST_B16]);
+        end
+        if (SB_T2_EAST_SB_OUT_B1 != test_outputs[test_vec_addr][`T2_EAST_B1] || $isunknown(SB_T2_EAST_SB_OUT_B1)) begin
+            $display("SB_T2_EAST_SB_OUT_B1: got %x, expected %x", SB_T2_EAST_SB_OUT_B1, test_outputs[test_vec_addr][`T2_EAST_B1]);
+        end
+        if (SB_T2_NORTH_SB_OUT_B16 != test_outputs[test_vec_addr][`T2_NORTH_B16] || $isunknown(SB_T2_NORTH_SB_OUT_B16)) begin
+            $display("SB_T2_NORTH_SB_OUT_B16: got %x, expected %x", SB_T2_NORTH_SB_OUT_B16, test_outputs[test_vec_addr][`T2_NORTH_B16]);
+        end
+        if (SB_T2_NORTH_SB_OUT_B1 != test_outputs[test_vec_addr][`T2_NORTH_B1] || $isunknown(SB_T2_NORTH_SB_OUT_B1)) begin
+            $display("SB_T2_NORTH_SB_OUT_B1: got %x, expected %x", SB_T2_NORTH_SB_OUT_B1, test_outputs[test_vec_addr][`T2_NORTH_B1]);
+        end
+        if (SB_T2_SOUTH_SB_OUT_B16 != test_outputs[test_vec_addr][`T2_SOUTH_B16] || $isunknown(SB_T2_SOUTH_SB_OUT_B16)) begin
+            $display("SB_T2_SOUTH_SB_OUT_B16: got %x, expected %x", SB_T2_SOUTH_SB_OUT_B16, test_outputs[test_vec_addr][`T2_SOUTH_B16]);
+        end
+        if (SB_T2_SOUTH_SB_OUT_B1 != test_outputs[test_vec_addr][`T2_SOUTH_B1] || $isunknown(SB_T2_SOUTH_SB_OUT_B1)) begin
+            $display("SB_T2_SOUTH_SB_OUT_B1: got %x, expected %x", SB_T2_SOUTH_SB_OUT_B1, test_outputs[test_vec_addr][`T2_SOUTH_B1]);
+        end
+        if (SB_T2_WEST_SB_OUT_B16 != test_outputs[test_vec_addr][`T2_WEST_B16] || $isunknown(SB_T2_WEST_SB_OUT_B16)) begin
+            $display("SB_T2_WEST_SB_OUT_B16: got %x, expected %x", SB_T2_WEST_SB_OUT_B16, test_outputs[test_vec_addr][`T2_WEST_B16]);
+        end
+        if (SB_T2_WEST_SB_OUT_B1 != test_outputs[test_vec_addr][`T2_WEST_B1] || $isunknown(SB_T2_WEST_SB_OUT_B1)) begin
+            $display("SB_T2_WEST_SB_OUT_B1: got %x, expected %x", SB_T2_WEST_SB_OUT_B1, test_outputs[test_vec_addr][`T2_WEST_B1]);
+        end
+        if (SB_T3_EAST_SB_OUT_B16 != test_outputs[test_vec_addr][`T3_EAST_B16] || $isunknown(SB_T3_EAST_SB_OUT_B16)) begin
+            $display("SB_T3_EAST_SB_OUT_B16: got %x, expected %x", SB_T3_EAST_SB_OUT_B16, test_outputs[test_vec_addr][`T3_EAST_B16]);
+        end
+        if (SB_T3_EAST_SB_OUT_B1 != test_outputs[test_vec_addr][`T3_EAST_B1] || $isunknown(SB_T3_EAST_SB_OUT_B1)) begin
+            $display("SB_T3_EAST_SB_OUT_B1: got %x, expected %x", SB_T3_EAST_SB_OUT_B1, test_outputs[test_vec_addr][`T3_EAST_B1]);
+        end
+        if (SB_T3_NORTH_SB_OUT_B16 != test_outputs[test_vec_addr][`T3_NORTH_B16] || $isunknown(SB_T3_NORTH_SB_OUT_B16)) begin
+            $display("SB_T3_NORTH_SB_OUT_B16: got %x, expected %x", SB_T3_NORTH_SB_OUT_B16, test_outputs[test_vec_addr][`T3_NORTH_B16]);
+        end
+        if (SB_T3_NORTH_SB_OUT_B1 != test_outputs[test_vec_addr][`T3_NORTH_B1] || $isunknown(SB_T3_NORTH_SB_OUT_B1)) begin
+            $display("SB_T3_NORTH_SB_OUT_B1: got %x, expected %x", SB_T3_NORTH_SB_OUT_B1, test_outputs[test_vec_addr][`T3_NORTH_B1]);
+        end
+        if (SB_T3_SOUTH_SB_OUT_B16 != test_outputs[test_vec_addr][`T3_SOUTH_B16] || $isunknown(SB_T3_SOUTH_SB_OUT_B16)) begin
+            $display("SB_T3_SOUTH_SB_OUT_B16: got %x, expected %x", SB_T3_SOUTH_SB_OUT_B16, test_outputs[test_vec_addr][`T3_SOUTH_B16]);
+        end
+        if (SB_T3_SOUTH_SB_OUT_B1 != test_outputs[test_vec_addr][`T3_SOUTH_B1] || $isunknown(SB_T3_SOUTH_SB_OUT_B1)) begin
+            $display("SB_T3_SOUTH_SB_OUT_B1: got %x, expected %x", SB_T3_SOUTH_SB_OUT_B1, test_outputs[test_vec_addr][`T3_SOUTH_B1]);
+        end
+        if (SB_T3_WEST_SB_OUT_B16 != test_outputs[test_vec_addr][`T3_WEST_B16] || $isunknown(SB_T3_WEST_SB_OUT_B16)) begin
+            $display("SB_T3_WEST_SB_OUT_B16: got %x, expected %x", SB_T3_WEST_SB_OUT_B16, test_outputs[test_vec_addr][`T3_WEST_B16]);
+        end
+        if (SB_T3_WEST_SB_OUT_B1 != test_outputs[test_vec_addr][`T3_WEST_B1] || $isunknown(SB_T3_WEST_SB_OUT_B1)) begin
+            $display("SB_T3_WEST_SB_OUT_B1: got %x, expected %x", SB_T3_WEST_SB_OUT_B1, test_outputs[test_vec_addr][`T3_WEST_B1]);
+        end
+        if (SB_T4_EAST_SB_OUT_B16 != test_outputs[test_vec_addr][`T4_EAST_B16] || $isunknown(SB_T4_EAST_SB_OUT_B16)) begin
+            $display("SB_T4_EAST_SB_OUT_B16: got %x, expected %x", SB_T4_EAST_SB_OUT_B16, test_outputs[test_vec_addr][`T4_EAST_B16]);
+        end
+        if (SB_T4_EAST_SB_OUT_B1 != test_outputs[test_vec_addr][`T4_EAST_B1] || $isunknown(SB_T4_EAST_SB_OUT_B1)) begin
+            $display("SB_T4_EAST_SB_OUT_B1: got %x, expected %x", SB_T4_EAST_SB_OUT_B1, test_outputs[test_vec_addr][`T4_EAST_B1]);
+        end
+        if (SB_T4_NORTH_SB_OUT_B16 != test_outputs[test_vec_addr][`T4_NORTH_B16] || $isunknown(SB_T4_NORTH_SB_OUT_B16)) begin
+            $display("SB_T4_NORTH_SB_OUT_B16: got %x, expected %x", SB_T4_NORTH_SB_OUT_B16, test_outputs[test_vec_addr][`T4_NORTH_B16]);
+        end
+        if (SB_T4_NORTH_SB_OUT_B1 != test_outputs[test_vec_addr][`T4_NORTH_B1] || $isunknown(SB_T4_NORTH_SB_OUT_B1)) begin
+            $display("SB_T4_NORTH_SB_OUT_B1: got %x, expected %x", SB_T4_NORTH_SB_OUT_B1, test_outputs[test_vec_addr][`T4_NORTH_B1]);
+        end
+        if (SB_T4_SOUTH_SB_OUT_B16 != test_outputs[test_vec_addr][`T4_SOUTH_B16] || $isunknown(SB_T4_SOUTH_SB_OUT_B16)) begin
+            $display("SB_T4_SOUTH_SB_OUT_B16: got %x, expected %x", SB_T4_SOUTH_SB_OUT_B16, test_outputs[test_vec_addr][`T4_SOUTH_B16]);
+        end
+        if (SB_T4_SOUTH_SB_OUT_B1 != test_outputs[test_vec_addr][`T4_SOUTH_B1] || $isunknown(SB_T4_SOUTH_SB_OUT_B1)) begin
+            $display("SB_T4_SOUTH_SB_OUT_B1: got %x, expected %x", SB_T4_SOUTH_SB_OUT_B1, test_outputs[test_vec_addr][`T4_SOUTH_B1]);
+        end
+        if (SB_T4_WEST_SB_OUT_B16 != test_outputs[test_vec_addr][`T4_WEST_B16] || $isunknown(SB_T4_WEST_SB_OUT_B16)) begin
+            $display("SB_T4_WEST_SB_OUT_B16: got %x, expected %x", SB_T4_WEST_SB_OUT_B16, test_outputs[test_vec_addr][`T4_WEST_B16]);
+        end
+        if (SB_T4_WEST_SB_OUT_B1 != test_outputs[test_vec_addr][`T4_WEST_B1] || $isunknown(SB_T4_WEST_SB_OUT_B1)) begin
+            $display("SB_T4_WEST_SB_OUT_B1: got %x, expected %x", SB_T4_WEST_SB_OUT_B1, test_outputs[test_vec_addr][`T4_WEST_B1]);
+        end
+        if (config_out_config_addr != test_outputs[test_vec_addr][`CONFIG_CONFIG_ADDR] || $isunknown(config_out_config_addr)) begin
+            $display("config_out_config_addr: got %x, expected %x", config_out_config_addr, test_outputs[test_vec_addr][`CONFIG_CONFIG_ADDR]);
+        end
+        if (config_out_config_data != test_outputs[test_vec_addr][`CONFIG_CONFIG_DATA] || $isunknown(config_out_config_data)) begin
+            $display("config_out_config_data: got %x, expected %x", config_out_config_data, test_outputs[test_vec_addr][`CONFIG_CONFIG_DATA]);
+        end
+        if (config_out_read != test_outputs[test_vec_addr][`CONFIG_READ] || $isunknown(config_out_read)) begin
+            $display("config_out_read: got %x, expected %x", config_out_read, test_outputs[test_vec_addr][`CONFIG_READ]);
+        end
+        if (config_out_write != test_outputs[test_vec_addr][`CONFIG_WRITE] || $isunknown(config_out_write)) begin
+            $display("config_out_write: got %x, expected %x", config_out_write, test_outputs[test_vec_addr][`CONFIG_WRITE]);
+        end
+        if (read_config_data != test_outputs[test_vec_addr][`READ_CONFIG_DATA_IN] || $isunknown(read_config_data)) begin
+            $display("read_config_data: got %x, expected %x", read_config_data, test_outputs[test_vec_addr][`READ_CONFIG_DATA_IN]);
+        end
+        if (reset_out != test_outputs[test_vec_addr][`RESET] || $isunknown(reset_out)) begin
+            $display("reset_out: got %x, expected %x", reset_out, test_outputs[test_vec_addr][`RESET]);
+        end
+        if (stall_out != test_outputs[test_vec_addr][`STALL] || $isunknown(stall_out)) begin
+            $display("stall_out: got %x, expected %x", stall_out, test_outputs[test_vec_addr][`STALL]);
+        end
     end
   
     initial begin
@@ -284,11 +429,17 @@ module TileMemCoreTb;
       $vcdplusmemon();
       $vcdpluson(0, TileMemCoreTb);
       $set_toggle_region(TileMemCoreTb);
+      #(`CONFIG_TIME);
       $toggle_start();
-      #(`FINISH_TIME);
+      #(`RUN_TIME);
       $toggle_stop();
       $toggle_report("outputs/run.saif", 10e-9, TileMemCoreTb);
       $finish(2);
     end
-
+    initial begin
+      $readmemh("test_vectors.txt", test_vectors);
+      clk <= 0;
+      test_vec_addr <= 0;
+    end
+  
 endmodule 
