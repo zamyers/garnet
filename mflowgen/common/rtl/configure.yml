@@ -10,3 +10,5 @@ parameters:
   array_width: 4
   array_height: 2
   interconnect_only: false
+  PWR_AWARE: False 
+
