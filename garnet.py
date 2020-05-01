@@ -304,9 +304,24 @@ def main():
 
     if args.verilog:
         garnet_circ = garnet.circuit()
-        magma.compile("garnet", garnet_circ, output="coreir-verilog",
-                      coreir_libs={"float_DW"},
-                      passes = ["rungenerators", "inline_single_instances", "clock_gate"])
+        magma.compile(
+            "garnet",
+            garnet_circ,
+            output="coreir-verilog",
+            coreir_libs={"float_DW"},
+            passes = [
+                "rungenerators",
+                "inline_single_instances",
+                "clock_gate",
+                "inline_single_instances",
+                "removesinglemuxes",
+                "packbitconstants",
+                "fold-constants",
+                "deletedeadinstances",
+                "removeunconnected",
+            ],
+            inline=True
+        )
         garnet.create_stub()
     if len(args.app) > 0 and len(args.input) > 0 and len(args.gold) > 0 \
             and len(args.output) > 0:
