@@ -21,14 +21,14 @@ def construct():
 
   pwr_aware = True 
 
-  if os.environ.get('TECH_LIB') == '16':
-    adk_name = 'tsmc16'
-    adk_view = 'stdview'
-  else:
+  if os.environ.get('TECH_LIB') == '45':
     adk_name = 'freepdk-45nm'
     adk_view = 'view-standard'
+  else:
+    adk_name = 'tsmc16'
+    adk_view = 'stdview'
 
-  flatten = 0
+  flatten = 3
   os_flatten = os.environ.get('FLATTEN')
   if os_flatten:
       flatten = os_flatten

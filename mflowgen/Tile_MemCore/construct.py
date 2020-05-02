@@ -21,22 +21,22 @@ def construct():
 
   pwr_aware = True
 
-  if os.environ.get('TECH_LIB') == '16':
-    adk_name = 'tsmc16'
-    adk_view = 'stdview'
-  else:
+  if os.environ.get('TECH_LIB') == '45':
     adk_name = 'freepdk-45nm'
     adk_view = 'view-standard'
+  else:
+    adk_name = 'tsmc16'
+    adk_view = 'stdview'
 
-  flatten = 0
-  os_flatten = os.environ.get('FLATTEN');
+  flatten = 3
+  os_flatten = os.environ.get('FLATTEN')
   if os_flatten:
       flatten = os_flatten
 
   parameters = {
     'construct_path'    : __file__,
     'design_name'       : 'Tile_MemCore',
-    'clock_period'      : 20.0,
+    'clock_period'      : 5.0,
     'adk'               : adk_name,
     'adk_view'          : adk_view,
     # Synthesis
