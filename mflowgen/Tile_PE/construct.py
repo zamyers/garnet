@@ -19,11 +19,12 @@ def construct():
   # Parameters
   #-----------------------------------------------------------------------
 
-  pwr_aware = True 
+  pwr_aware = True
 
   if os.environ.get('TECH_LIB') == '45':
     adk_name = 'freepdk-45nm'
     adk_view = 'view-standard'
+    pwr_aware = False
   else:
     adk_name = 'tsmc16'
     adk_view = 'stdview'
@@ -41,7 +42,7 @@ def construct():
     'adk_view'          : adk_view,
     # Synthesis
     'flatten_effort'    : flatten,
-    'topographical'     : False,
+    'topographical'     : True,
     # RTL Generation
     'interconnect_only' : True,
     # Power Domains
@@ -51,7 +52,7 @@ def construct():
 
     'testbench_name'    : 'TilePETb',
     'strip_path'        : 'TilePETb/Tile_PE_inst'
-  }
+    }
 
   #-----------------------------------------------------------------------
   # Create nodes
@@ -135,6 +136,11 @@ def construct():
       postroute.extend_inputs(['conn-aon-cells-vdd.tcl'] )
       signoff.extend_inputs(['conn-aon-cells-vdd.tcl', 'pd-generate-lvs-netlist.tcl'] ) 
       #pwr_aware_gls.extend_inputs(['design.vcs.pg.v']) 
+
+      gl_sim.extend_inputs( ["design.vcs.pg.v"] )
+
+      pt_signoff = Step( this_dir + '/synopsys-pt-timing-signoff' )
+  
   #-----------------------------------------------------------------------
   # Graph -- Add nodes
   #-----------------------------------------------------------------------

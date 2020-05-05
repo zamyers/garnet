@@ -3,6 +3,10 @@
 # Add DW IP blocks as includes
 cp include inputs/include.v
 
+if [ "$PWR_AWARE" = "True" ]; then
+  rm inputs/design.vcs.v
+fi
+
 # Default arguments
 ARGS="-R -sverilog -timescale=1ns/1ps"
 ARGS="$ARGS -hsopt"
@@ -15,6 +19,9 @@ fi
 # ADK for GLS
 if [ -d "inputs/adk" ]; then
   ARGS="$ARGS inputs/adk/stdcells.v"
+  if [ $PWR_AWARE == "True" ]; then
+    ARGS="$ARGS inputs/adk/stdcells-pm-pwr.v inputs/adk/stdcells-pwr.v"
+  fi
 fi
 
 # Set-up testbench

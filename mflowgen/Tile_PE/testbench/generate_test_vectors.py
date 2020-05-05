@@ -115,7 +115,7 @@ def main():
     clk_period = float(os.getenv('clock_period'))
     assignment_delay = 0.5
     config_time = math.ceil(config_cycles*clk_period)
-    finish_time = math.ceil(cycles*clk_period+clk_period/2)
+    finish_time = math.floor(cycles*clk_period+clk_period/2)
     defines.write(f"`define CONFIG_TIME {config_time}\n")
     defines.write(f"`define CLK_PERIOD {clk_period}\n")
     defines.write(f"`define ASSIGNMENT_DELAY {assignment_delay}\n")

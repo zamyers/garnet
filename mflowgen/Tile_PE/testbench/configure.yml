@@ -7,10 +7,7 @@ outputs:
   - design.args
 
 commands:
-  - python3 generate_test_vectors.py
-  - cat defines.v TilePETb.sv > outputs/testbench.sv
-  - cp test_vectors.txt outputs/test_vectors.txt
-  - cp test_outputs.txt outputs/test_outputs.txt
+  - ./run.sh
 
 #-------------------------------------------------------------------------
 # Parameters
@@ -18,3 +15,4 @@ commands:
 
 parameters:
   clock_period: 1.0
+  PWR_AWARE: True

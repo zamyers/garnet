@@ -14,7 +14,7 @@ else
   if [ $PWR_AWARE == False ]; then
    cmd+=" --no-pd"
   fi
- 
+
   if [ $interconnect_only == True ]; then
    cmd+=" --interconnect-only"
   fi
