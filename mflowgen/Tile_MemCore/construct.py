@@ -125,7 +125,7 @@ def construct():
   # Power aware setup
   if pwr_aware:
       dc.extend_inputs(['upf_Tile_MemCore.tcl', 'mem-constraints.tcl', 'dc-dont-use-constraints.tcl'])
-      init.extend_inputs(['upf_Tile_MemCore.tcl', 'mem-load-upf.tcl', 'dont-touch-constraints.tcl', 'pd-mem-floorplan.tcl', 'mem-add-endcaps-welltaps-setup.tcl', 'pd-add-endcaps-welltaps.tcl', 'mem-power-switches-setup.tcl', 'add-power-switches.tcl'])
+      init.extend_inputs(['upf_Tile_MemCore.tcl', 'mem-load-upf.tcl', 'dont-touch-constraints.tcl', 'pd-mem-floorplan.tcl', 'add-endcaps-welltaps-setup.tcl', 'pd-add-endcaps-welltaps.tcl', 'mem-power-switches-setup.tcl', 'add-power-switches.tcl'])
       place.extend_inputs(['place-dont-use-constraints.tcl'])
       power.extend_inputs(['pd-globalnetconnect.tcl'] )
       cts.extend_inputs(['conn-aon-cells-vdd.tcl'])
@@ -307,7 +307,7 @@ def construct():
       read_idx = order.index( 'floorplan.tcl' ) # find floorplan.tcl  
       order.insert( read_idx + 1, 'mem-load-upf.tcl' ) # add here
       order.insert( read_idx + 2, 'pd-mem-floorplan.tcl' ) # add here
-      order.insert( read_idx + 3, 'mem-add-endcaps-welltaps-setup.tcl' ) # add here
+      order.insert( read_idx + 3, 'add-endcaps-welltaps-setup.tcl' ) # add here
       order.insert( read_idx + 4, 'pd-add-endcaps-welltaps.tcl' ) # add here
       order.insert( read_idx + 5, 'mem-power-switches-setup.tcl') # add here
       order.insert( read_idx + 6, 'add-power-switches.tcl' ) # add here

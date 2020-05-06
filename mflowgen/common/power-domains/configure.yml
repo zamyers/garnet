@@ -29,6 +29,6 @@ outputs:
   - dont-touch-constraints.tcl
   - upf_Tile_MemCore.tcl
   - upf_Tile_PE.tcl
-
+  - add-endcaps-welltaps-setup.tcl
 
  

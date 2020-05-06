@@ -16,7 +16,7 @@
 # Generate horizontal stdcell preroutes
 
 if $::env(PWR_AWARE) {
- set power_nets {VDD_SW VSS VDD}
+ set power_nets {VDD_SW VDD VSS}
  sroute -nets $power_nets
 } else {
  set power_nets {VDD VSS} 
