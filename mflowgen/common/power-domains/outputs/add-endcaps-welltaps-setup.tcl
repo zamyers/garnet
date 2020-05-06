@@ -35,7 +35,7 @@ if {[expr {$ADK_END_CAP_CELL == ""} && {$ADK_WELL_TAP_CELL == ""}]} {
     
     # Right edge offset to cell is not placed
     # too close to the right edge of the tile
-    set right_edge_offset 10
+    set right_edge_offset [expr $pitch_offset + 5] 
  
     set tap_cell_cnt [expr floor(([dbGet top.fPlan.coreBox_urx] - $right_edge_offset) / $pitch_offset)]  
     
