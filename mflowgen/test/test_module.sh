@@ -272,6 +272,15 @@ if [ "$module" == "pad_frame" ] ; then
   # exit
 fi
 
+if [ "$module" == "Tile_PE" ] ; then
+    echo "--- MAKE LVS"
+    make mentor-calibre-lvs
+
+    echo "--- MAKE GLS"
+    make pwr-aware-gls
+fi
+
+
 echo "--- MAKE DRC"
 make_flags=''
 [ "$VERBOSE" == "true" ] && make_flags="--ignore-errors"
@@ -394,10 +403,3 @@ else
     echo FAIL; $exit_unless_verbose
 fi
 
-if [ "$module" == "Tile_PE" ] ; then
-    echo "--- MAKE LVS"
-    make mentor-calibre-lvs
-
-    echo "--- MAKE GLS"
-    make pwr-aware-gls
-fi
