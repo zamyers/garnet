@@ -272,6 +272,8 @@ if [ "$module" == "pad_frame" ] ; then
   # exit
 fi
 
+########################################################################
+# New tests, for now trying on Tile_PE only
 if [ "$module" == "Tile_PE" ] ; then
     echo "--- MAKE LVS"
     make mentor-calibre-lvs
@@ -279,7 +281,7 @@ if [ "$module" == "Tile_PE" ] ; then
     echo "--- MAKE GLS"
     make pwr-aware-gls
 fi
-
+########################################################################
 
 echo "--- MAKE DRC"
 make_flags=''
@@ -394,7 +396,7 @@ echo "+++ Expected $n_errors_expected errors, got $n_errors_got errors"
 if [ $n_errors_got -le $n_errors_expected ]; then
     rm $res1 $res2
     echo "GOOD ENOUGH"
-    echo PASS
+    echo PASS; exit 0
 else
     diff $res1 $res2 | head -40
     rm $res1 $res2
@@ -402,4 +404,3 @@ else
     echo "TOO MANY ERRORS"
     echo FAIL; $exit_unless_verbose
 fi
-
