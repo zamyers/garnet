@@ -385,11 +385,19 @@ echo "+++ Expected $n_errors_expected errors, got $n_errors_got errors"
 if [ $n_errors_got -le $n_errors_expected ]; then
     rm $res1 $res2
     echo "GOOD ENOUGH"
-    echo PASS; exit 0
+    echo PASS
 else
     diff $res1 $res2 | head -40
     rm $res1 $res2
     echo "-----"
     echo "TOO MANY ERRORS"
     echo FAIL; $exit_unless_verbose
+fi
+
+if [ "$module" == "Tile_PE" ] ; then
+    echo "--- MAKE LVS"
+    make mentor-calibre-lvs
+
+    echo "--- MAKE GLS"
+    make pwr-aware-gls
 fi
