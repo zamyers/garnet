@@ -41,12 +41,6 @@ set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.2] [all_inputs]
 # default output delay is 0.2
 set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.2] [all_outputs]
 
-# TODO: remove
-set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports *_esti*]
-set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports *_wsti*]
-set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports *_esto* -filter "direction==out"]
-set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports *_wsto* -filter "direction==out"]
-
 ##########################
 # proc packet
 ##########################
@@ -108,6 +102,11 @@ set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.1] [get_por
 set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.33] [get_ports if_cfg_est_m_rd_data]
 set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.3] [get_ports if_cfg_est_m_rd_data_valid]
 set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.33] [get_ports if_cfg_est_m_rd_data_valid]
+
+##########################
+# strm interface
+##########################
+
 
 ##########################
 # sram configuration interface
@@ -180,10 +179,9 @@ set_false_path -from cgra_cfg_jtag_wsti_wr_en -to cgra_cfg_jtag_esto_wr_en
 
 # Make all signals limit their fanout
 # loose fanout number to reduce the number of buffer and meet timing
-set_max_fanout 20 $dc_design_name
+set_max_fanout 25 $dc_design_name
 
 # Make all signals meet good slew
-# loose max_transition to reduce the number of buffer and meet timing
 set_max_transition [expr 0.25*${dc_clock_period}] $dc_design_name
 
 #set_input_transition 1 [all_inputs]
