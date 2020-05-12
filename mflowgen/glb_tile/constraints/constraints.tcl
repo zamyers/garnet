@@ -35,7 +35,7 @@ set_driving_cell -no_design_rule \
 # set_input_delay constraints for input ports
 #
 # default input delay is 0.2.
-
+set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.2] [all_inputs]
 
 # all est<->wst connections
 set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports *_esti*]
