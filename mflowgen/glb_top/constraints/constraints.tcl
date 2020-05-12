@@ -48,7 +48,7 @@ set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.3] [get_ports cg
 set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.4] [get_ports cgra_cfg_jtag*]
 
 # all input ports connected to cgra has high input delay
-set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.8] [get_ports stream_* -filter "direction==in"] -add_delay
+set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.7] [get_ports stream_* -filter "direction==in"] -add_delay
 
 ###############################
 # set_output_delay constraints for output ports
@@ -57,8 +57,8 @@ set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.8] [get_ports st
 set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.2] [all_outputs]
 
 # all output ports connected to cgra has high output delay
-set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.8] [get_ports cgra_* -filter "direction==out"] -add_delay
-set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.8] [get_ports stream_* -filter "direction==out"] -add_delay
+set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.3] [get_ports cgra_* -filter "direction==out"] -add_delay
+set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.3] [get_ports stream_* -filter "direction==out"] -add_delay
 
 ###############################
 # set_false path and multicycle path
@@ -94,11 +94,11 @@ set_multicycle_path -hold 3 -to [get_ports *interrupt_pulse -filter "direction==
 
 # Make all signals limit their fanout
 
-set_max_fanout 20 $dc_design_name
-
+set_max_fanout 30 $dc_design_name
+# Loosen max fanout
 # Make all signals meet good slew
-
-set_max_transition [expr 0.25*${dc_clock_period}] $dc_design_name
+# Loosen max transition
+set_max_transition [expr 0.30*${dc_clock_period}] $dc_design_name
 
 #set_input_transition 1 [all_inputs]
 #set_max_transition 10 [all_outputs]
