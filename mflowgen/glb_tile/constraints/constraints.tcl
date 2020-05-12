@@ -32,38 +32,99 @@ set_load -pin_load $ADK_TYPICAL_ON_CHIP_LOAD [all_outputs]
 set_driving_cell -no_design_rule \
   -lib_cell $ADK_DRIVING_CELL [all_inputs]
 
-# set_input_delay constraints for input ports
-#
+# set_input_delay and output_delay
+##########################
+# default
+##########################
 # default input delay is 0.2.
 set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.2] [all_inputs]
+# default output delay is 0.2
+set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.2] [all_outputs]
 
-# all est<->wst connections
+# TODO: remove
 set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports *_esti*]
 set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports *_wsti*]
-set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports if_cfg_est* -filter "direction==in"]
-set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports if_cfg_wst* -filter "direction==in"]
+set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports *_esto* -filter "direction==out"]
+set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports *_wsto* -filter "direction==out"]
+
+##########################
+# proc packet
+##########################
+# actual value from report_timing
+# input
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.2] [get_ports proc_*i]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.3] [get_ports proc_*i]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.2] [get_ports proc_rd_addr*i]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.35] [get_ports proc_rd_addr*i]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.2] [get_ports proc_rd_data_valid*i]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.35] [get_ports proc_rd_data_valid*i]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.4] [get_ports proc_rd_data_w2e_*i]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports proc_rd_data_w2e_*i]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.4] [get_ports proc_rd_data_e2w_*i]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports proc_rd_data_e2w_*i]
+# output
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0] [get_ports proc_*o]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.1] [get_ports proc_*o]
+
+
+##########################
+# configuration interface
+##########################
+# master
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.23] [get_ports if_cfg_wst_s_wr_en]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.3] [get_ports if_cfg_wst_s_wr_en]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.12] -clock_fall [get_ports if_cfg_wst_s_wr_clk_en]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.19] -clock_fall [get_ports if_cfg_wst_s_wr_clk_en]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.22] [get_ports if_cfg_wst_s_wr_addr]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.35] [get_ports if_cfg_wst_s_wr_addr]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.2] [get_ports if_cfg_wst_s_wr_data]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.4] [get_ports if_cfg_wst_s_wr_data]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.33] [get_ports if_cfg_wst_s_rd_en]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.39] [get_ports if_cfg_wst_s_rd_en]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.09] -clock_fall [get_ports if_cfg_wst_s_rd_clk_en]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.16] -clock_fall [get_ports if_cfg_wst_s_rd_clk_en]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.18] [get_ports if_cfg_wst_s_rd_addr]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.3] [get_ports if_cfg_wst_s_rd_addr]
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.0] [get_ports if_cfg_wst_s_rd_data]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.19] [get_ports if_cfg_wst_s_rd_data]
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.06] [get_ports if_cfg_wst_s_rd_data_valid]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.2] [get_ports if_cfg_wst_s_rd_data_valid]
+# slave
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.23] [get_ports if_cfg_est_m_wr_en]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.3] [get_ports if_cfg_est_m_wr_en]
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.12] -clock_fall [get_ports if_cfg_est_m_wr_clk_en]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.19] -clock_fall [get_ports if_cfg_est_m_wr_clk_en]
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.22] [get_ports if_cfg_est_m_wr_addr]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.35] [get_ports if_cfg_est_m_wr_addr]
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.2] [get_ports if_cfg_est_m_wr_data]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.4] [get_ports if_cfg_est_m_wr_data]
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.33] [get_ports if_cfg_est_m_rd_en]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.39] [get_ports if_cfg_est_m_rd_en]
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.09] -clock_fall [get_ports if_cfg_est_m_rd_clk_en]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.16] -clock_fall [get_ports if_cfg_est_m_rd_clk_en]
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.18] [get_ports if_cfg_est_m_rd_addr]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.3] [get_ports if_cfg_est_m_rd_addr]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.0] [get_ports if_cfg_est_m_rd_data]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.19] [get_ports if_cfg_est_m_rd_data]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.06] [get_ports if_cfg_est_m_rd_data_valid]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.2] [get_ports if_cfg_est_m_rd_data_valid]
+
+
+##########################
+# sram configuration interface
+##########################
 set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports if_sram_cfg_est* -filter "direction==in"]
 set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports if_sram_cfg_wst* -filter "direction==in"]
-# cfg_clk_en is negative edge triggered
-set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] -clock_fall [get_ports *_clk_en -filter "direction==in"]
 
 # tile id is constant
 set_input_delay -clock ${clock_name} 0 glb_tile_id
 set_case_analysis 0 glb_tile_id
 
 # set_output_delay constraints for output ports
-# default output delay is 0.2
-set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.2] [all_outputs]
 
 # all est<->wst connections
-set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports *_esto* -filter "direction==out"]
-set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports *_wsto* -filter "direction==out"]
-set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports if_cfg_est* -filter "direction==out"]
-set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports if_cfg_wst* -filter "direction==out"]
 set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports if_sram_cfg_est* -filter "direction==out"]
 set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports if_sram_cfg_wst* -filter "direction==out"]
-# cfg_clk_en is negative edge triggered
-set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] -clock_fall [get_ports *_clk_en -filter "direction==out"]
 
 
 # set false path
@@ -85,6 +146,11 @@ set_false_path -from [get_cells glb_tile_int/glb_tile_cfg/glb_pio/pio_logic/*] -
 set_case_analysis 0 cgra_cfg_jtag_wsti_rd_en
 set_multicycle_path -setup 10 -from cgra_cfg_jtag_wsti_rd_en
 set_multicycle_path -hold 9 -from cgra_cfg_jtag_wsti_rd_en
+set_multicycle_path -setup 10 -from cgra_cfg_jtag_wsti_addr -to cgra_cfg_jtag_esto_addr
+set_multicycle_path -hold 9 -from cgra_cfg_jtag_wsti_addr -to cgra_cfg_jtag_esto_addr
+set_multicycle_path -setup 10 -from cgra_cfg_jtag_wsti_data -to cgra_cfg_jtag_esto_data
+set_multicycle_path -hold 9 -from cgra_cfg_jtag_wsti_data -to cgra_cfg_jtag_esto_data
+set_false_path -from cgra_cfg_jtag_wsti_wr_en -to cgra_cfg_jtag_esto_wr_en
 
 # jtag sram read
 # jtag sram read is multicycle path because you assert rd_en for long cycles
