@@ -106,17 +106,23 @@ set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.33] [get_po
 ##########################
 # strm interface
 ##########################
+set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports strm_*esti -filter "direction==in"]
+set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports strm_*wsti -filter "direction==in"]
+set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports strm_*esto -filter "direction==out"]
+set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports strm_*wsto -filter "direction==out"]
 
+##########################
+# pcfg interface
+##########################
+set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports pc_rd* -filter "direction==in"]
+set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports pc_rd* -filter "direction==out"]
 
 ##########################
 # sram configuration interface
 ##########################
-set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports if_sram_cfg_est* -filter "direction==in"]
-set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports if_sram_cfg_wst* -filter "direction==in"]
-set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports if_sram_cfg_est* -filter "direction==out"]
-set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports if_sram_cfg_wst* -filter "direction==out"]
+set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports if_sram_cfg* -filter "direction==in"]
+set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports if_sram_cfg* -filter "direction==out"]
 
-# jtag sram read
 # jtag sram read is multicycle path because you assert rd_en for long cycles
 set_multicycle_path -setup 10 -from [get_ports if_sram_cfg*rd* -filter "direction==in"]
 set_multicycle_path -setup 10 -to [get_ports if_sram_cfg*rd* -filter "direction==out"]
@@ -135,7 +141,6 @@ set_multicycle_path -hold 9 -to [get_cells -hier cfg_sram_rd*]
 set_multicycle_path -hold 9 -from [get_cells -hier if_sram_cfg*rd*]
 set_multicycle_path -hold 9 -from [get_cells -hier cfg_sram_rd*]
 
-# jtag write
 # jtag sram write is asserted for 4 cycles from glc
 set_multicycle_path -setup 4 -from [get_ports if_sram_cfg*wr* -filter "direction==in"]
 set_multicycle_path -setup 4 -to [get_ports if_sram_cfg*wr* -filter "direction==out"]
@@ -150,9 +155,6 @@ set_multicycle_path -hold 3 -from [get_cells -hier if_sram_cfg*wr*]
 
 # tile id is constant
 set_input_delay -clock ${clock_name} 0 glb_tile_id
-set_case_analysis 0 glb_tile_id
-
-# set false path
 # glb_tile_id is constant
 set_false_path -from {glb_tile_id*}
 
