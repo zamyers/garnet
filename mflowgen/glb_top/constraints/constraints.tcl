@@ -35,11 +35,11 @@ set_driving_cell -no_design_rule \
 ###############################
 # set_input_delay constraints for input ports
 ###############################
-# default input delay is 0.2 bc all output ports delay in glc is about 0.2
-set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.2] [all_inputs]
+# default input delay is 0.3
+set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.3] [all_inputs]
 
 # all cfg_clk_en inputs are negative edge triggered
-set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.2] -clock_fall [get_ports *_clk_en]
+set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.3] -clock_fall [get_ports *_clk_en]
 
 # soft_reset delay is 0.3 (from glc)
 set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.3] [get_ports cgra_soft_reset]
@@ -53,8 +53,8 @@ set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.7] [get_ports st
 ###############################
 # set_output_delay constraints for output ports
 ###############################
-# default is 0.2 delay bc input ports in glc input delay is about 0.2 
-set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.2] [all_outputs]
+# default output delay is 0.3
+set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.3] [all_outputs]
 
 # all output ports connected to cgra has high output delay
 set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.3] [get_ports cgra_* -filter "direction==out"] -add_delay
@@ -65,7 +65,7 @@ set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.3] [get_ports s
 ###############################
 # reset is multicycle path for reset
 set_multicycle_path -setup 10 -from [get_ports reset]
-set_multicycle_path -hold 9 -from [get_ports reset]
+set_multicycle_path -hold 10 -from [get_ports reset]
 
 # glc reading configuration registers is false path
 set_false_path -from [get_ports cgra_cfg_jtag_gc2glb_rd_en]
@@ -76,29 +76,29 @@ set_false_path -through [get_pins glb_tile_gen[*].glb_tile/*jtag*]
 
 # jtag sram read
 set_multicycle_path -setup 10 -from [get_ports if_sram_cfg*rd* -filter "direction==in"]
-set_multicycle_path -hold 9 -from [get_ports if_sram_cfg*rd* -filter "direction==in"]
+set_multicycle_path -hold 10 -from [get_ports if_sram_cfg*rd* -filter "direction==in"]
 set_multicycle_path -setup 10 -to [get_ports if_sram_cfg*rd* -filter "direction==out"]
-set_multicycle_path -hold 9 -to [get_ports if_sram_cfg*rd* -filter "direction==out"]
+set_multicycle_path -hold 10 -to [get_ports if_sram_cfg*rd* -filter "direction==out"]
 set_multicycle_path -setup 10 -through [get_pins glb_tile_gen[*].glb_tile/if_sram*rd*]
-set_multicycle_path -hold 9 -through [get_pins glb_tile_gen[*].glb_tile/if_sram*rd*]
+set_multicycle_path -hold 10 -through [get_pins glb_tile_gen[*].glb_tile/if_sram*rd*]
 
 # jtag write
 set_multicycle_path -setup 4 -from [get_ports if_sram_cfg*wr* -filter "direction==in"]
-set_multicycle_path -hold 3 -from [get_ports if_sram_cfg*wr* -filter "direction==in"]
+set_multicycle_path -hold 4 -from [get_ports if_sram_cfg*wr* -filter "direction==in"]
 set_multicycle_path -setup 4 -through [get_pins glb_tile_gen[*].glb_tile/if_sram*wr*]
-set_multicycle_path -hold 3 -through [get_pins glb_tile_gen[*].glb_tile/if_sram*wr*]
+set_multicycle_path -hold 4 -through [get_pins glb_tile_gen[*].glb_tile/if_sram*wr*]
 
 # interrupt is asserted for 4 cycles 
 set_multicycle_path -setup 4 -to [get_ports *interrupt_pulse -filter "direction==out"]
-set_multicycle_path -hold 3 -to [get_ports *interrupt_pulse -filter "direction==out"]
+set_multicycle_path -hold 4 -to [get_ports *interrupt_pulse -filter "direction==out"]
 
 # Make all signals limit their fanout
 
-set_max_fanout 30 $dc_design_name
+set_max_fanout 20 $dc_design_name
 # Loosen max fanout
 # Make all signals meet good slew
 # Loosen max transition
-set_max_transition [expr 0.30*${dc_clock_period}] $dc_design_name
+set_max_transition [expr 0.25*${dc_clock_period}] $dc_design_name
 
 #set_input_transition 1 [all_inputs]
 #set_max_transition 10 [all_outputs]

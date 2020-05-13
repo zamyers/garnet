@@ -106,16 +106,129 @@ set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.33] [get_po
 ##########################
 # strm interface
 ##########################
-set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports strm_*esti -filter "direction==in"]
-set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports strm_*wsti -filter "direction==in"]
-set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports strm_*esto -filter "direction==out"]
-set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports strm_*wsto -filter "direction==out"]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.20] [get_ports strm_wr_en_e2w_esti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.23] [get_ports strm_wr_en_e2w_esti]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.21] [get_ports strm_wr_en_w2e_wsti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.25] [get_ports strm_wr_en_w2e_wsti]
+
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.20] [get_ports strm_wr_strb_e2w_esti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.28] [get_ports strm_wr_strb_e2w_esti]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.20] [get_ports strm_wr_strb_w2e_wsti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.26] [get_ports strm_wr_strb_w2e_wsti]
+
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.19] [get_ports strm_wr_addr_e2w_esti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.45] [get_ports strm_wr_addr_e2w_esti]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.17] [get_ports strm_wr_addr_w2e_wsti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.27] [get_ports strm_wr_addr_w2e_wsti]
+
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.17] [get_ports strm_wr_data_e2w_esti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.46] [get_ports strm_wr_data_e2w_esti]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.16] [get_ports strm_wr_data_w2e_wsti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.30] [get_ports strm_wr_data_w2e_wsti]
+
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.24] [get_ports strm_rd_en_e2w_esti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.27] [get_ports strm_rd_en_e2w_esti]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.37] [get_ports strm_rd_en_w2e_wsti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.43] [get_ports strm_rd_en_w2e_wsti]
+
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.12] [get_ports strm_rd_addr_e2w_esti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.30] [get_ports strm_rd_addr_e2w_esti]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.15] [get_ports strm_rd_addr_w2e_wsti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.37] [get_ports strm_rd_addr_w2e_wsti]
+
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.20] [get_ports strm_rd_data_e2w_esti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.48] [get_ports strm_rd_data_e2w_esti]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.18] [get_ports strm_rd_data_w2e_wsti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.49] [get_ports strm_rd_data_w2e_wsti]
+
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.21] [get_ports strm_rd_data_valid_e2w_esti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.26] [get_ports strm_rd_data_valid_e2w_esti]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.40] [get_ports strm_rd_data_valid_w2e_wsti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.44] [get_ports strm_rd_data_valid_w2e_wsti]
+
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.14] [get_ports strm_wr_en_w2e_esto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.23] [get_ports strm_wr_en_w2e_esto]
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.02] [get_ports strm_wr_en_e2w_wsto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.10] [get_ports strm_wr_en_e2w_wsto]
+
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.10] [get_ports strm_wr_strb_w2e_esto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.38] [get_ports strm_wr_strb_w2e_esto]
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.03] [get_ports strm_wr_strb_e2w_wsto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.29] [get_ports strm_wr_strb_e2w_wsto]
+
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.10] [get_ports strm_wr_addr_w2e_esto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.42] [get_ports strm_wr_addr_w2e_esto]
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.02] [get_ports strm_wr_addr_e2w_wsto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.31] [get_ports strm_wr_addr_e2w_wsto]
+
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.08] [get_ports strm_wr_data_w2e_esto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.33] [get_ports strm_wr_data_w2e_esto]
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.06] [get_ports strm_wr_data_e2w_wsto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.24] [get_ports strm_wr_data_e2w_wsto]
+
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.15] [get_ports strm_rd_en_w2e_esto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.62] [get_ports strm_rd_en_w2e_esto]
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.16] [get_ports strm_rd_en_e2w_wsto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.54] [get_ports strm_rd_en_e2w_wsto]
+
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.02] [get_ports strm_rd_addr_w2e_esto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.44] [get_ports strm_rd_addr_w2e_esto]
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.05] [get_ports strm_rd_addr_e2w_wsto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.48] [get_ports strm_rd_addr_e2w_wsto]
+
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.05] [get_ports strm_rd_data_w2e_esto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.38] [get_ports strm_rd_data_w2e_esto]
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.08] [get_ports strm_rd_data_e2w_wsto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.35] [get_ports strm_rd_data_e2w_wsto]
+
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.03] [get_ports strm_rd_data_valid_w2e_esto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.14] [get_ports strm_rd_data_valid_w2e_esto]
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.11] [get_ports strm_rd_data_valid_e2w_wsto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.22] [get_ports strm_rd_data_valid_e2w_wsto]
+
 
 ##########################
 # pcfg interface
 ##########################
-set_input_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports pc_rd* -filter "direction==in"]
-set_output_delay -clock ${clock_name} [expr ${dc_clock_period}*0.5] [get_ports pc_rd* -filter "direction==out"]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.31] [get_ports pc_rd_en_e2w_esti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.42] [get_ports pc_rd_en_e2w_esti]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.36] [get_ports pc_rd_en_w2e_wsti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.51] [get_ports pc_rd_en_w2e_wsti]
+
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.39] [get_ports pc_rd_addr_e2w_esti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.54] [get_ports pc_rd_addr_e2w_esti]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.39] [get_ports pc_rd_addr_w2e_wsti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.53] [get_ports pc_rd_addr_w2e_wsti]
+
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.36] [get_ports pc_rd_data_e2w_esti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.58] [get_ports pc_rd_data_e2w_esti]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.38] [get_ports pc_rd_data_w2e_wsti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.63] [get_ports pc_rd_data_w2e_wsti]
+
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.51] [get_ports pc_rd_data_valid_e2w_esti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.55] [get_ports pc_rd_data_valid_e2w_esti]
+set_input_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.41] [get_ports pc_rd_data_valid_w2e_wsti]
+set_input_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.48] [get_ports pc_rd_data_valid_w2e_wsti]
+
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.32] [get_ports pc_rd_en_w2e_esto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.53] [get_ports pc_rd_en_w2e_esto]
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.30] [get_ports pc_rd_en_e2w_wsto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.48] [get_ports pc_rd_en_e2w_wsto]
+
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.33] [get_ports pc_rd_addr_w2e_esto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.50] [get_ports pc_rd_addr_w2e_esto]
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.29] [get_ports pc_rd_addr_e2w_wsto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.49] [get_ports pc_rd_addr_e2w_wsto]
+
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.27] [get_ports pc_rd_data_w2e_esto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.55] [get_ports pc_rd_data_w2e_esto]
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.24] [get_ports pc_rd_data_e2w_wsto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.50] [get_ports pc_rd_data_e2w_wsto]
+
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.34] [get_ports pc_rd_data_valid_w2e_esto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.49] [get_ports pc_rd_data_valid_w2e_esto]
+set_output_delay -min -clock ${clock_name} [expr ${dc_clock_period}*0.34] [get_ports pc_rd_data_valid_e2w_wsto]
+set_output_delay -max -clock ${clock_name} [expr ${dc_clock_period}*0.47] [get_ports pc_rd_data_valid_e2w_wsto]
 
 ##########################
 # sram configuration interface
